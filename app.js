@@ -26,11 +26,18 @@ const { attachSupabaseUser, injectChatbot } = require("./middleware");
 const app = express();
 
 // --- DB connection ---
-const dbUrl = process.env.ATLASDB_URL || process.env.MONGO_URL || "mongodb://127.0.0.1:27017/homyhive";
-mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(()=> console.log("Connected to MongoDB"))
-  .catch(err => {
-    console.error("MongoDB connection error:", err && err.message ? err.message : err);
+const dbUrl =
+  process.env.ATLASDB_URL ||
+  process.env.MONGO_URL ||
+  "mongodb://127.0.0.1:27017/homyhive";
+mongoose
+  .connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => {
+    console.error(
+      "MongoDB connection error:",
+      err && err.message ? err.message : err,
+    );
   });
 
 // --- View engine ---
@@ -47,18 +54,23 @@ app.use(express.static(path.join(__dirname, "public")));
 // session store
 const store = MongoStore.create({
   mongoUrl: dbUrl,
-  crypto: { secret: process.env.SECRET || process.env.SESSION_SECRET || "keyboardcat" },
-  touchAfter: 24 * 3600
+  crypto: {
+    secret: process.env.SECRET || process.env.SESSION_SECRET || "keyboardcat",
+  },
+  touchAfter: 24 * 3600,
 });
 store.on("error", (e) => console.error("Session store error", e));
 
-app.use(session({
-  store,
-  secret: process.env.SECRET || process.env.SESSION_SECRET || "supersecretkey",
-  resave: false,
-  saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 7 * 24 * 3600 * 1000 }
-}));
+app.use(
+  session({
+    store,
+    secret:
+      process.env.SECRET || process.env.SESSION_SECRET || "supersecretkey",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, maxAge: 7 * 24 * 3600 * 1000 },
+  }),
+);
 
 app.use(flash());
 
@@ -95,7 +107,9 @@ if (chatbotRouter) app.use("/", chatbotRouter);
 
 // a full-screen chat route (templates expect res.locals.chatbotConfig)
 app.get("/chat", (req, res) => {
-  res.render("chat/fullchat", { chatbotConfig: res.locals.chatbotConfig || { apiPath: "/api/chat" } });
+  res.render("chat/fullchat", {
+    chatbotConfig: res.locals.chatbotConfig || { apiPath: "/api/chat" },
+  });
 });
 
 // Home
@@ -116,4 +130,6 @@ app.use((err, req, res, next) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`HomyHive running on http://localhost:${port}`));
+app.listen(port, () =>
+  console.log(`HomyHive running on http://localhost:${port}`),
+);

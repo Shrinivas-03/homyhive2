@@ -17,7 +17,7 @@ const CHATBOT_EXCLUDE = [
   "/admin",
   "/admin/",
   "/static/",
-  "/api/"
+  "/api/",
 ];
 
 function normalizePath(p) {
@@ -93,7 +93,11 @@ const isOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
     const listing = await Listing.findById(id).exec();
-    if (!listing || !res.locals.currUser || !listing.owner.equals(res.locals.currUser._id)) {
+    if (
+      !listing ||
+      !res.locals.currUser ||
+      !listing.owner.equals(res.locals.currUser._id)
+    ) {
       req.flash("error", "Unauthorized");
       return res.redirect(`/listings/${id}`);
     }
@@ -106,7 +110,7 @@ const isOwner = async (req, res, next) => {
 const validateListing = (req, res, next) => {
   const { error } = listingSchema.validate(req.body);
   if (error) {
-    const msg = error.details.map(d => d.message).join(", ");
+    const msg = error.details.map((d) => d.message).join(", ");
     throw new ExpressError(400, msg);
   } else {
     next();
@@ -116,7 +120,7 @@ const validateListing = (req, res, next) => {
 const validateReview = (req, res, next) => {
   const { error } = reviewSchema.validate(req.body);
   if (error) {
-    const msg = error.details.map(d => d.message).join(", ");
+    const msg = error.details.map((d) => d.message).join(", ");
     throw new ExpressError(400, msg);
   } else {
     next();
@@ -127,7 +131,11 @@ const isReviewAuthor = async (req, res, next) => {
   try {
     const { reviewId, id } = req.params;
     const review = await Review.findById(reviewId).exec();
-    if (!review || !res.locals.currUser || !review.author.equals(res.locals.currUser._id)) {
+    if (
+      !review ||
+      !res.locals.currUser ||
+      !review.author.equals(res.locals.currUser._id)
+    ) {
       req.flash("error", "Unauthorized");
       return res.redirect(`/listings/${id}`);
     }
@@ -154,5 +162,5 @@ module.exports = {
   validateListing,
   validateReview,
   isReviewAuthor,
-  isAdmin
+  isAdmin,
 };

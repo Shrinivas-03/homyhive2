@@ -47,6 +47,9 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
 .card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .right-sm{font-size:13px;color:var(--muted)}
 .hidden{display:none}
+.amenity-tag{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;padding:6px 10px;border-radius:8px;font-size:14px;}
+.amenity-tag button{background:transparent;border:none;cursor:pointer;color:var(--muted);padding:0;font-size:16px;line-height:1;}
+.amenity-tag button:hover{color:#111;}
 @media(max-width:980px){ .columns{grid-template-columns:1fr} .preview-thumb{width:96px;height:72px} }
 </style>
 </head>
@@ -141,16 +144,13 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
           </div>
 
           <div style="margin-top:12px">
-            <div class="small">Amenities</div>
-            <div class="card" style="padding:12px;margin-top:8px">
-              <div style="display:flex;flex-wrap:wrap;gap:8px">
-                <div class="amenity" data-key="wifi">Wi-Fi</div>
-                <div class="amenity" data-key="ac">AC</div>
-                <div class="amenity" data-key="kitchen">Kitchen</div>
-                <div class="amenity" data-key="parking">Parking</div>
-                <div class="amenity" data-key="tv">TV</div>
-                <div class="amenity" data-key="washer">Washer</div>
-              </div>
+            <label class="small">Amenities</label>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <input id="amenityInput" class="input" placeholder="Type an amenity and press Enter" style="flex:1">
+              <button id="addAmenityBtn" class="btn ghost" type="button" style="padding:10px 14px">Add</button>
+            </div>
+            <div id="amenitiesContainer" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:12px;border-radius:10px;background:#fff;border:1px solid rgba(15,23,42,0.06);min-height:48px">
+              <!-- Amenity tags will appear here -->
             </div>
           </div>
 
@@ -368,11 +368,68 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
     const title = $('title'), pType = $('propertyType'), guests = $('guests'), price = $('price');
     function updateMeta(){ $('previewTitle').textContent = title.value.trim()||'Your listing title'; $('previewSub').textContent = (pType.value||'Property') + ' • ' + (guests.value||'—') + ' guests'; $('previewCounts').textContent = `${imgs.getFiles().length} photos • ${vid.getFile() ? 1 : 0} videos`; $('previewPrice').textContent = price.value ? ('Price: ₹'+price.value) : 'Price: —'; const mainBox=$('mainPreviewPhoto'); if (imgs.getFiles().length){ mainBox.innerHTML=''; const im=document.createElement('img'); im.src=URL.createObjectURL(imgs.getFiles()[0]); im.style.width='100%'; im.style.height='100%'; im.style.objectFit='cover'; mainBox.appendChild(im); } else mainBox.innerHTML='No photo'; }
     [title,pType,guests,price].forEach(el=> el && el.addEventListener('input', updateMeta));
-    document.querySelectorAll('.amenity').forEach(a=> a.addEventListener('click', ()=> a.classList.toggle('selected')));
-    $('savePropertyDraft').addEventListener('click', e=>{ e.preventDefault(); const meta={ title:title.value, propertyType:pType.value, guests:guests.value, price:price.value, amenities: Array.from(document.querySelectorAll('.amenity.selected')).map(x=>x.dataset.key) }; localStorage.setItem('propertyDraft', JSON.stringify(meta)); showToast('Property draft saved'); });
+
+    // --- AMENITY LOGIC ---
+    const amenityInput = $('amenityInput');
+    const addAmenityBtn = $('addAmenityBtn');
+    const amenitiesContainer = $('amenitiesContainer');
+    let amenities = [];
+
+    function renderAmenities() {
+        amenitiesContainer.innerHTML = '';
+        amenities.forEach((amenity, index) => {
+            const tag = document.createElement('div');
+            tag.className = 'amenity-tag';
+            tag.textContent = amenity;
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '&times;';
+            removeBtn.onclick = () => {
+                amenities.splice(index, 1);
+                renderAmenities();
+            };
+            tag.appendChild(removeBtn);
+            amenitiesContainer.appendChild(tag);
+        });
+    }
+
+    function addAmenity() {
+        const amenityText = amenityInput.value.trim();
+        if (amenityText && !amenities.includes(amenityText)) {
+            if (amenities.length >= 20) { showToast('Maximum 20 amenities allowed'); return; }
+            amenities.push(amenityText);
+            amenityInput.value = '';
+            renderAmenities();
+        }
+        amenityInput.focus();
+    }
+
+    addAmenityBtn.addEventListener('click', addAmenity);
+    amenityInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addAmenity();
+        }
+    });
+    // --- END AMENITY LOGIC ---
+
+    $('savePropertyDraft').addEventListener('click', e=>{ e.preventDefault(); const meta={ title:title.value, propertyType:pType.value, guests:guests.value, price:price.value, amenities: amenities }; localStorage.setItem('propertyDraft', JSON.stringify(meta)); showToast('Property draft saved'); });
     $('goVerify').addEventListener('click', ()=> showPage('verify'));
 
-    try { const s=localStorage.getItem('propertyDraft'); if (s){ const o=JSON.parse(s); title.value=o.title||''; pType.value=o.propertyType||''; guests.value=o.guests||'1'; price.value=o.price||''; updateMeta(); } } catch(e){}
+    try {
+      const s=localStorage.getItem('propertyDraft');
+      if (s){
+        const o=JSON.parse(s);
+        title.value=o.title||'';
+        pType.value=o.propertyType||'';
+        guests.value=o.guests||'1';
+        price.value=o.price||'';
+        if(Array.isArray(o.amenities)) {
+            amenities = o.amenities;
+            renderAmenities();
+        }
+        updateMeta();
+      }
+    } catch(e){}
     setInterval(updateMeta, 400);
   })();
 
