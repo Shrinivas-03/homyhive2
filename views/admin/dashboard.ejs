@@ -1,0 +1,125 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Admin Dashboard</h1>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Requests</h5>
+                    <h2 class="text-primary"><%= stats.total %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Submitted</h5>
+                    <h2 class="text-info"><%= stats.submitted %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Under Review</h5>
+                    <h2 class="text-warning"><%= stats.underReview %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Approved</h5>
+                    <h2 class="text-success"><%= stats.approved %></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Quick Actions</h5>
+                    <a href="/admin/host-requests?status=submitted" class="btn btn-primary me-2">Review New Requests</a>
+                    <a href="/admin/host-requests?status=under_review" class="btn btn-warning me-2">Continue Review</a>
+                    <a href="/admin/host-requests" class="btn btn-outline-primary">View All Requests</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Requests -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Recent Host Requests</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentRequests.forEach(req => { %>
+                                <tr>
+                                    <td><strong><%= req.personalInfo.firstName %> <%= req.personalInfo.lastName %></strong></td>
+                                    <td><%= req.personalInfo.email %></td>
+                                    <td><%= req.personalInfo.phone %></td>
+                                    <td>
+                                        <% if (req.applicationStatus === 'submitted') { %>
+                                            <span class="badge bg-info">Submitted</span>
+                                        <% } else if (req.applicationStatus === 'under_review') { %>
+                                            <span class="badge bg-warning">Under Review</span>
+                                        <% } else if (req.applicationStatus === 'approved') { %>
+                                            <span class="badge bg-success">Approved</span>
+                                        <% } else if (req.applicationStatus === 'rejected') { %>
+                                            <span class="badge bg-danger">Rejected</span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary"><%= req.applicationStatus %></span>
+                                        <% } %>
+                                    </td>
+                                    <td><small><%= req.submittedAt ? req.submittedAt.toLocaleDateString() : 'N/A' %></small></td>
+                                    <td>
+                                        <a href="/admin/host-requests/<%= req._id %>" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                <% if (recentRequests.length === 0) { %>
+                    <div class="card-body text-center text-muted">
+                        <p>No recent requests</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+    }
+    .card-body h2 {
+        margin-bottom: 0;
+    }
+</style>

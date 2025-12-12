@@ -1,0 +1,309 @@
+<%- layout("/layouts/boilerplate") %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Header -->
+    <div class="col-12 mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2>Dashboard</h2>
+          <p class="text-muted">Welcome back, <%= currUser.displayName || currUser.username %>!</p>
+        </div>
+        <div>
+          <a href="/listings/new" class="btn btn-success">
+            <i class="fa-solid fa-plus"></i> New Listing
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card stats-card bg-primary text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4><%= totalListings %></h4>
+              <p class="mb-0">Total Listings</p>
+            </div>
+            <div class="stats-icon">
+              <i class="fa-solid fa-home"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card stats-card bg-success text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4><%= totalViews || 0 %></h4>
+              <p class="mb-0">Total Views</p>
+            </div>
+            <div class="stats-icon">
+              <i class="fa-solid fa-eye"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card stats-card bg-warning text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4>0</h4>
+              <p class="mb-0">Active Bookings</p>
+            </div>
+            <div class="stats-icon">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card stats-card bg-info text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4>₹0</h4>
+              <p class="mb-0">Total Earnings</p>
+            </div>
+            <div class="stats-icon">
+              <i class="fa-solid fa-rupee-sign"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+              <a href="/listings/new" class="quick-action-card">
+                <i class="fa-solid fa-plus"></i>
+                <span>New Listing</span>
+              </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+              <a href="/user/hosting" class="quick-action-card">
+                <i class="fa-solid fa-cog"></i>
+                <span>Manage Listings</span>
+              </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+              <a href="/user/profile/edit" class="quick-action-card">
+                <i class="fa-solid fa-user-edit"></i>
+                <span>Edit Profile</span>
+              </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+              <a href="/user/wishlist" class="quick-action-card">
+                <i class="fa-solid fa-heart"></i>
+                <span>Wishlist</span>
+              </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+              <a href="/help" class="quick-action-card">
+                <i class="fa-solid fa-question-circle"></i>
+                <span>Help Center</span>
+              </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+              <a href="/user/settings" class="quick-action-card">
+                <i class="fa-solid fa-sliders-h"></i>
+                <span>Settings</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Listings -->
+    <div class="col-lg-8 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Recent Listings</h5>
+          <a href="/user/hosting" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body">
+          <% if(userListings.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Listing</th>
+                    <th>Location</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% userListings.slice(0, 5).forEach(listing => { %>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <% if(listing.image && listing.image.url) { %>
+                            <img src="<%= listing.image.url %>" class="listing-thumb me-3" alt="<%= listing.title %>">
+                          <% } %>
+                          <div>
+                            <h6 class="mb-0"><%= listing.title %></h6>
+                            <small class="text-muted">Created <%= new Date(listing.createdAt).toLocaleDateString() %></small>
+                          </div>
+                        </div>
+                      </td>
+                      <td><%= listing.location %>, <%= listing.country %></td>
+                      <td>₹<%= listing.price.toLocaleString() %>/night</td>
+                      <td>
+                        <span class="badge bg-success">Active</span>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <a href="/listings/<%= listing._id %>" class="btn btn-outline-primary">View</a>
+                          <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary">Edit</a>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="text-center py-4">
+              <i class="fa-solid fa-home fa-3x text-muted mb-3"></i>
+              <h5>No listings yet</h5>
+              <p class="text-muted">Create your first listing to start hosting!</p>
+              <a href="/listings/new" class="btn btn-success">
+                <i class="fa-solid fa-plus"></i> Create Listing
+              </a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="col-lg-4 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Activity</h5>
+        </div>
+        <div class="card-body">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-marker bg-success"></div>
+              <div class="timeline-content">
+                <h6>Welcome to HomyHive!</h6>
+                <p class="text-muted small">Account created successfully</p>
+                <small class="text-muted"><%= new Date(currUser.createdAt || currUser.joinedDate).toLocaleDateString() %></small>
+              </div>
+            </div>
+            <% if(userListings.length > 0) { %>
+              <div class="timeline-item">
+                <div class="timeline-marker bg-primary"></div>
+                <div class="timeline-content">
+                  <h6>Latest listing created</h6>
+                  <p class="text-muted small"><%= userListings[userListings.length - 1].title %></p>
+                  <small class="text-muted"><%= new Date(userListings[userListings.length - 1].createdAt).toLocaleDateString() %></small>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.stats-card {
+  border: none;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stats-icon {
+  font-size: 2rem;
+  opacity: 0.8;
+}
+
+.quick-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 15px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+  height: 100px;
+}
+
+.quick-action-card:hover {
+  background: #fe424d;
+  color: white;
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.quick-action-card i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.listing-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.timeline {
+  position: relative;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.timeline-content h6 {
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.timeline-content p {
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+</style>

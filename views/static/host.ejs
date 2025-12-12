@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Host onboarding — Host / Property / Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent-1:#ff7a7a; --accent-2:#fe424d; --muted:#6b7280; --bg:#fbfafb; --card:#fff;
+  --radius:14px; --shadow: 0 10px 30px rgba(15,23,42,0.06);
+  font-family:Inter,system-ui,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:28px auto;padding:18px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logoMark{width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.btn{padding:10px 14px;border-radius:12px;border:none;font-weight:700;cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#fff}
+.btn.ghost{background:transparent;border:1px solid #eef2f7;color:var(--muted)}
+.columns{display:grid;grid-template-columns:1fr 380px;gap:20px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.muted{color:var(--muted)}
+.input, textarea, select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:#fff;margin-top:6px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dropzone{border:2px dashed rgba(15,23,42,0.06);padding:16px;border-radius:10px;text-align:center;cursor:pointer;background:#fff;margin-top:6px}
+.dropzone.dragover{border-color:var(--accent-2);background:linear-gradient(180deg,#fff,#fff9f9)}
+.preview-list{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.preview-thumb{width:120px;height:80px;border-radius:10px;overflow:hidden;border:1px solid #f3f4f6;position:relative;background:#fafafa}
+.preview-thumb img, .preview-thumb video{width:100%;height:100%;object-fit:cover}
+.preview-remove{position:absolute;top:6px;right:6px;background:#111;color:#fff;border:none;border-radius:8px;padding:4px;cursor:pointer}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:9999}
+.step-progress{display:flex;gap:12px;margin:12px 0}
+.step-progress .pill{flex:1;height:10px;border-radius:999px;background:#f1f1f1}
+.step-progress .pill.active{background:linear-gradient(90deg,var(--accent-1),var(--accent-2))}
+.status{display:inline-flex;gap:8px;align-items:center}
+.status-dot{width:10px;height:10px;border-radius:50%}
+.status-pending{color:#b45309}
+.status-verified{color:#0ea5a4}
+.status-dot.pending{background:#f59e0b}
+.status-dot.verified{background:#10b981}
+.small{font-size:13px;color:var(--muted)}
+.activity{max-height:280px;overflow:auto;border-top:1px solid #f3f4f6;margin-top:12px;padding-top:8px}
+.action-row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.right-sm{font-size:13px;color:var(--muted)}
+.hidden{display:none}
+@media(max-width:980px){ .columns{grid-template-columns:1fr} .preview-thumb{width:96px;height:72px} }
+</style>
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logoMark">HV</div>
+        <div>
+          <div style="font-weight:800" id="titleMain">Host onboarding</div>
+          <div class="small muted" id="subtitleMain">Complete profile, verify documents & list your place</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="navHost" class="btn ghost">Host</button>
+        <button id="navProperty" class="btn ghost">Property</button>
+        <button id="navVerify" class="btn ghost">Verification</button>
+        <button id="btnPreviewPublic" class="btn primary">Preview</button>
+      </div>
+    </header>
+
+    <div class="step-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" id="progressPills">
+      <div class="pill active"></div>
+      <div class="pill"></div>
+      <div class="pill"></div>
+    </div>
+
+    <!-- HOST page -->
+    <section id="page-host" class="columns card" data-page="host">
+      <main style="padding:18px">
+        <div class="card-title"><h2 style="margin:0">Host details</h2><div class="right-sm">Step 1</div></div>
+        <p class="small muted">Add contact info, profile photo and initial verification documents.</p>
+
+        <form id="hostForm" onsubmit="return false" autocomplete="off">
+          <div class="grid-2" style="margin-top:12px">
+            <div>
+              <label>First name <input id="hostFirstName" class="input" required></label>
+              <label>Last name <input id="hostLastName" class="input" required></label>
+              <label>Email <input id="hostEmail" class="input" type="email" required></label>
+              <label>Phone <input id="hostPhone" class="input" type="tel" required></label>
+            </div>
+            <div>
+              <label>Profile photo</label>
+              <div id="avatarDrop" class="dropzone" title="Click or drop profile photo">Click or drop photo (≤2MB)</div>
+              <input id="hostProfilePhoto" type="file" accept="image/*" style="display:none">
+              <div id="previewHostPhoto" class="preview-list"></div>
+            </div>
+          </div>
+
+          <label style="margin-top:12px">Short bio <textarea id="hostBio" class="input" placeholder="Introduce yourself"></textarea></label>
+
+          <div class="action-row">
+            <button id="hostSave" class="btn ghost">Save draft</button>
+            <button id="toProperty" class="btn primary">Next: Property</button>
+          </div>
+        </form>
+      </main>
+
+      <aside class="card" aria-hidden="true" style="padding:18px">
+        <h3 style="margin-top:0">Host preview</h3>
+        <div id="hostPreviewMain" class="preview-list" style="min-height:120px;align-items:center;display:flex;justify-content:center">No photo</div>
+        <div style="margin-top:12px">
+          <div id="previewHostName" style="font-weight:700">Your name</div>
+          <div id="previewHostBio" class="small muted">Host bio will appear here</div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- PROPERTY page -->
+    <section id="page-property" class="columns card hidden" data-page="property">
+      <main style="padding:18px">
+        <div class="card-title"><h2 style="margin:0">Property details</h2><div class="right-sm">Step 2</div></div>
+        <p class="small muted">Add listing title, price, amenities and upload high-quality media.</p>
+
+        <form id="propertyForm" onsubmit="return false">
+          <div class="grid-2">
+            <label>Property type
+              <select id="propertyType" class="input"><option value="">Select</option><option value="entire">Entire place</option><option value="private">Private room</option><option value="shared">Shared room</option></select>
+            </label>
+            <label>Guests
+              <select id="guests" class="input"><option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option></select>
+            </label>
+          </div>
+
+          <label style="margin-top:10px">Listing title <input id="title" class="input" maxlength="80" placeholder="Cozy 2BR near city center"></label>
+          <div class="grid-2" style="margin-top:10px">
+            <label>Nightly price (INR) <input id="price" type="number" class="input" placeholder="1200"></label>
+            <label>Cancellation <select id="cancellation" class="input"><option value="flexible">Flexible</option><option value="moderate">Moderate</option><option value="strict">Strict</option></select></label>
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="small">Amenities</div>
+            <div class="card" style="padding:12px;margin-top:8px">
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <div class="amenity" data-key="wifi">Wi-Fi</div>
+                <div class="amenity" data-key="ac">AC</div>
+                <div class="amenity" data-key="kitchen">Kitchen</div>
+                <div class="amenity" data-key="parking">Parking</div>
+                <div class="amenity" data-key="tv">TV</div>
+                <div class="amenity" data-key="washer">Washer</div>
+              </div>
+            </div>
+          </div>
+
+          <section style="margin-top:14px" class="card">
+            <h4 style="margin:0 0 8px">Photos & video</h4>
+            <div class="small muted">Up to 8 images (≤4MB) and 1 short video (≤20MB).</div>
+            <div style="margin-top:12px">
+              <div id="imageDrop" class="dropzone">Click or drop images here</div>
+              <input id="propertyImages" type="file" accept="image/*" multiple style="display:none">
+              <div id="imagePreview" class="preview-list"></div>
+            </div>
+            <div style="margin-top:12px">
+              <div id="videoDrop" class="dropzone">Click or drop a short video</div>
+              <input id="propertyVideo" type="file" accept="video/*" style="display:none">
+              <div id="videoPreview" class="preview-list"></div>
+            </div>
+          </section>
+
+          <div class="action-row" style="margin-top:12px">
+            <button id="savePropertyDraft" class="btn ghost">Save draft</button>
+            <button id="goVerify" class="btn primary">Next: Verification</button>
+          </div>
+        </form>
+      </main>
+
+      <aside class="card" aria-hidden="true" style="padding:18px">
+        <h3 style="margin-top:0">Listing preview</h3>
+        <div id="mainPreviewPhoto" class="preview-list" style="min-height:120px;align-items:center;display:flex;justify-content:center">No photo</div>
+        <div style="margin-top:12px">
+          <div id="previewTitle" style="font-weight:700">Your listing title</div>
+          <div id="previewSub" class="small muted">Entire place • 2 guests</div>
+          <div id="previewCounts" class="small muted">0 photos • 0 videos</div>
+          <div id="previewPrice" class="small muted">Price: —</div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- VERIFICATION page (now a full dedicated page styled like Property) -->
+    <section id="page-verify" class="columns card hidden" data-page="verify">
+      <main style="padding:18px">
+        <div class="card-title"><h2 style="margin:0">Verification center</h2><div class="right-sm">Step 3</div></div>
+        <p class="small muted">Track and manage verification tasks. Upload missing docs, request manual review, or re-submit if needed.</p>
+
+        <div class="card" style="margin-top:12px">
+          <h4 style="margin:0 0 8px">ID Verification</h4>
+          <div class="small muted">Status and actions for your government ID verification.</div>
+
+          <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:320px">
+              <label>ID type
+                <select id="v_idType" class="input">
+                  <option value="">Select</option>
+                  <option value="aadhaar">Aadhaar</option>
+                  <option value="pan">PAN</option>
+                  <option value="passport">Passport</option>
+                  <option value="driving">Driving licence</option>
+                </select>
+              </label>
+              <label style="margin-top:8px">ID number <input id="v_idNumber" class="input" placeholder="ID number"></label>
+
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <div style="flex:1">
+                  <div class="small">Upload front</div>
+                  <div id="v_idFrontDrop" class="dropzone">Click or drop front (≤5MB)</div>
+                  <input id="v_idFrontFile" type="file" accept="image/*,application/pdf" style="display:none">
+                  <div id="v_idFrontHint" class="small muted"></div>
+                </div>
+                <div style="flex:1">
+                  <div class="small">Upload back</div>
+                  <div id="v_idBackDrop" class="dropzone">Click or drop back</div>
+                  <input id="v_idBackFile" type="file" accept="image/*,application/pdf" style="display:none">
+                  <div id="v_idBackHint" class="small muted"></div>
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button id="v_submitId" class="btn primary">Submit ID</button>
+                <button id="v_resubmitId" class="btn ghost">Re-submit</button>
+                <button id="v_requestManual" class="btn ghost">Request manual review</button>
+              </div>
+            </div>
+
+            <!-- right column: status + recent events -->
+            <aside style="width:360px">
+              <div class="card">
+                <h4 style="margin-top:0">ID Status</h4>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div class="status"><span id="idStatusDot" class="status-dot pending"></span> <strong id="idStatusText" class="status-pending">Not submitted</strong></div>
+                    <div class="small muted" id="idStatusDesc">Upload a clear photo of your ID to start verification.</div>
+                  </div>
+                  <div class="right-sm">—</div>
+                </div>
+
+                <div class="activity" id="idActivity">
+                  <!-- events appended here -->
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <!-- Bank verification block -->
+        <div class="card" style="margin-top:12px">
+          <h4 style="margin:0 0 8px">Bank verification</h4>
+          <div class="small muted">Verify your account for seamless payouts.</div>
+          <div class="grid-2" style="margin-top:8px">
+            <label>Account holder <input id="v_acctHolder" class="input"></label>
+            <label>Account number <input id="v_bankAccount" class="input"></label>
+          </div>
+          <div class="grid-2" style="margin-top:8px">
+            <label>IFSC <input id="v_ifsc" class="input" placeholder="HDFC0001234"></label>
+            <div style="padding-top:6px"><button id="v_verifyBank" class="btn primary">Verify IFSC & account</button></div>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+            <div><strong>Bank:</strong> <span id="v_bankName" class="small muted">—</span></div>
+            <div><strong>Branch:</strong> <span id="v_branchName" class="small muted">—</span></div>
+            <div style="margin-left:auto"><strong>Bank status:</strong> <span id="v_bankStatus" class="small status-pending">Not verified</span></div>
+          </div>
+
+          <div class="action-row">
+            <button id="v_requestMicro" class="btn ghost">Request micro-deposit</button>
+            <button id="v_manualBank" class="btn ghost">Request manual bank check</button>
+          </div>
+        </div>
+
+        <!-- Verification summary / next steps -->
+        <div style="margin-top:12px" class="card">
+          <h4 style="margin:0 0 8px">Next steps</h4>
+          <ol class="small muted">
+            <li>Upload clear ID images and submit — automated checks run first.</li>
+            <li>IFSC & account validation will be attempted. If micro-deposit is used, check bank statement in 1–2 days.</li>
+            <li>If automated checks fail, request manual review and support will assist.</li>
+          </ol>
+          <div class="action-row" style="margin-top:10px">
+            <button id="v_backToProperty" class="btn ghost">Back to property</button>
+            <button id="v_done" class="btn primary">Done</button>
+          </div>
+        </div>
+      </main>
+
+      <aside class="card" aria-hidden="true">
+        <h3 style="margin-top:0">Verification activity</h3>
+        <div id="verificationActivity" class="activity"></div>
+        <div style="margin-top:12px" class="small muted">You'll see both automated checks and manual reviewer notes here. Use the buttons to request re-checks.</div>
+      </aside>
+    </section>
+
+  </div>
+
+<script>
+/* Single-file routing + verification UI behavior */
+(function(){
+  const $ = id => document.getElementById(id);
+  const toast = $('toast');
+  function showToast(msg, t=2200){ toast.textContent = msg; toast.style.display='block'; toast.style.opacity='1'; clearTimeout(toast._t); toast._t = setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=> toast.style.display='none',260); }, t); }
+
+  // pages
+  const pages = { host: $('page-host'), property: $('page-property'), verify: $('page-verify') };
+  const pills = Array.from(document.querySelectorAll('.step-progress .pill'));
+  function showPage(name, push=true){
+    Object.keys(pages).forEach(k => pages[k].classList.toggle('hidden', k !== name));
+    const idxMap = { host:0, property:1, verify:2 };
+    pills.forEach((p,i)=> p.classList.toggle('active', i <= idxMap[name]));
+    if (push) history.pushState({page:name}, '', name === 'host' ? '/host-details' : (name === 'property' ? '/property-details' : '/host-verify'));
+  }
+  window.addEventListener('popstate', e=> { const s = (e.state && e.state.page) || (location.pathname.includes('verify') ? 'verify' : (location.pathname.includes('property') ? 'property' : 'host')); showPage(s,false); });
+  $('navHost').addEventListener('click', ()=> showPage('host')); $('navProperty').addEventListener('click', ()=> showPage('property')); $('navVerify').addEventListener('click', ()=> showPage('verify'));
+
+  // initial route
+  (function(){ const p = location.pathname; if (p.includes('verify')) showPage('verify', false); else if (p.includes('property')) showPage('property', false); else showPage('host', false); })();
+
+  /* -------- Host page handlers (compact) ---------- */
+  (function initHost(){
+    const avatarDrop = $('avatarDrop'), avatarInput = $('hostProfilePhoto'), previewHostPhoto = $('previewHostPhoto');
+    avatarDrop.addEventListener('click', ()=> avatarInput.click());
+    avatarInput.addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0]; if (!f) return;
+      if (!f.type.startsWith('image/')) { showToast('Upload an image'); return; }
+      if (f.size > 2*1024*1024) { showToast('Max 2MB'); return; }
+      const img = document.createElement('img'); img.src = URL.createObjectURL(f); img.style.width='120px'; img.style.height='120px'; img.style.objectFit='cover';
+      previewHostPhoto.innerHTML=''; previewHostPhoto.appendChild(img);
+      avatarDrop._file = f; showToast('Profile photo ready');
+    });
+    ['hostFirstName','hostLastName','hostBio'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', ()=> { $('previewHostName').textContent = ($('hostFirstName').value||'') + ( $('hostLastName').value ? ' ' + $('hostLastName').value : ''); $('previewHostBio').textContent = $('hostBio').value || 'Host bio will appear here'; }); });
+
+    $('hostSave').addEventListener('click', e=>{ e.preventDefault(); const draft = { firstName:$('hostFirstName').value, lastName:$('hostLastName').value, email:$('hostEmail').value, phone:$('hostPhone').value, bio:$('hostBio').value }; localStorage.setItem('hostDraft', JSON.stringify(draft)); showToast('Host draft saved'); });
+    $('toProperty').addEventListener('click', ()=> { if (!$('hostFirstName').value.trim() || !$('hostEmail').value.trim()){ showToast('Please fill required fields'); return; } try { localStorage.setItem('hostDraft', JSON.stringify({ firstName:$('hostFirstName').value, lastName:$('hostLastName').value, email:$('hostEmail').value, phone:$('hostPhone').value, bio:$('hostBio').value })); } catch(e){}; showPage('property'); });
+    try { const s = localStorage.getItem('hostDraft'); if (s){ const o = JSON.parse(s); $('hostFirstName').value = o.firstName||''; $('hostLastName').value=o.lastName||''; $('hostEmail').value=o.email||''; $('hostPhone').value=o.phone||''; $('hostBio').value=o.bio||''; $('previewHostName').textContent = (o.firstName||'') + (o.lastName ? ' ' + o.lastName : ''); $('previewHostBio').textContent = o.bio || 'Host bio will appear here'; } } catch(e){}
+  })();
+
+  /* -------- Property page handlers (compact) ---------- */
+  (function initProperty(){
+    function wireImage(dropId, inputId, previewId, maxFiles=8){
+      const drop = $(dropId), input = $(inputId), preview = $(previewId); const MAX=4*1024*1024; let files=[];
+      function render(){ preview.innerHTML=''; files.forEach((f,i)=>{ const url=URL.createObjectURL(f); const d=document.createElement('div'); d.className='preview-thumb'; d.innerHTML=`<img src="${url}"><button class="preview-remove">✕</button>`; d.querySelector('button').onclick=()=>{files.splice(i,1); render(); updateMeta()}; preview.appendChild(d); }); updateMeta(); return files; }
+      if (drop){ drop.addEventListener('click', ()=> input.click()); ['dragenter','dragover'].forEach(ev=> drop.addEventListener(ev, e=>{e.preventDefault(); drop.classList.add('dragover')})); ['dragleave','drop'].forEach(ev=> drop.addEventListener(ev, e=>{e.preventDefault(); drop.classList.remove('dragover')})); drop.addEventListener('drop', e=>{ e.preventDefault(); handle(e.dataTransfer.files); }); }
+      input.addEventListener('change', e=> handle(e.target.files));
+      function handle(list){ for (let f of list){ if (!f.type.startsWith('image/')) continue; if (f.size > MAX){ alert('Image too large (4MB): '+f.name); continue; } if (files.length >= maxFiles) break; files.push(f); } if (files.length>maxFiles) files=files.slice(0,maxFiles); render(); }
+      return { getFiles: ()=> files, render };
+    }
+    function wireVideo(dropId, inputId, previewId){
+      const drop=$(dropId), input=$(inputId), preview=$(previewId); const MAXV=20*1024*1024; let file=null;
+      if (drop){ drop.addEventListener('click', ()=> input.click()); ['dragenter','dragover'].forEach(ev=> drop.addEventListener(ev, e=>{e.preventDefault(); drop.classList.add('dragover')})); ['dragleave','drop'].forEach(ev=> drop.addEventListener(ev, e=>{e.preventDefault(); drop.classList.remove('dragover')})); drop.addEventListener('drop', e=>{ e.preventDefault(); handle(e.dataTransfer.files); }); }
+      input.addEventListener('change', e=> handle(e.target.files));
+      function handle(list){ for (let f of list){ if (!f.type.startsWith('video/')) continue; if (f.size>MAXV){ alert('Video too large (20MB): '+f.name); continue; } file=f; break; } render(); }
+      function render(){ preview.innerHTML=''; if (!file) return; const url=URL.createObjectURL(file); const d=document.createElement('div'); d.className='preview-thumb'; d.innerHTML=`<video src="${url}" controls></video><button class="preview-remove">✕</button>`; d.querySelector('button').onclick=()=>{ file=null; render(); updateMeta(); }; preview.appendChild(d); }
+      return { getFile: ()=> file, render };
+    }
+
+    const imgs = wireImage('imageDrop','propertyImages','imagePreview',8);
+    const vid = wireVideo('videoDrop','propertyVideo','videoPreview');
+
+    const title = $('title'), pType = $('propertyType'), guests = $('guests'), price = $('price');
+    function updateMeta(){ $('previewTitle').textContent = title.value.trim()||'Your listing title'; $('previewSub').textContent = (pType.value||'Property') + ' • ' + (guests.value||'—') + ' guests'; $('previewCounts').textContent = `${imgs.getFiles().length} photos • ${vid.getFile() ? 1 : 0} videos`; $('previewPrice').textContent = price.value ? ('Price: ₹'+price.value) : 'Price: —'; const mainBox=$('mainPreviewPhoto'); if (imgs.getFiles().length){ mainBox.innerHTML=''; const im=document.createElement('img'); im.src=URL.createObjectURL(imgs.getFiles()[0]); im.style.width='100%'; im.style.height='100%'; im.style.objectFit='cover'; mainBox.appendChild(im); } else mainBox.innerHTML='No photo'; }
+    [title,pType,guests,price].forEach(el=> el && el.addEventListener('input', updateMeta));
+    document.querySelectorAll('.amenity').forEach(a=> a.addEventListener('click', ()=> a.classList.toggle('selected')));
+    $('savePropertyDraft').addEventListener('click', e=>{ e.preventDefault(); const meta={ title:title.value, propertyType:pType.value, guests:guests.value, price:price.value, amenities: Array.from(document.querySelectorAll('.amenity.selected')).map(x=>x.dataset.key) }; localStorage.setItem('propertyDraft', JSON.stringify(meta)); showToast('Property draft saved'); });
+    $('goVerify').addEventListener('click', ()=> showPage('verify'));
+
+    try { const s=localStorage.getItem('propertyDraft'); if (s){ const o=JSON.parse(s); title.value=o.title||''; pType.value=o.propertyType||''; guests.value=o.guests||'1'; price.value=o.price||''; updateMeta(); } } catch(e){}
+    setInterval(updateMeta, 400);
+  })();
+
+  /* -------- Verification page handlers (improved visual UX) ---------- */
+  (function initVerify(){
+    // helper to append activity
+    function logActivity(containerId, text){
+      const c = $(containerId); if(!c) return;
+      const el = document.createElement('div'); el.style.padding='8px 6px'; el.style.borderBottom='1px solid #f3f4f6'; el.innerHTML = `<div style="font-size:13px">${text}</div><div class="small muted">${new Date().toLocaleString()}</div>`;
+      c.prepend(el);
+    }
+
+    // wire ID upload dropzones
+    function wireDrop(dropId, inputId, hintId, maxBytes=5*1024*1024){
+      const drop=$(dropId), input=$(inputId), hint=$(hintId);
+      drop.addEventListener('click', ()=> input.click());
+      ['dragenter','dragover'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('dragover'); }));
+      ['dragleave','drop'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('dragover'); }));
+      drop.addEventListener('drop', e=> { e.preventDefault(); handle(e.dataTransfer.files); });
+      input.addEventListener('change', ()=> handle(input.files));
+      function handle(list){
+        const f = list && list[0]; if(!f) return;
+        if (! (f.type.startsWith('image/') || f.type === 'application/pdf')) { alert('Use JPG/PNG or PDF'); return; }
+        if (f.size > maxBytes) { alert('File too large'); return; }
+        drop._file = f;
+        hint.textContent = `${f.name} • ${(f.size/1024).toFixed(1)} KB`;
+        logActivity('idActivity', `Uploaded ${f.name}`);
+      }
+    }
+    wireDrop('v_idFrontDrop','v_idFrontFile','v_idFrontHint');
+    wireDrop('v_idBackDrop','v_idBackFile','v_idBackHint');
+
+    // submit ID
+    $('v_submitId').addEventListener('click', async ()=>{
+      const type = $('v_idType').value, num = $('v_idNumber').value.trim();
+      const front = $('v_idFrontDrop')._file, back = $('v_idBackDrop')._file;
+      if (!type || !num || !front) { showToast('Select ID type, number and front image'); return; }
+      const fd = new FormData(); fd.append('idType', type); fd.append('idNumber', num); fd.append('idFront', front, front.name); if (back) fd.append('idBack', back, back.name);
+      // optimistic UI
+      $('idStatusDot').className='status-dot pending'; $('idStatusText').textContent='Submitting';
+      logActivity('idActivity', 'Submitting ID for verification');
+      try {
+        const res = await fetch('/verify/id', { method:'POST', body: fd });
+        if (res.ok) { showToast('ID submitted'); logActivity('verificationActivity', 'ID submitted for verification'); $('idStatusText').textContent='Pending'; $('idStatusDot').className='status-dot pending'; }
+        else { const j = await res.json().catch(()=>({ message:'Submission failed' })); alert(j.message || 'Failed to submit ID'); }
+      } catch(e){ alert('Network error'); }
+    });
+
+    $('v_resubmitId').addEventListener('click', ()=> { $('v_idType').value=''; $('v_idNumber').value=''; $('v_idFrontDrop')._file = null; $('v_idBackDrop')._file = null; $('v_idFrontHint').textContent=''; $('v_idBackHint').textContent=''; showToast('Cleared ID fields'); });
+
+    $('v_requestManual').addEventListener('click', async ()=>{
+      try {
+        const res = await fetch('/verify/id/manual', { method:'POST' });
+        if (res.ok) { showToast('Manual review requested'); logActivity('verificationActivity', 'Requested manual ID review'); } else { showToast('Manual request failed'); }
+      } catch(e){ showToast('Network error'); }
+    });
+
+    // bank verification UI
+    $('v_ifsc').addEventListener('blur', async ()=>{
+      const code = $('v_ifsc').value.trim().toUpperCase();
+      if (!code) return;
+      if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(code)) { $('v_bankName').textContent='—'; $('v_branchName').textContent='—'; $('v_bankStatus').textContent='Invalid IFSC'; return; }
+      $('v_bankStatus').textContent='Verifying IFSC…';
+      try {
+        const r = await fetch('https://ifsc.razorpay.com/' + code);
+        if (!r.ok) { $('v_bankStatus').textContent='IFSC not found'; $('v_bankName').textContent='—'; $('v_branchName').textContent='—'; return; }
+        const d = await r.json();
+        $('v_bankName').textContent = d.BANK || '—'; $('v_branchName').textContent = d.BRANCH || '—'; $('v_bankStatus').textContent='IFSC verified';
+        logActivity('verificationActivity', 'IFSC verified: ' + (d.BANK||''));
+      } catch(e){ $('v_bankStatus').textContent='Lookup failed'; }
+    });
+
+    $('v_verifyBank').addEventListener('click', async ()=>{
+      const acct = $('v_bankAccount').value.trim(), ifsc = $('v_ifsc').value.trim(), holder = $('v_acctHolder').value.trim();
+      if (!acct || !ifsc || !holder) { showToast('Fill account holder, number and IFSC'); return; }
+      $('v_bankStatus').textContent='Verifying';
+      logActivity('verificationActivity', 'Initiated bank verification');
+      try {
+        const res = await fetch('/verify/bank', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ account:acct, ifsc:ifsc, holder:holder })});
+        if (res.ok) { showToast('Bank verification started'); logActivity('verificationActivity','Bank verification started'); $('v_bankStatus').textContent='Pending'; } else { showToast('Bank verify failed'); }
+      } catch(e){ showToast('Network error'); }
+    });
+
+    $('v_requestMicro').addEventListener('click', async ()=>{
+      try {
+        const res = await fetch('/verify/bank/micro', { method:'POST' });
+        if (res.ok) { showToast('Micro-deposit requested'); logActivity('verificationActivity','Micro-deposit requested'); } else showToast('Request failed');
+      } catch(e){ showToast('Network error'); }
+    });
+
+    $('v_manualBank').addEventListener('click', async ()=>{
+      try { const res = await fetch('/verify/bank/manual', { method:'POST' }); if (res.ok) { showToast('Manual bank check requested'); logActivity('verificationActivity','Manual bank check requested'); } else showToast('Request failed'); } catch(e) { showToast('Network error'); }
+    });
+
+    $('v_backToProperty').addEventListener('click', ()=> showPage('property'));
+    $('v_done').addEventListener('click', ()=> { showToast('All set — you can continue'); showPage('host'); });
+  })();
+
+  // Expose showPage for external calls if needed
+  window.showPage = showPage;
+
+  // (Optional) simulated realtime: poll endpoint or use ws to update status
+  // here we add a small simulated updater to demonstrate UI transitions (remove in prod)
+  setInterval(async function simulatedUpdates(){
+    // demo: try a GET to /verify/status to fetch statuses; fallback to no-op.
+    try {
+      const res = await fetch('/verify/status');
+      if (!res.ok) return;
+      const j = await res.json();
+      // j = { id: 'verified'|'pending'|'failed', bank: 'verified'|'pending'|'failed', events: [] }
+      if (j.id) {
+        $('idStatusText').textContent = j.id === 'verified' ? 'Verified' : (j.id === 'pending' ? 'Pending' : 'Action required');
+        $('idStatusDot').className = 'status-dot ' + (j.id === 'verified' ? 'verified' : 'pending');
+      }
+      if (j.bank) $('v_bankStatus').textContent = j.bank === 'verified' ? 'Verified' : j.bank;
+      if (Array.isArray(j.events)) {
+        j.events.slice(0,5).forEach(ev => {
+          const container = $('verificationActivity');
+          const el = document.createElement('div'); el.style.padding='8px 6px'; el.style.borderBottom='1px solid #f3f4f6'; el.innerHTML = `<div style="font-size:13px">${ev}</div><div class="small muted">${new Date().toLocaleString()}</div>`;
+          if (container && container.firstChild && container.firstChild.textContent !== ev) container.prepend(el);
+        });
+      }
+    } catch(e){}
+  }, 8000);
+
+})();
+</script>
+</body>
+</html>

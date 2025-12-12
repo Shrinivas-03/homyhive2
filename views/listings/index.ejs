@@ -1,0 +1,1412 @@
+<%layout("/layouts/boilerplate")%>
+
+<!-- wrap page content so footer height can be accounted for -->
+<div class="page-content">
+
+<!-- Enhanced Search and Filter Section -->
+<div class="search-filter-section">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Search Results Header -->
+        <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
+          <div class="search-results-header">
+            <h4>Search Results for "<%= searchQuery %>"</h4>
+            <p class="text-muted"><%= resultCount %> properties found</p>
+          </div>
+        <% } %>
+        
+        <!-- Advanced Filter Bar -->
+        <div class="filter-bar">
+          <form method="GET" action="/listings" id="filterForm">
+            <div class="row align-items-center">
+              <div class="col-lg-3 col-md-6 mb-2">
+                <div class="form-group">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    name="search" 
+                    placeholder="Search destinations..." 
+                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+                  >
+                </div>
+              </div>
+              
+              <div class="col-lg-2 col-md-6 mb-2">
+                <select class="form-select" name="category">
+                  <option value="">All Categories</option>
+                  <% if(typeof categories !== 'undefined') { %>
+                    <% categories.forEach(cat => { %>
+                      <option value="<%= cat %>" <%= (typeof filters !== 'undefined' && filters.category === cat) ? 'selected' : '' %>>
+                        <%= cat %>
+                      </option>
+                    <% }) %>
+                  <% } %>
+                </select>
+              </div>
+              
+              <div class="col-lg-2 col-md-6 mb-2">
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  name="minPrice" 
+                  placeholder="Min Price" 
+                  value="<%= (typeof filters !== 'undefined' && filters.minPrice) ? filters.minPrice : '' %>"
+                >
+              </div>
+              
+              <div class="col-lg-2 col-md-6 mb-2">
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  name="maxPrice" 
+                  placeholder="Max Price" 
+                  value="<%= (typeof filters !== 'undefined' && filters.maxPrice) ? filters.maxPrice : '' %>"
+                >
+              </div>
+              
+              <div class="col-lg-2 col-md-6 mb-2">
+                <select class="form-select" name="guests">
+                  <option value="">Any Guests</option>
+                  <option value="1" <%= (typeof filters !== 'undefined' && filters.guests === '1') ? 'selected' : '' %>>1+ Guest</option>
+                  <option value="2" <%= (typeof filters !== 'undefined' && filters.guests === '2') ? 'selected' : '' %>>2+ Guests</option>
+                  <option value="4" <%= (typeof filters !== 'undefined' && filters.guests === '4') ? 'selected' : '' %>>4+ Guests</option>
+                  <option value="6" <%= (typeof filters !== 'undefined' && filters.guests === '6') ? 'selected' : '' %>>6+ Guests</option>
+                </select>
+              </div>
+              
+              <div class="col-lg-1 col-md-6 mb-2">
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="fa-solid fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+<style>
+  .search-filter-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 20px 20px;
+  }
+
+  .search-results-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .search-results-header h4 {
+    color: #fe424d;
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-bar {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  .filter-bar .form-control,
+  .filter-bar .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+  }
+
+  .filter-bar .form-control:focus,
+  .filter-bar .form-select:focus {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 0.2rem rgba(254, 66, 77, 0.25);
+  }
+
+  #filters {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    margin-bottom: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 1rem;
+    white-space: nowrap;
+  }
+
+  .filter {
+    text-align: center;
+    min-width: 100px;
+    max-width: 120px;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 1rem 0.8rem;
+    border-radius: 15px;
+    position: relative;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    white-space: normal;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filter:hover {
+    opacity: 1;
+    background: rgba(254, 66, 77, 0.08);
+    transform: translateY(-3px);
+    border-color: rgba(254, 66, 77, 0.2);
+  }
+
+  .filter.active {
+    opacity: 1;
+    background: linear-gradient(135deg, #fe424d, #ff6b6b);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(254, 66, 77, 0.3);
+    border-color: #fe424d;
+  }
+
+  .filter.active:hover {
+    background: linear-gradient(135deg, #e03850, #e55353);
+  }
+
+  .filter i {
+    font-size: 1.6rem;
+    margin-bottom: 0.6rem;
+    display: block;
+    transition: all 0.3s ease;
+  }
+
+  .filter p {
+    font-size: 0.85rem;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: all 0.3s ease;
+  }
+
+  .filter:hover i {
+    transform: scale(1.1);
+  }
+
+  /* Special styling for "All" filter */
+  .filter[data-category=""] {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    opacity: 1;
+  }
+
+  .filter[data-category=""]:hover {
+    background: linear-gradient(135deg, #218838, #1e7e34);
+  }
+
+  /* Enhanced filter animations and effects */
+  .filter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+    pointer-events: none;
+  }
+
+  .filter:hover::before {
+    left: 100%;
+  }
+
+  .filter.active::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  /* Category-specific border indicators removed */
+
+  /* Category badge for property counts */
+  .category-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: linear-gradient(45deg, #ff385c, #e61e4d);
+    color: white;
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(255, 56, 92, 0.3);
+    min-width: 16px;
+    text-align: center;
+  }
+
+  /* Filter search functionality styles */
+  .filter-search-container {
+    position: relative;
+    margin-bottom: 15px;
+    max-width: 280px;
+  }
+
+  .filter-search {
+    width: 100%;
+    padding: 10px 35px 10px 12px;
+    border: 2px solid rgba(254, 66, 77, 0.2);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .filter-search:focus {
+    border-color: #fe424d;
+    background: rgba(255,255,255,1);
+    box-shadow: 0 0 15px rgba(254, 66, 77, 0.2);
+  }
+
+  .filter-search-container i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    pointer-events: none;
+    font-size: 12px;
+  }
+
+  /* Enhanced scrollbar for filter container */
+  #filters::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  #filters::-webkit-scrollbar-track {
+    background: rgba(254, 66, 77, 0.1);
+    border-radius: 4px;
+    margin: 0 10px;
+  }
+
+  #filters::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #fe424d, #ff6b6b);
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  #filters::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #e03850, #e55353);
+  }
+
+  /* Container to prevent overflow issues */
+  .container-fluid {
+    padding: 0 15px;
+  }
+
+  /* Ensure proper spacing */
+  .filter-container {
+    margin: 0 -15px;
+    padding: 0 15px;
+  }
+
+  /* Pulse animation for active filter icons */
+  .filter.active i {
+    animation: filterPulse 2s infinite ease-in-out;
+  }
+
+  @keyframes filterPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  /* Loading state for filters */
+  .filter.loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .filter.loading i {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .tax-toggle {
+    border: 2px solid #fe424d;
+    border-radius: 30px;
+    padding: 0.8rem 1.5rem;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    background: white;
+    color: #fe424d;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(254, 66, 77, 0.2);
+    min-width: 280px;
+    justify-content: center;
+  }
+
+  .tax-toggle:hover {
+    background: #fe424d;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(254, 66, 77, 0.3);
+  }
+
+  .tax-toggle .form-check-input {
+    margin-right: 0.8rem;
+    transform: scale(1.2);
+  }
+
+  .tax-toggle .form-check-input:checked {
+    background-color: white;
+    border-color: white;
+  }
+
+  .tax-toggle:hover .form-check-input:checked {
+    background-color: #fe424d;
+    border-color: #fe424d;
+  }
+
+  .tax-toggle .form-check-label {
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Filter scrolling for mobile */
+  @media (max-width: 1200px) {
+    #filters {
+      justify-content: flex-start;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      scrollbar-width: thin;
+      scrollbar-color: #fe424d #f1f1f1;
+    }
+
+    #filters::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    #filters::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    #filters::-webkit-scrollbar-thumb {
+      background: #fe424d;
+      border-radius: 10px;
+    }
+
+    .tax-toggle {
+      margin-left: 1rem;
+      min-width: 250px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #filters {
+      padding: 1.5rem 1rem;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter {
+      min-width: 85px;
+      max-width: 95px;
+      padding: 0.8rem 0.6rem;
+      height: 80px;
+    }
+
+    .filter i {
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .filter p {
+      font-size: 0.75rem;
+      line-height: 1.1;
+    }
+
+    .tax-toggle {
+      margin-left: 0.5rem;
+      min-width: 200px;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+    }
+  }
+    
+    .filter {
+      min-width: 70px;
+      padding: 0.8rem 0.6rem;
+    }
+    
+    .filter i {
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+    
+    .filter p {
+      font-size: 0.75rem;
+    }
+
+    .tax-toggle {
+      min-width: 200px;
+      padding: 0.6rem 1rem;
+    }
+
+    .tax-toggle .form-check-label {
+      font-size: 0.8rem;
+    }
+
+  /* Add subtle animation for filter loading */
+  .filter {
+    animation: filterFadeIn 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes filterFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 0.7;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stagger animation for filters */
+  .filter:nth-child(1) { animation-delay: 0.1s; }
+  .filter:nth-child(2) { animation-delay: 0.15s; }
+  .filter:nth-child(3) { animation-delay: 0.2s; }
+  .filter:nth-child(4) { animation-delay: 0.25s; }
+  .filter:nth-child(5) { animation-delay: 0.3s; }
+  .filter:nth-child(6) { animation-delay: 0.35s; }
+  .filter:nth-child(7) { animation-delay: 0.4s; }
+  .filter:nth-child(8) { animation-delay: 0.45s; }
+  .filter:nth-child(9) { animation-delay: 0.5s; }
+  .filter:nth-child(10) { animation-delay: 0.55s; }
+
+  .listing-grid {
+    padding: 0 1rem;
+  }
+
+  /* Improved listing card styles */
+  .listing-card {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    transition: box-shadow 0.22s, transform 0.16s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10), 0 1.5px 6px rgba(254,66,77,0.04);
+    margin-bottom: 2.2rem;
+    background: #fff;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 240px;
+    max-width: 370px;
+    margin-right: 1.2rem;
+  }
+
+  .listing-card:hover {
+    box-shadow: 0 8px 32px rgba(254,66,77,0.18), 0 2px 8px rgba(0,0,0,0.10);
+    transform: translateY(-4px) scale(1.015);
+  }
+
+  .card-img-container {
+    overflow: hidden;
+    border-radius: 18px;
+    position: relative;
+    background: #f8f9fa;
+    min-height: 180px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .listing-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+    transition: transform 0.3s;
+    background: #f8f9fa;
+    display: block;
+  }
+
+  .listing-card:hover img {
+    transform: scale(1.04);
+  }
+
+  .no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #bdbdbd;
+    font-size: 1.2rem;
+    border-radius: 18px;
+  }
+
+  .card-body {
+    padding: 1.1rem 1.2rem 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+    flex: 1 1 auto;
+  }
+
+  .card-title {
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #222;
+    letter-spacing: 0.01em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .card-text {
+    color: #6c757d;
+    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
+    white-space: normal; /* allow wrap so long location names remain visible */
+    overflow: visible;
+    padding-left: 4px; /* push slightly inward for readability */
+    max-height: 3.6em;
+    line-height: 1.15em;
+  }
+
+  /* Reduce the large gap by preventing price-section from growing */
+  .price-section {
+    flex-grow: 0; /* do not push price to bottom */
+    margin-top: 6px;
+  }
+
+  /* allow card-body to size naturally rather than enforcing big min-height */
+  .card-body {
+    padding: 1.0rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* let content control height */
+  }
+
+  /* keep button visually consistent */
+  .btn-view { margin-top: 8px; }
+
+  .badge {
+    font-size: 0.82rem;
+    padding: 0.32em 0.7em;
+    border-radius: 8px;
+    margin-bottom: 0.4rem;
+    background: #f7f7f7;
+    color: #fe424d;
+    font-weight: 600;
+  }
+
+  .price-tag {
+    font-size: 1.13rem;
+    font-weight: bold;
+    color: #fe424d;
+    margin-right: 0.2rem;
+  }
+
+  .btn-view, .btn.btn-primary.w-100 {
+    background: linear-gradient(90deg, #fe424d 60%, #ff6b6b 100%);
+    border: none;
+    border-radius: 22px;
+    padding: 0.55rem 1.2rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.01rem;
+    transition: background 0.2s, transform 0.18s;
+    box-shadow: 0 2px 8px rgba(254,66,77,0.08);
+  }
+
+  .btn-view:hover, .btn.btn-primary.w-100:hover {
+    background: linear-gradient(90deg, #e03850 60%, #e55353 100%);
+    color: #fff;
+    transform: translateY(-2px) scale(1.03);
+  }
+
+  .like-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.97);
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 1.55rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    z-index: 12;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+
+  .like-btn.liked i {
+    color: #fe424d !important;
+  }
+
+  .like-btn.liked {
+    background: #fff;
+    color: #fe424d;
+    transform: scale(1.13);
+    box-shadow: 0 4px 16px rgba(254,66,77,0.10);
+  }
+
+  .like-btn:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 992px) {
+    .listing-card img, .no-image-placeholder { min-height: 140px; }
+  }
+  @media (max-width: 768px) {
+    .listing-card img, .no-image-placeholder { min-height: 110px; }
+    .card-body { padding: 0.8rem 0.7rem; }
+  }
+
+  /* Wishlist popup */
+  .wishlist-popup {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fe424d;
+    color: #fff;
+    padding: 0.85rem 2.2rem;
+    border-radius: 2rem;
+    font-size: 1.08rem;
+    font-weight: 600;
+    box-shadow: 0 8px 32px rgba(254,66,77,0.18);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .wishlist-popup.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
+
+<!-- Enhanced Category Filters -->
+<div class="container-fluid">
+  <div class="filter-container">
+    <div id="filters">
+      <!-- Row 1: Popular Categories -->
+      <div class="filter" data-category="">
+        <div><i class="fa-solid fa-star"></i></div>
+        <p>All</p>
+      </div>
+      <div class="filter" data-category="trending">
+        <div><i class="fa-solid fa-fire"></i></div>
+        <p>Trending</p>
+      </div>
+      <div class="filter" data-category="rooms">
+        <div><i class="fa-solid fa-bed"></i></div>
+        <p>Rooms</p>
+      </div>
+      <div class="filter" data-category="iconic-cities">
+        <div><i class="fa-solid fa-city"></i></div>
+        <p>Iconic Cities</p>
+      </div>
+      <div class="filter" data-category="mountains">
+        <div><i class="fa-solid fa-mountain"></i></div>
+        <p>Mountains</p>
+      </div>
+      <div class="filter" data-category="beaches">
+        <div><i class="fa-solid fa-umbrella-beach"></i></div>
+        <p>Beaches</p>
+      </div>
+      <div class="filter" data-category="castles">
+        <div><i class="fa-solid fa-chess-rook"></i></div>
+        <p>Castles</p>
+      </div>
+      <div class="filter" data-category="pools">
+        <div><i class="fa-solid fa-person-swimming"></i></div>
+        <p>Amazing Pools</p>
+      </div>
+      <div class="filter" data-category="lakefront">
+        <div><i class="fa-solid fa-water"></i></div>
+        <p>Lakefront</p>
+      </div>
+      <div class="filter" data-category="countryside">
+        <div><i class="fa-solid fa-tree"></i></div>
+        <p>Countryside</p>
+      </div>
+      
+      <!-- Row 2: Adventure & Unique -->
+      <div class="filter" data-category="camping">
+        <div><i class="fa-solid fa-campground"></i></div>
+        <p>Camping</p>
+      </div>
+      <div class="filter" data-category="cabins">
+        <div><i class="fa-solid fa-house-chimney"></i></div>
+        <p>Cabins</p>
+      </div>
+      <div class="filter" data-category="farms">
+        <div><i class="fa-solid fa-cow"></i></div>
+        <p>Farms</p>
+      </div>
+      <div class="filter" data-category="tiny-homes">
+        <div><i class="fa-solid fa-home"></i></div>
+        <p>Tiny Homes</p>
+      </div>
+      <div class="filter" data-category="treehouses">
+        <div><i class="fa-solid fa-tree-city"></i></div>
+        <p>Treehouses</p>
+      </div>
+      <div class="filter" data-category="boats">
+        <div><i class="fa-solid fa-ship"></i></div>
+        <p>Boats</p>
+      </div>
+      <div class="filter" data-category="windmills">
+        <div><i class="fa-solid fa-fan"></i></div>
+        <p>Windmills</p>
+      </div>
+      <div class="filter" data-category="caves">
+        <div><i class="fa-solid fa-mountain"></i></div>
+        <p>Caves</p>
+      </div>
+      <div class="filter" data-category="domes">
+        <div><i class="fa-solid fa-igloo"></i></div>
+        <p>Domes</p>
+      </div>
+      <div class="filter" data-category="luxe">
+        <div><i class="fa-solid fa-gem"></i></div>
+        <p>Luxe</p>
+      </div>
+      
+      <!-- Row 3: Lifestyle & Climate -->
+      <div class="filter" data-category="design">
+        <div><i class="fa-solid fa-palette"></i></div>
+        <p>Design</p>
+      </div>
+      <div class="filter" data-category="vineyards">
+        <div><i class="fa-solid fa-wine-bottle"></i></div>
+        <p>Vineyards</p>
+      </div>
+      <div class="filter" data-category="golfing">
+        <div><i class="fa-solid fa-golf-ball-tee"></i></div>
+        <p>Golfing</p>
+      </div>
+      <div class="filter" data-category="skiing">
+        <div><i class="fa-solid fa-person-skiing"></i></div>
+        <p>Skiing</p>
+      </div>
+      <div class="filter" data-category="surfing">
+        <div><i class="fa-solid fa-person-swimming"></i></div>
+        <p>Surfing</p>
+      </div>
+      <div class="filter" data-category="national-parks">
+        <div><i class="fa-solid fa-mountain-sun"></i></div>
+        <p>National Parks</p>
+      </div>
+      <div class="filter" data-category="desert">
+        <div><i class="fa-solid fa-sun"></i></div>
+        <p>Desert</p>
+      </div>
+      <div class="filter" data-category="arctic">
+        <div><i class="fa-solid fa-snowflake"></i></div>
+        <p>Arctic</p>
+      </div>
+      <div class="filter" data-category="tropical">
+        <div><i class="fa-solid fa-palm-tree"></i></div>
+        <p>Tropical</p>
+      </div>
+      <div class="filter" data-category="historical">
+        <div><i class="fa-solid fa-landmark"></i></div>
+        <p>Historical</p>
+      </div>
+
+      <!-- Enhanced Tax Toggle -->
+      <div class="tax-toggle">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+          <label class="form-check-label" for="switchCheckDefault">
+            <i class="fa-solid fa-calculator me-2"></i>Display total after taxes
+          </label>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="row flex-nowrap overflow-auto" style="gap:1.5rem;">
+    <% if(allListings.length > 0) { %>
+        <%for(let listing of allListings) { %>
+            <div class="col-auto d-flex" style="padding-left:0;padding-right:0;">
+                <div class="card listing-card h-100 w-100 position-relative">
+                    <div class="card-img-container">
+                        <% if(listing.image && listing.image.url) { %>
+                            <img src="<%= listing.image.url%>" class="card-img-top" alt="<%= listing.title%>">
+                        <% } else { %>
+                            <div class="no-image-placeholder">
+                                <i class="fa-solid fa-image"></i>
+                                <p>No Image Available</p>
+                            </div>
+                        <% } %>
+                        <!-- Heart/Like Button -->
+                        <button class="like-btn<%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? ' liked' : '' %>" 
+                                onclick="toggleWishlist('<%= listing._id %>', this)" 
+                                title="Add to wishlist" aria-label="Add to wishlist">
+                            <i class="fa-heart <%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? 'fa-solid' : 'fa-regular' %>"></i>
+                        </button>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title"><%= listing.title%></h5>
+                        <p class="card-text text-muted">
+                            <i class="fa-solid fa-location-dot me-1"></i>
+                            <%= listing.location %>, <%= listing.country %>
+                        </p>
+                        <% if(listing.category) { %>
+                            <span class="badge"><%= listing.category %></span>
+                        <% } %>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="price-section">
+                                    <span class="price-tag">₹<%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></span>
+                                    <small class="text-muted">/night</small>
+                                    <div class="tax-info" style="display: none;">
+                                        <small class="text-muted">+18% GST</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/listings/<%= listing._id%>" class="btn btn-primary w-100 btn-view">
+                                <i class="fa-solid fa-eye me-2"></i>View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <%}%>
+    <% } else { %>
+        <!-- No listings found -->
+        <div class="col-12">
+            <div class="no-results text-center py-5">
+                <div class="no-results-icon mb-4">
+                    <i class="fa-solid fa-search"></i>
+                </div>
+                <h3>No properties found</h3>
+                <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
+                    <p class="text-muted mb-4">
+                        We couldn't find any properties matching "<%= searchQuery %>". Try adjusting your search criteria.
+                    </p>
+                <% } else { %>
+                    <p class="text-muted mb-4">
+                        No properties are currently available. Please check back later.
+                    </p>
+                <% } %>
+                
+                <div class="no-results-actions">
+                    <a href="/listings" class="btn btn-primary me-3">
+                        <i class="fa-solid fa-refresh me-2"></i>Clear Filters
+                    </a>
+                    <a href="/listings/new" class="btn btn-outline-success">
+                        <i class="fa-solid fa-plus me-2"></i>List Your Property
+                    </a>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+<!-- Wishlist popup -->
+<div id="wishlistPopup" class="wishlist-popup"></div>
+
+<!-- Login/Signup modal (shown when user clicks heart while not logged in) -->
+<div id="authPromptModal" style="display:none;position:fixed;inset:0;z-index:1050;align-items:center;justify-content:center;">
+  <div style="background:rgba(0,0,0,0.45);position:absolute;inset:0;"></div>
+  <div role="dialog" aria-modal="true" style="position:relative;max-width:420px;width:90%;border-radius:12px;background:#fff;padding:1.25rem;box-shadow:0 10px 30px rgba(0,0,0,0.25);z-index:1051;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
+      <strong style="font-size:1.05rem">Sign in to save</strong>
+      <button id="authModalClose" style="background:transparent;border:none;font-size:1.2rem;cursor:pointer;color:#6b7280">&times;</button>
+    </div>
+    <p style="margin:0 0 0.9rem;color:#475569">Log in or create an account to add places to your wishlist and access them later.</p>
+    <div style="display:flex;gap:0.6rem;align-items:center">
+      <button type="button" id="authLoginBtn" class="btn btn-primary" style="flex:1;text-align:center">Log in</button>
+      <button type="button" id="authRegisterBtn" class="btn btn-outline-secondary" style="flex:1;text-align:center">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Enhanced tax toggle functionality
+    let taxSwitch = document.getElementById("switchCheckDefault");
+    if (taxSwitch) {
+        taxSwitch.addEventListener("click", () => {
+            let taxInfo = document.getElementsByClassName("tax-info");
+            for(info of taxInfo) {
+                if(info.style.display != "block") {
+                    info.style.display = "block";
+                } else {
+                    info.style.display = "none";
+                }
+            }
+        });
+    }
+
+    // Enhanced category filter functionality with analytics
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = document.querySelectorAll('.filter[data-category]');
+        const currentParams = new URLSearchParams(window.location.search);
+        const currentCategory = currentParams.get('category');
+        
+        // Filter categories for better organization
+        const categoryGroups = {
+            popular: ['trending', 'rooms', 'iconic-cities', 'mountains', 'beaches'],
+            unique: ['castles', 'treehouses', 'boats', 'caves', 'domes'],
+            adventure: ['camping', 'national-parks', 'skiing', 'surfing', 'golfing'],
+            luxury: ['luxe', 'vineyards', 'design', 'pools'],
+            nature: ['farms', 'countryside', 'lakefront', 'tropical', 'desert', 'arctic']
+        };
+        
+        // Highlight active filter
+        filters.forEach((filter, index) => {
+            // Add staggered animation delay
+            filter.style.animationDelay = `${0.1 + (index * 0.05)}s`;
+            
+            if (filter.dataset.category === currentCategory) {
+                filter.classList.add('active');
+            }
+            
+            // Add click event with analytics
+            filter.addEventListener('click', function() {
+                const category = this.dataset.category;
+                
+                // Remove active class from all filters
+                filters.forEach(f => f.classList.remove('active'));
+                
+                // Add active class to clicked filter
+                this.classList.add('active');
+                
+                // Update URL with new category
+                if (category === '') {
+                    currentParams.delete('category');
+                } else {
+                    currentParams.set('category', category);
+                }
+                
+                // Add loading state
+                this.style.opacity = '0.5';
+                this.innerHTML = '<div><i class="fa-solid fa-spinner fa-spin"></i></div><p>Loading...</p>';
+                
+                // Navigate to new URL
+                window.location.search = currentParams.toString();
+                
+                // Track category selection (for analytics)
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'filter_select', {
+                        event_category: 'property_search',
+                        event_label: category || 'all',
+                        value: 1
+                    });
+                }
+            });
+            
+            // Add hover effect for category information
+            filter.addEventListener('mouseenter', function() {
+                const category = this.dataset.category;
+                const categoryInfo = getCategoryInfo(category);
+                
+                // You can add a tooltip here showing category info
+                this.title = categoryInfo.description;
+            });
+        });
+        
+        // Enhanced filter search functionality
+        function getCategoryInfo(category) {
+            const categoryDetails = {
+                'trending': { description: 'Most popular properties right now', emoji: '🔥' },
+                'rooms': { description: 'Private rooms in shared spaces', emoji: '🛏️' },
+                'iconic-cities': { description: 'Properties in famous cities', emoji: '🏙️' },
+                'mountains': { description: 'Mountain retreats and cabins', emoji: '⛰️' },
+                'beaches': { description: 'Beachfront and coastal properties', emoji: '🏖️' },
+                'castles': { description: 'Historic castles and estates', emoji: '🏰' },
+                'pools': { description: 'Properties with amazing pools', emoji: '🏊' },
+                'lakefront': { description: 'Properties by lakes and rivers', emoji: '🏞️' },
+                'countryside': { description: 'Rural and countryside escapes', emoji: '🌾' },
+                'camping': { description: 'Outdoor camping experiences', emoji: '⛺' },
+                'cabins': { description: 'Cozy cabins and lodges', emoji: '🛖' },
+                'farms': { description: 'Farm stays and agricultural experiences', emoji: '🚜' },
+                'tiny-homes': { description: 'Compact and efficient living spaces', emoji: '🏠' },
+                'treehouses': { description: 'Elevated forest accommodations', emoji: '🌳' },
+                'boats': { description: 'Houseboats and floating homes', emoji: '⛵' },
+                'windmills': { description: 'Converted windmill accommodations', emoji: '🎐' },
+                'caves': { description: 'Unique cave dwellings', emoji: '🕳️' },
+                'domes': { description: 'Dome-shaped accommodations', emoji: '🏗️' },
+                'luxe': { description: 'Luxury and high-end properties', emoji: '💎' },
+                'design': { description: 'Architecturally stunning properties', emoji: '🎨' },
+                'vineyards': { description: 'Wine country accommodations', emoji: '🍷' },
+                'golfing': { description: 'Properties near golf courses', emoji: '⛳' },
+                'skiing': { description: 'Ski resorts and winter sports', emoji: '⛷️' },
+                'surfing': { description: 'Surf spots and beach culture', emoji: '🏄' },
+                'national-parks': { description: 'Near national parks and reserves', emoji: '🏕️' },
+                'desert': { description: 'Desert landscapes and oases', emoji: '🏜️' },
+                'arctic': { description: 'Cold climate and winter wonderlands', emoji: '❄️' },
+                'tropical': { description: 'Tropical paradises and palm trees', emoji: '🌴' },
+                'historical': { description: 'Historic and heritage properties', emoji: '🏛️' }
+            };
+            
+            return categoryDetails[category] || { description: 'Explore all properties', emoji: '🏠' };
+        }
+        
+        // Add category counter badges
+        function addCategoryCounters() {
+            filters.forEach(filter => {
+                const category = filter.dataset.category;
+                // This would ideally come from your backend
+                // For now, we'll simulate some counts
+                const counts = {
+                    'trending': 45,
+                    'rooms': 128,
+                    'iconic-cities': 89,
+                    'mountains': 67,
+                    'beaches': 92,
+                    'castles': 23,
+                    'pools': 156,
+                    'lakefront': 78,
+                    'countryside': 134
+                };
+                
+                if (counts[category]) {
+                    const badge = document.createElement('span');
+                    badge.className = 'category-badge';
+                    badge.textContent = counts[category];
+                    filter.appendChild(badge);
+                }
+            });
+        }
+        
+        // Initialize category counters
+        // addCategoryCounters(); // Uncomment when you have real data
+        
+        // Add keyboard navigation for filters
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                const activeFilter = document.querySelector('.filter.active');
+                if (activeFilter) {
+                    const allFilters = Array.from(filters);
+                    const currentIndex = allFilters.indexOf(activeFilter);
+                    let nextIndex;
+                    
+                    if (e.key === 'ArrowRight') {
+                        nextIndex = (currentIndex + 1) % allFilters.length;
+                    } else {
+                        nextIndex = (currentIndex - 1 + allFilters.length) % allFilters.length;
+                    }
+                    
+                    allFilters[nextIndex].click();
+                    allFilters[nextIndex].focus();
+                }
+            }
+        });
+        
+        // Add filter search functionality
+        function createFilterSearch() {
+            const searchContainer = document.createElement('div');
+            searchContainer.className = 'filter-search-container';
+            searchContainer.innerHTML = `
+                <input type="text" class="filter-search" placeholder="Search categories..." />
+                <i class="fa-solid fa-search"></i>
+            `;
+            
+            const filtersContainer = document.getElementById('filters');
+            filtersContainer.insertBefore(searchContainer, filtersContainer.firstChild);
+            
+            const searchInput = searchContainer.querySelector('.filter-search');
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                filters.forEach(filter => {
+                    const categoryName = filter.querySelector('p').textContent.toLowerCase();
+                    if (categoryName.includes(query) || query === '') {
+                        filter.style.display = 'block';
+                    } else {
+                        filter.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Uncomment to add filter search
+        // createFilterSearch();
+    });
+
+    // expose login flag to JS (boolean)
+    const isLoggedIn = <%= !!currUser %>;
+
+    /* Override toggleWishlist to show modal when not logged in */
+    function toggleWishlist(listingId, button) {
+      if (!isLoggedIn) {
+        // open modal
+        showAuthPrompt();
+        return;
+      }
+      // existing behavior for logged-in users
+      const icon = button.querySelector('i');
+      const isLiked = icon.classList.contains('fa-solid');
+      const method = isLiked ? 'DELETE' : 'POST';
+      const url = `/user/wishlist/${listingId}`;
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => {
+        if (response.ok) {
+          if (isLiked) {
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+            button.classList.remove('liked');
+            showWishlistPopup('Removed from wishlist');
+          } else {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            button.classList.add('liked');
+            showWishlistPopup('Added to wishlist');
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+
+    // show auth modal
+    function showAuthPrompt(){
+      const modal = document.getElementById('authPromptModal');
+      if (!modal) {
+        // fallback: redirect to login
+        window.location.href = '/login?returnTo=' + encodeURIComponent(window.location.pathname + window.location.search);
+        return;
+      }
+      modal.style.display = 'flex';
+      // wire up the modal buttons to redirect with current location as returnTo
+      const loginBtn = document.getElementById('authLoginBtn');
+      const registerBtn = document.getElementById('authRegisterBtn');
+      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+      if (loginBtn) {
+        loginBtn.onclick = () => { window.location.href = '/login?returnTo=' + returnTo; };
+      }
+      if (registerBtn) {
+        // Try /register first; if it doesn't exist, fall back to /signup
+        registerBtn.onclick = async () => {
+          try {
+            const res = await fetch('/register', { method: 'HEAD' });
+            if (res && res.ok) {
+              window.location.href = '/register?returnTo=' + returnTo;
+              return;
+            }
+          } catch (e) {
+            // ignore and fallback
+          }
+          // fallback to /signup
+          window.location.href = '/signup?returnTo=' + returnTo;
+        };
+      }
+      // allow close by background and close button
+      const closeBtn = document.getElementById('authModalClose');
+      closeBtn && closeBtn.addEventListener('click', hideAuthPrompt, { once: true });
+      modal.addEventListener('click', function(e){
+        if (e.target === modal) hideAuthPrompt();
+      }, { once: true });
+    }
+    function hideAuthPrompt(){
+      const modal = document.getElementById('authPromptModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    // Wishlist popup
+    function showWishlistPopup(msg) {
+        const popup = document.getElementById('wishlistPopup');
+        if (!popup) return;
+        popup.textContent = msg;
+        popup.classList.add('show');
+        setTimeout(() => {
+            popup.classList.remove('show');
+        }, 1400);
+    }
+</script>
+
+<style>
+/* Additional enhanced styles */
+.no-image-placeholder {
+    height: 250px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.no-image-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.wishlist-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.wishlist-btn:hover,
+.wishlist-btn.active {
+    color: #dc3545;
+    background: white;
+    transform: scale(1.1);
+}
+
+.no-results {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    color: #6c757d;
+    opacity: 0.5;
+}
+
+.no-results-actions .btn {
+    min-width: 150px;
+}
+
+.price-section {
+    flex-grow: 1;
+}
+
+.card-img-container {
+    overflow: hidden;
+    border-radius: 15px 15px 0 0;
+}
+
+@media (max-width: 768px) {
+    .no-results-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+/* Footer and page-content helpers (page-specific) */
+.page-content {
+  min-height: calc(100vh - 320px); /* fallback; JS will fine-tune */
+}
+
+/* Footer */
+.site-footer {
+  background: #ffffff;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding: 1.5rem 0;
+  color: #374151;
+  font-size: 0.95rem;
+}
+.site-footer .footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.site-footer .footer-brand {
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+}
+.site-footer .logo-dot { width:36px;height:36px;border-radius:8px;background:#fe424d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.site-footer .footer-links a,
+.site-footer .footer-social a {
+  color: #6b7280;
+  text-decoration: none;
+  margin-right: 0.5rem;
+}
+.site-footer .footer-links a:hover,
+.site-footer .footer-social a:hover { color: #fe424d; }
+.site-footer .footer-bottom { margin-top:0.75rem; text-align:center; color:#9ca3af; }
+
+@media (max-width:768px) {
+  .site-footer .footer-row { flex-direction: column; align-items: flex-start; }
+  .site-footer .footer-links { margin-top:0.5rem; }
+}
+</style>
+
+<script>
+// Ensure footer is visible: compute header + footer heights and set page-content min-height
+(function(){
+  function adjustPageContent() {
+    try {
+      var footer = document.querySelector('.site-footer');
+      var page = document.querySelector('.page-content');
+      var header = document.querySelector('.header') || document.querySelector('header') || { offsetHeight: 0 };
+      if (!footer || !page) return;
+      var available = window.innerHeight - footer.offsetHeight - (header.offsetHeight || 0) - 40; // small gap
+      if (available > 200) page.style.minHeight = available + 'px';
+    } catch (e) { /* silent */ }
+  }
+  window.addEventListener('load', adjustPageContent);
+  window.addEventListener('resize', adjustPageContent);
+  // initial attempt
+  adjustPageContent();
+})();
+</script>

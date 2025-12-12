@@ -1,0 +1,77 @@
+<% layout('/layouts/boilerplate') %>
+<style>
+  .notification-hero {
+    background: linear-gradient(135deg, #fe424d 0%, #ff6b6b 100%);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin-bottom: 2.5rem;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .notification-list {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .notification-card {
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    background: #fff;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: box-shadow 0.2s;
+  }
+  .notification-card:hover {
+    box-shadow: 0 8px 32px rgba(254,66,77,0.13);
+  }
+  .notification-card .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fe424d;
+  }
+  .notification-card .details {
+    flex: 1;
+  }
+  .notification-card .details .title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+  }
+  .notification-card .details .desc {
+    color: #888;
+    font-size: 0.97rem;
+  }
+</style>
+<div class="container py-5">
+  <div class="notification-hero">
+    <h2 class="fw-bold mb-1"><i class="fa-solid fa-bell me-2"></i>Notifications</h2>
+    <div class="mb-2">Stay up to date with your latest alerts and messages.</div>
+    <% if(user && user.displayName) { %>
+      <div class="mb-2">Welcome, <%= user.displayName %>!</div>
+    <% } %>
+  </div>
+  <div class="notification-list">
+    <!-- Example notification card (replace with real data loop) -->
+    <div class="notification-card">
+      <div class="icon"><i class="fa-solid fa-bell"></i></div>
+      <div class="details">
+        <div class="title">No notifications yet</div>
+        <div class="desc">Your notifications will appear here.</div>
+      </div>
+    </div>
+  </div>
+</div>

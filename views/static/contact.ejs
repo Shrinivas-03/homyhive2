@@ -1,0 +1,396 @@
+<% layout('layouts/boilerplate') %>
+<div class="contact-wrapper">
+  <!-- Flash Messages -->
+  <% if (success && success.length > 0) { %>
+    <div class="alert alert-success">
+      <i class="fa-solid fa-check-circle"></i> <%= success %>
+    </div>
+  <% } %>
+  <% if (error && error.length > 0) { %>
+    <div class="alert alert-error">
+      <i class="fa-solid fa-exclamation-triangle"></i> <%= error %>
+    </div>
+  <% } %>
+
+  <div class="contact-hero">
+    <h1><i class="fa-solid fa-headset"></i> Contact HomyHive</h1>
+    <p>We're here to help! Choose the best way to reach us.</p>
+  </div>
+
+  <!-- Quick Contact Cards -->
+  <div class="contact-cards">
+    <div class="contact-card">
+      <div class="contact-icon">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <h3>For Guests</h3>
+      <p>Questions about bookings, payments, or your stay</p>
+      <a href="#guest-support" class="contact-btn">Get Help</a>
+    </div>
+    
+    <div class="contact-card">
+      <div class="contact-icon">
+        <i class="fa-solid fa-home"></i>
+      </div>
+      <h3>For Hosts</h3>
+      <p>Support for listing your property or managing bookings</p>
+      <a href="#host-support" class="contact-btn">Host Support</a>
+    </div>
+    
+    <div class="contact-card">
+      <div class="contact-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h3>Safety & Trust</h3>
+      <p>Report safety concerns or trust issues</p>
+      <a href="#safety-support" class="contact-btn">Report Issue</a>
+    </div>
+    
+    <div class="contact-card">
+      <div class="contact-icon">
+        <i class="fa-solid fa-briefcase"></i>
+      </div>
+      <h3>Business Inquiries</h3>
+      <p>Partnerships, media, and business opportunities</p>
+      <a href="#business-contact" class="contact-btn">Contact Us</a>
+    </div>
+  </div>
+
+  <!-- Contact Sections -->
+  <div class="contact-sections">
+    
+    <!-- Guest Support -->
+    <section id="guest-support" class="contact-section">
+      <h2><i class="fa-solid fa-user-circle"></i> Guest Support</h2>
+      <div class="support-grid">
+        <div class="support-item">
+          <h4><i class="fa-solid fa-calendar-check"></i> Booking Help</h4>
+          <p>Need help with reservations, cancellations, or modifications?</p>
+          <ul>
+            <li>📞 <strong>Phone:</strong> +91 9035430915 (24/7)</li>
+            <li>💬 <strong>Live Chat:</strong> Available on our website</li>
+            <li>📧 <strong>Email:</strong> guest-support@homyhive.com</li>
+          </ul>
+        </div>
+        
+        <div class="support-item">
+          <h4><i class="fa-solid fa-credit-card"></i> Payment Issues</h4>
+          <p>Problems with payments, refunds, or billing?</p>
+          <ul>
+            <li>📧 <strong>Email:</strong> payments@homyhive.com</li>
+            <li>⏰ <strong>Response time:</strong> Within 24 hours</li>
+            <li>💳 Include your booking reference number</li>
+          </ul>
+        </div>
+        
+        <div class="support-item">
+          <h4><i class="fa-solid fa-bed"></i> During Your Stay</h4>
+          <p>Need immediate help during your stay?</p>
+          <ul>
+            <li>🆘 <strong>Emergency:</strong> +91 9035430915 (24/7)</li>
+            <li>📱 <strong>WhatsApp:</strong> +91 9035430915</li>
+            <li>💬 Use our mobile app for instant support</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Host Support -->
+    <section id="host-support" class="contact-section">
+      <h2><i class="fa-solid fa-house-user"></i> Host Support</h2>
+      <div class="support-grid">
+        <div class="support-item">
+          <h4><i class="fa-solid fa-plus-circle"></i> Become a Host</h4>
+          <p>Ready to list your property on HomyHive?</p>
+          <ul>
+            <li>📞 <strong>Phone:</strong> +91 9035430915</li>
+            <li>📧 <strong>Email:</strong> host-onboarding@homyhive.com</li>
+            <li>📅 <strong>Free consultation:</strong> Schedule a call</li>
+          </ul>
+        </div>
+        
+        <div class="support-item">
+          <h4><i class="fa-solid fa-tools"></i> Host Resources</h4>
+          <p>Need help managing your listing or bookings?</p>
+          <ul>
+            <li>💻 <strong>Host Dashboard:</strong> Manage everything online</li>
+            <li>📧 <strong>Email:</strong> host-support@homyhive.com</li>
+            <li>📚 <strong>Resources:</strong> Check our Host Guide</li>
+          </ul>
+        </div>
+        
+        <div class="support-item">
+          <h4><i class="fa-solid fa-chart-line"></i> Performance & Earnings</h4>
+          <p>Questions about your earnings or listing performance?</p>
+          <ul>
+            <li>📊 <strong>Analytics:</strong> Check your host dashboard</li>
+            <li>📧 <strong>Email:</strong> host-earnings@homyhive.com</li>
+            <li>💡 <strong>Tips:</strong> Get personalized advice</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Safety & Trust -->
+    <section id="safety-support" class="contact-section">
+      <h2><i class="fa-solid fa-shield-alt"></i> Safety & Trust</h2>
+      <div class="safety-grid">
+        <div class="safety-item urgent">
+          <h4><i class="fa-solid fa-exclamation-triangle"></i> Report an Emergency</h4>
+          <p>For immediate safety concerns or emergencies</p>
+          <div class="emergency-contacts">
+            <a href="tel:+919035430915" class="emergency-btn" id="emergencyCall">📞 Call Emergency Line</a>
+            <span>+91 9035430915 (24/7)</span>
+            <div class="emergency-alternatives">
+              <small>
+                <strong>Alternative contact methods:</strong><br>
+                • <a href="mailto:emergency@homyhive.com" style="color: #ff6b6b;">📧 emergency@homyhive.com</a><br>
+                • <a href="https://wa.me/919035430915" target="_blank" style="color: #25d366;">💬 WhatsApp Emergency</a><br>
+                • <span style="color: #666;">💬 SMS: +91 9035430915</span>
+              </small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="safety-item">
+          <h4><i class="fa-solid fa-flag"></i> Report Issues</h4>
+          <p>Report inappropriate behavior, fraud, or policy violations</p>
+          <ul>
+            <li>📧 <strong>Email:</strong> trust-safety@homyhive.com</li>
+            <li>📝 <strong>Online form:</strong> Fill out our report form</li>
+            <li>🔒 <strong>Confidential:</strong> All reports are private</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business Inquiries -->
+    <section id="business-contact" class="contact-section">
+      <h2><i class="fa-solid fa-handshake"></i> Business & Partnerships</h2>
+      <div class="business-grid">
+        <div class="business-item">
+          <h4><i class="fa-solid fa-users"></i> Partnerships</h4>
+          <p>Interested in partnering with HomyHive?</p>
+          <ul>
+            <li>📧 <strong>Email:</strong> partnerships@homyhive.com</li>
+            <li>💼 Include your business proposal</li>
+          </ul>
+        </div>
+        
+        <div class="business-item">
+          <h4><i class="fa-solid fa-newspaper"></i> Media & Press</h4>
+          <p>Media inquiries and press requests</p>
+          <ul>
+            <li>📧 <strong>Email:</strong> press@homyhive.com</li>
+            <li>📰 Download our press kit</li>
+          </ul>
+        </div>
+        
+        <div class="business-item">
+          <h4><i class="fa-solid fa-building"></i> Corporate Travel</h4>
+          <p>Business travel and corporate accounts</p>
+          <ul>
+            <li>📧 <strong>Email:</strong> corporate@homyhive.com</li>
+            <li>💼 Custom pricing available</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Form -->
+    <section class="contact-form-section">
+      <h2><i class="fa-solid fa-envelope"></i> Send us a Message</h2>
+      <div class="contact-form-container">
+        <form action="/contact" method="POST" class="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name *</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone">
+            </div>
+            <div class="form-group">
+              <label for="category">Category *</label>
+              <select id="category" name="category" required>
+                <option value="">Select a category</option>
+                <option value="guest">Guest Support</option>
+                <option value="host">Host Support</option>
+                <option value="safety">Safety & Trust</option>
+                <option value="business">Business Inquiry</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="subject">Subject *</label>
+            <input type="text" id="subject" name="subject" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="message">Message *</label>
+            <textarea id="message" name="message" rows="6" required placeholder="Please describe your inquiry in detail..."></textarea>
+          </div>
+          
+          <button type="submit" class="submit-btn">
+            <i class="fa-solid fa-paper-plane"></i> Send Message
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FAQ Quick Links -->
+    <section class="faq-links">
+      <h2><i class="fa-solid fa-question-circle"></i> Frequently Asked Questions</h2>
+      <div class="faq-grid">
+        <a href="/faq#booking" class="faq-link">
+          <i class="fa-solid fa-calendar"></i>
+          <span>How to Book</span>
+        </a>
+        <a href="/faq#cancellation" class="faq-link">
+          <i class="fa-solid fa-times-circle"></i>
+          <span>Cancellation Policy</span>
+        </a>
+        <a href="/faq#payment" class="faq-link">
+          <i class="fa-solid fa-credit-card"></i>
+          <span>Payment Methods</span>
+        </a>
+        <a href="/faq#hosting" class="faq-link">
+          <i class="fa-solid fa-home"></i>
+          <span>How to Host</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- Office Locations -->
+  <section class="office-locations">
+    <h2><i class="fa-solid fa-map-marker-alt"></i> Our Offices</h2>
+    <div class="office-grid">
+      <div class="office-card">
+        <h4>Headquarters - Bangalore</h4>
+        <address>
+          <i class="fa-solid fa-location-dot"></i>
+          123 Tech Park, Koramangala<br>
+          Bangalore, Karnataka 560034<br>
+          India
+        </address>
+        <p><i class="fa-solid fa-clock"></i> Mon-Fri: 9:00 AM - 6:00 PM IST</p>
+      </div>
+      
+      <div class="office-card">
+        <h4>Mumbai Office</h4>
+        <address>
+          <i class="fa-solid fa-location-dot"></i>
+          456 Business Hub, Andheri East<br>
+          Mumbai, Maharashtra 400069<br>
+          India
+        </address>
+        <p><i class="fa-solid fa-clock"></i> Mon-Fri: 9:00 AM - 6:00 PM IST</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Live Chat Widget Integration -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
+    });
+  });
+  
+  // Form submission
+  const contactForm = document.querySelector('.contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+      // Show loading state
+      const submitBtn = this.querySelector('.submit-btn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+      submitBtn.disabled = true;
+      
+      // Note: Form will be handled by backend route
+      console.log('Contact form submitted');
+    });
+  }
+  
+  // Auto-hide flash messages after 5 seconds
+  const alerts = document.querySelectorAll('.alert');
+  alerts.forEach(alert => {
+    setTimeout(() => {
+      alert.style.opacity = '0';
+      alert.style.transform = 'translateY(-20px)';
+      setTimeout(() => alert.remove(), 300);
+    }, 5000);
+  });
+  
+  // Enhanced emergency call handling
+  const emergencyBtn = document.getElementById('emergencyCall');
+  if (emergencyBtn) {
+    emergencyBtn.addEventListener('click', function(e) {
+      // Check if device can make calls
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (!isMobile) {
+        e.preventDefault();
+        
+        // Show modal with contact options for desktop users
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+          background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+          align-items: center; justify-content: center;
+        `;
+        
+        modal.innerHTML = `
+          <div style="background: white; padding: 30px; border-radius: 10px; max-width: 400px; text-align: center;">
+            <h3 style="color: #ff6b6b; margin-bottom: 20px;">
+              <i class="fa-solid fa-exclamation-triangle"></i> Emergency Contact
+            </h3>
+            <p style="margin-bottom: 20px;">Choose your preferred contact method:</p>
+            
+            <div style="margin-bottom: 15px;">
+              <a href="tel:+919035430915" style="display: block; padding: 12px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 10px;">
+                📞 Call +91 9035430915
+              </a>
+              
+              <a href="https://wa.me/919035430915" target="_blank" style="display: block; padding: 12px; background: #25d366; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 10px;">
+                💬 WhatsApp Emergency
+              </a>
+              
+              <a href="mailto:emergency@homyhive.com" style="display: block; padding: 12px; background: #0066cc; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 10px;">
+                📧 Email Emergency
+              </a>
+            </div>
+            
+            <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #ccc; border: none; border-radius: 5px; cursor: pointer;">
+              Close
+            </button>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) modal.remove();
+        });
+      }
+    });
+  }
+});
+</script>

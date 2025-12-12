@@ -1,0 +1,60 @@
+<% layout('layouts/boilerplate') %>
+<div class="privacy-wrapper">
+  <div class="privacy-card">
+    <!-- Close/Minimize Button -->
+    <button class="close-btn" onclick="window.close(); history.back();" title="Close and return to signup">
+      <i class="fa-solid fa-times"></i>
+    </button>
+    
+    <h1 class="privacy-title"><i class="fa-solid fa-file-contract" style="color:#fe424d;"></i> Terms & Conditions</h1>
+    <div class="privacy-meta">
+      <span class="privacy-updated">Last updated: October 15, 2025</span>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-circle-info"></i> Acceptance of Terms</h3>
+      <p>By using HomyHive, you agree to these terms and conditions. Please read them carefully.</p>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-user-shield"></i> User Responsibilities</h3>
+      <ul>
+        <li>Provide accurate information when creating an account or listing.</li>
+        <li>Respect other users and their privacy.</li>
+        <li>Do not post illegal, offensive, or misleading content.</li>
+      </ul>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-lock"></i> Privacy & Security</h3>
+      <p>Your data is protected as described in our <a href="/privacy" style="color:#fe424d;">Privacy Policy</a>.</p>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-ban"></i> Prohibited Activities</h3>
+      <ul>
+        <li>No spamming, hacking, or fraudulent activities.</li>
+        <li>No violation of intellectual property rights.</li>
+      </ul>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-gavel"></i> Changes to Terms</h3>
+      <p>We may update these terms at any time. Continued use of HomyHive means you accept the new terms.</p>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-envelope"></i> Contact Us</h3>
+      <p>If you have questions about our terms, email us at <a href="mailto:info@homyhive.com" style="color:#fe424d;font-weight:600;">info@homyhive.com</a>.</p>
+    </div>
+    <div class="privacy-section" style="text-align:center; margin-top:2rem;">
+  <form id="agreeForm" onsubmit="event.preventDefault(); document.getElementById('agreeMsg').textContent='Thank you for agreeing to the Terms & Conditions!'; document.getElementById('agreeMsg').style.display='block';">
+        <label style="font-size:1.1rem;">
+          <input type="checkbox" id="agreeCheck"> I agree to the Terms & Conditions
+        </label>
+        <br>
+        <button type="submit" id="agreeBtn" disabled style="margin-top:1rem; background:#fe424d; color:#fff; border:none; border-radius:4px; padding:0.5rem 1.2rem; font-size:1rem; cursor:pointer;">Continue</button>
+      </form>
+      <div id="agreeMsg" style="display:none; color:#28a745; font-weight:600; margin-top:1rem;">Thank you for agreeing to the Terms & Conditions!</div>
+      <script>
+        document.getElementById('agreeCheck').addEventListener('change', function() {
+          document.getElementById('agreeBtn').disabled = !this.checked;
+        });
+      </script>
+    </div>
+  </div>
+</div>

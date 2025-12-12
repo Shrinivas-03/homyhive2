@@ -1,0 +1,391 @@
+<% layout("/layouts/boilerplate")%>
+
+<style>
+  /* Host Resources Page Styles (refined) */
+  body {
+    background: #f7faf9; /* subtle off-white to give depth like modern sites */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #064e3b; /* default text uses a dark greenish tone */
+  }
+
+  .resources-container {
+    min-height: 100vh;
+    padding: 3.5rem 0 6rem;
+  }
+
+  .hero-section {
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    margin-bottom: 2.5rem;
+    background: transparent;
+  }
+
+  .hero-title {
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #064e3b; /* strong visible green */
+    text-shadow: 0 4px 18px rgba(6,78,59,0.06);
+    letter-spacing: -0.5px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: #475569;
+    max-width: 900px;
+    margin: 0.25rem auto 0;
+  }
+
+  .resources-content {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .resource-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 1.75rem;
+    box-shadow: 0 8px 24px rgba(7, 10, 21, 0.06);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    border: 1px solid rgba(6,78,59,0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .resource-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(7, 10, 21, 0.09);
+  }
+
+  .resource-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 6px 18px rgba(5,150,105,0.08);
+  }
+
+  .resource-icon i {
+    font-size: 1.25rem;
+    color: #ffffff;
+  }
+
+  .resource-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 0.6rem;
+  }
+
+  .resource-description {
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    font-size: 0.96rem;
+  }
+
+  .resource-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: auto;
+  }
+
+  .resource-link {
+    color: #065f46;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.95rem;
+  }
+
+  .resource-link:hover {
+    color: #044e3a;
+    transform: translateX(3px);
+  }
+
+  .resource-link i {
+    opacity: 0.6;
+    color: #0f766e;
+  }
+
+  .cta-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    margin: 2.5rem 0 0;
+    box-shadow: 0 12px 30px rgba(7, 10, 21, 0.06);
+  }
+
+  .cta-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 0.6rem;
+  }
+
+  .cta-description {
+    color: #475569;
+    font-size: 1rem;
+    margin-bottom: 1.4rem;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.9rem 1.6rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.98rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin: 0 0.35rem;
+  }
+
+  .cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(5,150,105,0.14);
+  }
+
+  .cta-button.secondary {
+    background: transparent;
+    color: #065f46;
+    border: 2px solid #e6f7ef;
+  }
+
+  .cta-button.secondary:hover {
+    background: #065f46;
+    color: white;
+  }
+
+  @media (max-width: 1100px) {
+    .resources-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 700px) {
+    .resources-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 1.8rem; }
+    .resources-container { padding-top: 2.5rem; }
+  }
+</style>
+
+<div class="resources-container">
+  <div class="hero-section">
+    <h1 class="hero-title">Host Resources</h1>
+    <p class="hero-subtitle">Everything you need to become a successful host on HomyHive</p>
+  </div>
+
+  <div class="resources-content">
+    <div class="resources-grid">
+      <!-- Getting Started -->
+      <div class="resource-card">
+        <div class="resource-icon">
+          <i class="fas fa-rocket"></i>
+        </div>
+        <h3 class="resource-title">Getting Started</h3>
+        <p class="resource-description">
+          New to hosting? Start here! Learn the basics of setting up your listing, creating an attractive profile, and welcoming your first guests.
+        </p>
+        <div class="resource-links">
+          <a href="/resources/host-onboarding-guide" class="resource-link">
+            Host Onboarding Guide
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/creating-your-first-listing" class="resource-link">
+            Creating Your First Listing
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/photo-guidelines" class="resource-link">
+            Photo Guidelines
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/pricing-your-space" class="resource-link">
+            Pricing Your Space
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Legal & Compliance -->
+      <div class="resource-card">
+        <div class="resource-icon">
+          <i class="fas fa-gavel"></i>
+        </div>
+        <h3 class="resource-title">Legal & Compliance</h3>
+        <p class="resource-description">
+          Stay compliant with local laws and regulations. Understand your rights and responsibilities as a host in India.
+        </p>
+        <div class="resource-links">
+          <a href="/resources/host-legal-requirements" class="resource-link">
+            Host Legal Requirements
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/tax-guidelines-for-hosts" class="resource-link">
+            Tax Guidelines for Hosts
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/local-regulations-by-state" class="resource-link">
+            Local Regulations by State
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/insurance-information" class="resource-link">
+            Insurance Information
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Marketing & Optimization -->
+      <div class="resource-card">
+        <div class="resource-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 class="resource-title">Marketing & Optimization</h3>
+        <p class="resource-description">
+          Maximize your bookings and revenue with proven strategies, marketing tips, and optimization techniques.
+        </p>
+        <div class="resource-links">
+          <a href="/resources/listing-optimization-guide" class="resource-link">
+            Listing Optimization Guide
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/seasonal-pricing-strategies" class="resource-link">
+            Seasonal Pricing Strategies
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/guest-communication-tips" class="resource-link">
+            Guest Communication Tips
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/building-your-host-reputation" class="resource-link">
+            Building Your Host Reputation
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Safety & Security -->
+      <div class="resource-card">
+        <div class="resource-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3 class="resource-title">Safety & Security</h3>
+        <p class="resource-description">
+          Keep your property and guests safe with our comprehensive safety guidelines and security best practices.
+        </p>
+        <div class="resource-links">
+          <a href="/resources/property-safety-checklist" class="resource-link">
+            Property Safety Checklist
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/guest-screening-guidelines" class="resource-link">
+            Guest Screening Guidelines
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/emergency-procedures" class="resource-link">
+            Emergency Procedures
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/security-device-recommendations" class="resource-link">
+            Security Device Recommendations
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Financial Management -->
+      <div class="resource-card">
+        <div class="resource-icon">
+          <i class="fas fa-rupee-sign"></i>
+        </div>
+        <h3 class="resource-title">Financial Management</h3>
+        <p class="resource-description">
+          Manage your hosting income effectively with tools and resources for tracking earnings, expenses, and taxes.
+        </p>
+        <div class="resource-links">
+          <a href="/resources/income-tracking-tools" class="resource-link">
+            Income Tracking Tools
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/expense-management" class="resource-link">
+            Expense Management
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/gst-compliance-for-hosts" class="resource-link">
+            GST Compliance for Hosts
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/payout-information" class="resource-link">
+            Payout Information
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Technology & Tools -->
+      <div class="resource-card">
+        <div class="resource-icon">
+          <i class="fas fa-tools"></i>
+        </div>
+        <h3 class="resource-title">Technology & Tools</h3>
+        <p class="resource-description">
+          Streamline your hosting experience with recommended tools, apps, and integrations for efficient property management.
+        </p>
+        <div class="resource-links">
+          <a href="/resources/recommended-host-apps" class="resource-link">
+            Recommended Host Apps
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/smart-home-integration" class="resource-link">
+            Smart Home Integration
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/calendar-management" class="resource-link">
+            Calendar Management
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+          <a href="/resources/automation-tools" class="resource-link">
+            Automation Tools
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="cta-section">
+      <h2 class="cta-title">Ready to Start Hosting?</h2>
+      <p class="cta-description">
+        Join thousands of successful hosts on HomyHive and start earning extra income by sharing your space.
+      </p>
+      <a href="/host" class="cta-button">Become a Host</a>
+      <a href="/host-support" class="cta-button secondary">Get Support</a>
+    </div>
+  </div>
+</div>
+</div>

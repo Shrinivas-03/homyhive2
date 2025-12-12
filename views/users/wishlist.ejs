@@ -1,0 +1,154 @@
+<% layout("/layouts/boilerplate") %>
+
+<!-- Force auth styling -->
+<script>
+  try {
+    document.documentElement.classList.add('auth-page');
+    document.body.classList.add('auth-page');
+  } catch(e){}
+</script>
+
+<style>
+  html.auth-page, body.auth-page {
+    background: linear-gradient(135deg, #f7fbfc 0%, #ffffff 100%) !important;
+    color: #111 !important;
+    min-height: 100vh !important;
+  }
+
+  .login-hero {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-card {
+    max-width: 420px;
+    width: 96%;
+    padding: 26px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(18,38,63,0.08);
+    background: #ffffff;
+  }
+
+  .btn-primary { background: #ef476f; border-color: #ef476f; }
+  .btn-primary:hover { background: #e43f67; border-color: #e43f67; }
+
+  .wishlist-hero {
+    background: linear-gradient(135deg, #fe424d 0%, #ff6b6b 100%);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin-bottom: 2.5rem;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .wishlist-list {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .wishlist-card {
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    background: #fff;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: box-shadow 0.2s;
+  }
+  .wishlist-card:hover {
+    box-shadow: 0 8px 32px rgba(254,66,77,0.13);
+  }
+  .wishlist-card .img {
+    width: 90px;
+    height: 70px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wishlist-card .img i {
+    font-size: 2rem;
+    color: #fe424d;
+  }
+  .wishlist-card .details {
+    flex: 1;
+  }
+  .wishlist-card .details .title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+  }
+  .wishlist-card .details .desc {
+    color: #888;
+    font-size: 0.97rem;
+  }
+</style>
+
+<div class="login-hero">
+  <div class="login-card">
+    <h1 class="text-center">Verify OTP</h1>
+    <p class="text-center text-muted mb-4">We have sent a 6-digit code to your email.</p>
+
+    <form action="/verify-otp" method="POST">
+
+      <div class="mb-3">
+        <label for="otp" class="form-label">Enter OTP</label>
+        <input
+          type="text"
+          name="otp"
+          id="otp"
+          class="form-control"
+          placeholder="Enter 6-digit OTP"
+          required
+        >
+      </div>
+
+      <div class="d-grid mt-4">
+        <button class="btn btn-primary btn-lg" type="submit">Verify OTP</button>
+      </div>
+
+    </form>
+
+    <p class="text-center mt-3 text-muted">
+      Didn’t receive code? <a href="/signup" class="text-primary">Try again</a>
+    </p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="wishlist-hero">
+    <h2 class="fw-bold mb-1"><i class="fa-solid fa-heart me-2"></i>My Wishlist</h2>
+    <div class="mb-2">All your saved stays and favorites in one place.</div>
+    <% if(user && user.displayName) { %>
+      <div class="mb-2">Welcome, <%= user.displayName %>!</div>
+    <% } %>
+  </div>
+  <div class="wishlist-list">
+    <!-- Example wishlist card (replace with real data loop) -->
+    <div class="wishlist-card">
+      <div class="img">
+        <i class="fa-solid fa-heart"></i>
+      </div>
+      <div class="details">
+        <div class="title">No wishlist items yet</div>
+        <div class="desc">Your saved listings will appear here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    try { document.documentElement.classList.add('auth-page'); } catch(e){}
+  });
+</script>

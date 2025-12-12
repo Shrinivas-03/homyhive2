@@ -1,0 +1,84 @@
+<% layout("/layouts/boilerplate") %>
+
+<script>
+try {
+    document.documentElement.classList.add("auth-page");
+    document.body.classList.add("auth-page");
+} catch (e) {}
+</script>
+
+<style>
+html.auth-page, body.auth-page {
+    background: linear-gradient(135deg,#f7fbfc,#ffffff) !important;
+    min-height: 100vh !important;
+}
+.login-hero {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login-card {
+    max-width: 420px;
+    width: 100%;
+    padding: 26px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+</style>
+
+<div class="login-hero">
+    <div class="login-card">
+        <h1 class="text-center">Welcome Back</h1>
+        <p class="text-center text-muted">Login with your email</p>
+
+        <!-- ⭐ FINAL WORKING FORM ⭐ -->
+        <form action="/login" method="POST" autocomplete="on">
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label class="form-label" for="email">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text">@</span>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        class="form-control"
+                        placeholder="you@example.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-3">
+                <label class="form-label" for="password">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text">🔒</span>
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        class="form-control"
+                        placeholder="Enter password"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-2">Sign In</button>
+        </form>
+
+        <!-- DEBUG: SHOW WHAT FORM IS SENDING -->
+        <script>
+        document.querySelector("form").addEventListener("submit", e => {
+            console.log("DEBUG → Email:", document.getElementById("email").value);
+        });
+        </script>
+
+    </div>
+</div>

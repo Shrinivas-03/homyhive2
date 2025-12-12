@@ -1,0 +1,397 @@
+<% layout("/layouts/boilerplate")%>
+
+<div class="help-container">
+  <div class="help-hero">
+    <h1>Help Center</h1>
+    <p>Find answers and get support when you need it</p>
+    
+    <div class="help-search">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" id="help-search" placeholder="Search for help articles..." />
+    </div>
+  </div>
+
+  <div class="help-content">
+    <!-- Quick Help Cards -->
+    <div class="quick-help">
+      <h2>Quick Help</h2>
+      <div class="help-cards">
+        <div class="help-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <h3>Booking Help</h3>
+          <p>How to book, modify, or cancel reservations</p>
+          <a href="#booking" class="card-link">Learn More</a>
+        </div>
+
+        <div class="help-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-home-user"></i>
+          </div>
+          <h3>Hosting Guide</h3>
+          <p>Everything you need to know about hosting</p>
+          <a href="#hosting" class="card-link">Learn More</a>
+        </div>
+
+        <div class="help-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-credit-card"></i>
+          </div>
+          <h3>Payment Issues</h3>
+          <p>Billing, refunds, and payment methods</p>
+          <a href="#payment" class="card-link">Learn More</a>
+        </div>
+
+        <div class="help-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-shield-heart"></i>
+          </div>
+          <h3>Safety & Trust</h3>
+          <p>Safety guidelines and trust features</p>
+          <a href="#safety" class="card-link">Learn More</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Sections -->
+    <div class="help-sections">
+      <!-- Booking Section -->
+      <section id="booking" class="help-section">
+        <h2>Booking Help</h2>
+        <div class="help-accordion">
+          <div class="help-item">
+            <div class="help-question">
+              <h4>How do I make a booking?</h4>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="help-answer">
+              <p>To make a booking:</p>
+              <ol>
+                <li>Search for your destination and dates</li>
+                <li>Browse available properties</li>
+                <li>Select a property you like</li>
+                <li>Choose your dates and number of guests</li>
+                <li>Click "Book Now" and complete payment</li>
+              </ol>
+              <p>You'll receive instant confirmation and host contact details via email.</p>
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-question">
+              <h4>Can I modify my booking dates?</h4>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="help-answer">
+              <p>Yes, you can request to modify your booking dates. Contact your host directly or reach out to our support team. Modification availability depends on the host's calendar and cancellation policy.</p>
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-question">
+              <h4>What is the cancellation policy?</h4>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="help-answer">
+              <p>Cancellation policies vary by property. Most properties offer free cancellation up to 24 hours before check-in. Check the specific policy on the listing page before booking.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hosting Section -->
+      <section id="hosting" class="help-section">
+        <h2>Hosting Guide</h2>
+        <div class="help-accordion">
+          <div class="help-item">
+            <div class="help-question">
+              <h4>How do I start hosting?</h4>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="help-answer">
+              <p>Getting started is easy:</p>
+              <ol>
+                <li>Click "Become a Host" in the navigation</li>
+                <li>Fill out your property details</li>
+                <li>Upload high-quality photos</li>
+                <li>Set your pricing and availability</li>
+                <li>Publish your listing</li>
+              </ol>
+              <p>Our team will review and approve your listing within 24 hours.</p>
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-question">
+              <h4>How do I get paid?</h4>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="help-answer">
+              <p>Payments are processed 24 hours after guest check-in. You can receive payments via bank transfer, PayPal, or UPI. We charge a 3% host service fee on completed bookings.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Contact Support -->
+    <div class="contact-support">
+      <h2>Still Need Help?</h2>
+      <p>Can't find what you're looking for? Our support team is available 24/7 to assist you.</p>
+      
+      <div class="support-options">
+        <a href="/contact" class="support-option">
+          <i class="fa-solid fa-envelope"></i>
+          <h4>Email Support</h4>
+          <p>Get detailed help via email</p>
+        </a>
+        
+        <a href="tel:+911234567890" class="support-option">
+          <i class="fa-solid fa-phone"></i>
+          <h4>Phone Support</h4>
+          <p>Speak with our team directly</p>
+        </a>
+        
+        <a href="https://wa.me/911234567890" class="support-option" target="_blank">
+          <i class="fa-brands fa-whatsapp"></i>
+          <h4>WhatsApp</h4>
+          <p>Quick support via WhatsApp</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.help-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.help-hero {
+  text-align: center;
+  margin-bottom: 4rem;
+  background: linear-gradient(135deg, #fe424d 0%, #ff7e5f 100%);
+  color: white;
+  padding: 4rem 2rem;
+  border-radius: 20px;
+}
+
+.help-hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.help-search {
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.help-search i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.help-search input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.quick-help h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.help-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.help-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.help-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #fe424d 0%, #ff7e5f 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 2rem;
+}
+
+.help-card h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.card-link {
+  color: #fe424d;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.help-section {
+  margin-bottom: 3rem;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.help-section h2 {
+  color: #fe424d;
+  border-bottom: 2px solid #fe424d;
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.help-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.help-question {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s;
+}
+
+.help-question:hover {
+  background: #e9ecef;
+}
+
+.help-question h4 {
+  margin: 0;
+  color: #333;
+}
+
+.help-question i {
+  color: #fe424d;
+  transition: transform 0.3s;
+}
+
+.help-item.active .help-question i {
+  transform: rotate(180deg);
+}
+
+.help-answer {
+  padding: 0 1.5rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.help-item.active .help-answer {
+  padding: 1.5rem;
+  max-height: 500px;
+}
+
+.help-answer p, .help-answer ol {
+  color: #666;
+  line-height: 1.6;
+}
+
+.contact-support {
+  text-align: center;
+  background: #f8f9fa;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+}
+
+.support-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.support-option {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.support-option:hover {
+  transform: translateY(-3px);
+}
+
+.support-option i {
+  font-size: 2.5rem;
+  color: #fe424d;
+  margin-bottom: 1rem;
+}
+
+.support-option h4 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.support-option p {
+  color: #666;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .help-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .support-options {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const helpQuestions = document.querySelectorAll('.help-question');
+  helpQuestions.forEach(question => {
+    question.addEventListener('click', function() {
+      const helpItem = this.parentElement;
+      const isActive = helpItem.classList.contains('active');
+      
+      document.querySelectorAll('.help-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      if (!isActive) {
+        helpItem.classList.add('active');
+      }
+    });
+  });
+});
+</script>

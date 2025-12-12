@@ -1,0 +1,71 @@
+<% layout('/layouts/boilerplate') %>
+
+<style>
+  .resource-page { max-width: 1080px; margin: 2.5rem auto; padding: 0 1rem; }
+  .resource-hero { display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.2rem; }
+  .resource-hero h1 { color:#064e3b; font-size:2.25rem; margin:0; font-weight:800; }
+  .resource-sub { color:#475569; margin:0; font-size:1rem; }
+
+  .resource-grid { display:grid; grid-template-columns: 1fr 320px; gap:1.25rem; align-items:start; }
+  .resource-body { background:#fff; padding:1.4rem; border-radius:12px; box-shadow:0 12px 40px rgba(7,10,21,0.05); }
+
+  .toc { background:#f8faf9; border-radius:10px; padding:1rem; font-size:0.95rem; color:#0f766e; position:sticky; top:100px; }
+  .toc h4 { margin:0 0 0.6rem 0; font-size:0.98rem; }
+  .toc a { display:block; color:#065f46; text-decoration:none; padding:0.35rem 0; border-bottom:1px solid #eef2f2; }
+  .toc a:hover { color:#044e3a; }
+
+  .section { margin-bottom:1.15rem; }
+  .section h3 { color:#064e3b; margin:0 0 0.45rem 0; font-size:1.05rem; }
+  .section p { color:#334155; line-height:1.7; margin:0; }
+
+  .back-link { display:inline-block; margin-top:1rem; color:#065f46; text-decoration:none; font-weight:700 }
+
+  @media (max-width:980px){
+    .resource-grid{grid-template-columns:1fr}
+    .toc{position:relative; top:0}
+  }
+</style>
+
+<div class="resource-page">
+  <div class="resource-hero">
+    <nav aria-label="breadcrumb"><a href="/host-resources" style="color:#065f46;text-decoration:none;font-weight:600">Host Resources</a> <span style="color:#94a3b8">/</span> <span style="color:#334155;font-weight:600"><%= title %></span></nav>
+    <h1><%= title %></h1>
+    <% if (subtitle) { %>
+      <p class="resource-sub"><%= subtitle %></p>
+    <% } %>
+  </div>
+
+  <div class="resource-grid">
+    <div class="resource-body">
+      <% if (sections && sections.length) { %>
+        <% sections.forEach(function(s, idx){ %>
+          <div class="section" id="section-<%= idx %>">
+            <% if (s.heading) { %>
+              <h3><%= s.heading %></h3>
+            <% } %>
+            <div class="section-content"><%- s.content %></div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p style="color:#475569">This resource will be published soon. Meanwhile explore other guides from the Host Resources page.</p>
+      <% } %>
+
+      <a href="/host-resources" class="back-link">← Back to Host Resources</a>
+    </div>
+
+    <aside class="toc" aria-label="Resource contents">
+      <h4>Contents</h4>
+      <% if (sections && sections.length) { %>
+        <% sections.forEach(function(s, idx){ %>
+          <a href="#section-<%= idx %>"><%= s.heading || ('Section ' + (idx+1)) %></a>
+        <% }) %>
+      <% } else { %>
+        <a href="/host-resources">See other resources</a>
+      <% } %>
+      <div style="margin-top:0.6rem;border-top:1px solid #e6f0ec;padding-top:0.6rem">
+        <a href="/host" style="display:inline-block;padding:0.5rem 0.75rem;background:#10b981;color:white;border-radius:8px;text-decoration:none;font-weight:700">Create a Listing</a>
+        <a href="/host-support" style="display:inline-block;margin-left:0.6rem;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid #e6f7ef;color:#065f46;text-decoration:none;font-weight:700">Get Support</a>
+      </div>
+    </aside>
+  </div>
+</div>

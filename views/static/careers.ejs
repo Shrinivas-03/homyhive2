@@ -1,0 +1,337 @@
+<% layout("/layouts/boilerplate")%>
+
+<div class="careers-container">
+  <div class="careers-hero">
+    <h1>Join the HomyHive Team</h1>
+    <p>Build the future of travel and hospitality with us</p>
+  </div>
+
+  <div class="careers-content">
+    <div class="company-culture">
+      <h2>Why Work at HomyHive?</h2>
+      <div class="culture-grid">
+        <div class="culture-item">
+          <i class="fa-solid fa-rocket"></i>
+          <h3>Fast Growing</h3>
+          <p>Join a rapidly expanding startup with unlimited growth opportunities</p>
+        </div>
+        <div class="culture-item">
+          <i class="fa-solid fa-users"></i>
+          <h3>Great Team</h3>
+          <p>Work with passionate, talented people who love what they do</p>
+        </div>
+        <div class="culture-item">
+          <i class="fa-solid fa-lightbulb"></i>
+          <h3>Innovation</h3>
+          <p>Shape the future of travel technology with cutting-edge solutions</p>
+        </div>
+        <div class="culture-item">
+          <i class="fa-solid fa-heart"></i>
+          <h3>Impact</h3>
+          <p>Make a real difference in how people experience travel and hospitality</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="open-positions">
+      <h2>Open Positions</h2>
+      
+      <div class="position-category">
+        <h3>Engineering</h3>
+        <div class="job-listings">
+          <div class="job-card">
+            <div class="job-header">
+              <h4>Full Stack Developer</h4>
+              <span class="job-type">Full-time</span>
+            </div>
+            <div class="job-details">
+              <p><i class="fa-solid fa-location-dot"></i> Mumbai, India (Remote OK)</p>
+              <p><i class="fa-solid fa-briefcase"></i> 2-4 years experience</p>
+              <p><i class="fa-solid fa-code"></i> Node.js, React, MongoDB</p>
+            </div>
+            <p class="job-description">
+              Build and maintain our web platform, develop new features, and optimize performance for millions of users.
+            </p>
+            <button class="apply-btn" onclick="alert('Application feature coming soon! Please email careers@homyhive.com')">Apply Now</button>
+          </div>
+
+          <div class="job-card">
+            <div class="job-header">
+              <h4>Mobile App Developer</h4>
+              <span class="job-type">Full-time</span>
+            </div>
+            <div class="job-details">
+              <p><i class="fa-solid fa-location-dot"></i> Bangalore, India</p>
+              <p><i class="fa-solid fa-briefcase"></i> 3-5 years experience</p>
+              <p><i class="fa-solid fa-mobile"></i> React Native, iOS, Android</p>
+            </div>
+            <p class="job-description">
+              Lead mobile app development for iOS and Android platforms using React Native.
+            </p>
+            <button class="apply-btn" onclick="alert('Application feature coming soon! Please email careers@homyhive.com')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="position-category">
+        <h3>Marketing & Growth</h3>
+        <div class="job-listings">
+          <div class="job-card">
+            <div class="job-header">
+              <h4>Digital Marketing Manager</h4>
+              <span class="job-type">Full-time</span>
+            </div>
+            <div class="job-details">
+              <p><i class="fa-solid fa-location-dot"></i> Delhi, India</p>
+              <p><i class="fa-solid fa-briefcase"></i> 3-5 years experience</p>
+              <p><i class="fa-solid fa-chart-line"></i> SEO, SEM, Social Media</p>
+            </div>
+            <p class="job-description">
+              Drive user acquisition and brand awareness through digital marketing campaigns.
+            </p>
+            <button class="apply-btn" onclick="alert('Application feature coming soon! Please email careers@homyhive.com')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="benefits">
+      <h2>Benefits & Perks</h2>
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <i class="fa-solid fa-money-bill-wave"></i>
+          <h4>Competitive Salary</h4>
+          <p>Market competitive compensation with equity options</p>
+        </div>
+        <div class="benefit-item">
+          <i class="fa-solid fa-plane"></i>
+          <h4>Travel Credits</h4>
+          <p>Annual travel credits to experience our platform firsthand</p>
+        </div>
+        <div class="benefit-item">
+          <i class="fa-solid fa-laptop"></i>
+          <h4>Work From Home</h4>
+          <p>Flexible remote work options with modern equipment</p>
+        </div>
+        <div class="benefit-item">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <h4>Learning Budget</h4>
+          <p>Annual budget for courses, conferences, and skill development</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="application-section">
+      <h2>Interested in Joining Us?</h2>
+      <p>Send your resume to <strong>careers@homyhive.com</strong> and tell us how you'd like to contribute to HomyHive's mission.</p>
+      <a href="mailto:careers@homyhive.com" class="apply-btn">Email Your Resume</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.careers-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.careers-hero {
+  text-align: center;
+  margin-bottom: 4rem;
+  background: linear-gradient(135deg, #fe424d 0%, #ff7e5f 100%);
+  color: white;
+  padding: 4rem 2rem;
+  border-radius: 20px;
+}
+
+.careers-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.careers-hero p {
+  font-size: 1.3rem;
+  opacity: 0.9;
+}
+
+.company-culture {
+  margin-bottom: 4rem;
+}
+
+.culture-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.culture-item {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.culture-item:hover {
+  transform: translateY(-5px);
+}
+
+.culture-item i {
+  font-size: 3rem;
+  color: #fe424d;
+  margin-bottom: 1rem;
+}
+
+.culture-item h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.position-category {
+  margin-bottom: 3rem;
+}
+
+.position-category h3 {
+  color: #fe424d;
+  border-bottom: 2px solid #fe424d;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.job-listings {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.job-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 2rem;
+  transition: box-shadow 0.3s;
+}
+
+.job-card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.job-header h4 {
+  color: #333;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.job-type {
+  background: #fe424d;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+}
+
+.job-details {
+  margin-bottom: 1rem;
+}
+
+.job-details p {
+  margin: 0.25rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.job-details i {
+  width: 15px;
+  color: #fe424d;
+  margin-right: 0.5rem;
+}
+
+.job-description {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.apply-btn {
+  background: #fe424d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.apply-btn:hover {
+  background: #d7263d;
+  color: white;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.benefit-item i {
+  font-size: 2rem;
+  color: #fe424d;
+  min-width: 40px;
+}
+
+.benefit-item h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.benefit-item p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.application-section {
+  text-align: center;
+  margin-top: 4rem;
+  padding: 3rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .careers-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .job-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

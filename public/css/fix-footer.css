@@ -1,0 +1,19 @@
+/* Ensure footer stays visible and content fills viewport */
+html,body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.site-root, .site-wrapper, #app, main { /* try common container names */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+main, .content, .page-content {
+  flex: 1 0 auto; /* make main content grow, pushing footer to bottom */
+}
+/* Ensure footer is not covered by any fixed element */
+footer {
+  position: relative !important;
+  z-index: 10;
+}

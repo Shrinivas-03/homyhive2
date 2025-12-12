@@ -1,0 +1,126 @@
+<% layout("/layouts/boilerplate")%>
+
+<div class="coming-soon-wrapper">
+  <div class="coming-soon-content">
+    <div class="icon-container">
+      <i class="fa-solid fa-book-open"></i>
+    </div>
+    <h1>Stories</h1>
+    <p class="subtitle">Amazing travel stories and host experiences from our community</p>
+    
+    <div class="coming-soon-message">
+      <h2>Coming Soon!</h2>
+      <p>We're collecting inspiring stories from travelers and hosts who've created unforgettable experiences together.</p>
+      
+      <div class="cta-buttons">
+        <a href="/contact" class="btn-primary">Share Your Story</a>
+        <a href="/listings" class="btn-secondary">Explore Listings</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.coming-soon-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  text-align: center;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coming-soon-content {
+  background: white;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+.icon-container {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #fe424d 0%, #ff7e5f 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  font-size: 3rem;
+}
+
+.coming-soon-content h1 {
+  color: #fe424d;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.coming-soon-message h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.coming-soon-message p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.btn-primary, .btn-secondary {
+  display: inline-block;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #fe424d;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #d7263d;
+  color: white;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #fe424d;
+  border: 2px solid #fe424d;
+}
+
+.btn-secondary:hover {
+  background: #fe424d;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .coming-soon-content h1 {
+    font-size: 2rem;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+  }
+}
+</style>

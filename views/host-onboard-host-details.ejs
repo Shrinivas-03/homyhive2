@@ -1,0 +1,99 @@
+<% layout("/layouts/boilerplate") %>
+<div class="host-onboard-page">
+  <div class="onboard-progress">
+    <div class="step active">1</div>
+    <div class="step">2</div>
+    <div class="step">3</div>
+    <div class="step">4</div>
+  </div>
+  <section class="host-section host-details-section">
+    <h2 class="section-title">Host Details</h2>
+    <form id="hostDetailsForm" class="section-form" action="/host/onboard/host-details" method="POST" enctype="multipart/form-data">
+      <div class="host-details-grid">
+        <div class="host-profile-pic-wrap">
+          <label for="hostProfilePhoto" class="profile-pic-label">
+            <span>Profile Photo</span>
+            <div id="profilePicDrop" class="profile-pic-dropzone">
+              <img id="profilePicPreview" src="/public/static/default-profile.png" alt="Profile Preview" class="profile-pic-img" style="display:none;" />
+              <span id="profilePicPlaceholder" class="profile-pic-placeholder">Click or drop image</span>
+              <input id="hostProfilePhoto" name="profilePhoto" type="file" accept="image/*" style="display:none" />
+            </div>
+            <small class="hint">JPG/PNG, max 2MB.</small>
+          </label>
+        </div>
+        <div class="host-details-fields">
+          <label class="field">
+            <span>First Name</span>
+            <input id="hostFirstName" name="firstName" class="input" placeholder="First Name" required />
+          </label>
+          <label class="field">
+            <span>Last Name</span>
+            <input id="hostLastName" name="lastName" class="input" placeholder="Last Name" required />
+          </label>
+          <label class="field">
+            <span>Email</span>
+            <input id="hostEmail" name="email" class="input" type="email" placeholder="Email" required />
+          </label>
+          <label class="field">
+            <span>Phone</span>
+            <input id="hostPhone" name="phone" class="input" type="tel" placeholder="Phone Number" required />
+          </label>
+        </div>
+      </div>
+      <div class="onboard-actions">
+        <button type="submit" class="btn-primary">Next</button>
+      </div>
+    </form>
+  </section>
+</div>
+<style>
+.host-onboard-page { max-width: 600px; margin: 48px auto 0; background: #fff; border-radius: 18px; box-shadow: 0 8px 32px rgba(15,23,42,0.08); padding: 36px 32px; }
+.onboard-progress { display: flex; justify-content: center; gap: 18px; margin-bottom: 32px; }
+.onboard-progress .step { width: 36px; height: 36px; border-radius: 50%; background: #f1f1f1; color: #bbb; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; transition: background .2s, color .2s; }
+.onboard-progress .step.active { background: linear-gradient(90deg,#fe424d,#ff6b6b); color: #fff; }
+.section-title { font-size: 2rem; font-weight: 700; margin-bottom: 24px; color: #fe424d; }
+.host-details-grid { display: flex; gap: 32px; }
+.host-profile-pic-wrap { flex: 0 0 140px; }
+.profile-pic-dropzone { border: 2px dashed #fe424d; border-radius: 12px; padding: 18px; text-align: center; background: #fff9f9; cursor: pointer; position: relative; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+.profile-pic-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto; }
+.profile-pic-placeholder { color: #fe424d; font-size: 0.98rem; }
+.host-details-fields { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.field span { color: #6b7280; font-size: 0.95rem; margin-bottom: 6px; display: block; }
+.input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #eee; background: #fff; font-size: 1rem; }
+.btn-primary { background: linear-gradient(90deg,#fe424d,#ff6b6b); border: none; color: #fff; padding: 12px 28px; border-radius: 12px; font-size: 1.08rem; font-weight: 600; cursor: pointer; box-shadow: 0 6px 18px rgba(254,66,77,0.10); transition: background .18s, box-shadow .18s; }
+.btn-primary:hover { background: linear-gradient(90deg,#ff6b6b,#fe424d); box-shadow: 0 12px 32px rgba(254,66,77,0.13); }
+.onboard-actions { margin-top: 32px; text-align: right; }
+@media(max-width:700px){ .host-onboard-page{padding:18px 6vw;} .host-details-grid{flex-direction:column;gap:18px;} }
+</style>
+<script>
+// Profile photo preview logic
+const profilePicInput = document.getElementById('hostProfilePhoto');
+const profilePicPreview = document.getElementById('profilePicPreview');
+const profilePicPlaceholder = document.getElementById('profilePicPlaceholder');
+const profilePicDrop = document.getElementById('profilePicDrop');
+if(profilePicInput && profilePicDrop) {
+  profilePicDrop.addEventListener('click',()=>profilePicInput.click());
+  profilePicInput.addEventListener('change',function(e){
+    if(this.files && this.files[0]){
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        profilePicPreview.src = ev.target.result;
+        profilePicPreview.style.display = 'block';
+        profilePicPlaceholder.style.display = 'none';
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+  profilePicDrop.addEventListener('dragover',e=>{e.preventDefault();profilePicDrop.classList.add('dragover');});
+  profilePicDrop.addEventListener('dragleave',()=>profilePicDrop.classList.remove('dragover'));
+  profilePicDrop.addEventListener('drop',function(e){
+    e.preventDefault();
+    profilePicDrop.classList.remove('dragover');
+    if(e.dataTransfer.files && e.dataTransfer.files[0]){
+      profilePicInput.files = e.dataTransfer.files;
+      const event = new Event('change');
+      profilePicInput.dispatchEvent(event);
+    }
+  });
+}
+</script>

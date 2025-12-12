@@ -1,0 +1,110 @@
+<% layout('layouts/boilerplate') %>
+<div class="privacy-wrapper">
+  <div class="privacy-card">
+    <h1 class="privacy-title"><i class="fa-solid fa-shield-halved" style="color:#fe424d;"></i> Privacy Policy</h1>
+    <div class="privacy-meta">
+      <span class="privacy-updated">Last updated: October 13, 2025</span>
+  <a href="/static/privacy.pdf" class="privacy-download" download><i class="fa-solid fa-file-pdf"></i> Download PDF</a>
+    </div>
+    <div class="privacy-toc">
+      <h4>Table of Contents</h4>
+      <ul>
+        <li><a href="#info">Information We Collect</a></li>
+        <li><a href="#use">How We Use Your Information</a></li>
+        <li><a href="#share">Sharing Your Information</a></li>
+        <li><a href="#choices">Your Choices</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="privacy-callout">
+      <i class="fa-solid fa-star" style="color:#fe424d;"></i> <b>We never sell your data!</b>
+    </div>
+    <div class="privacy-section">
+      <h3 id="info" class="privacy-collapsible"><i class="fa-solid fa-user-lock"></i> Information We Collect <span class="privacy-toggle">&#9660;</span></h3>
+      <div class="privacy-content">
+        <ul>
+          <li>Account information (name, email, phone number)</li>
+          <li>Listing and booking details</li>
+          <li>Usage data and cookies</li>
+        </ul>
+      </div>
+    </div>
+    <div class="privacy-section">
+      <h3 id="use" class="privacy-collapsible"><i class="fa-solid fa-gears"></i> How We Use Your Information <span class="privacy-toggle">&#9660;</span></h3>
+      <div class="privacy-content">
+        <ul>
+          <li>To provide and improve our services</li>
+          <li>To communicate with you about your account and bookings</li>
+          <li>To personalize your experience on HomyHive</li>
+          <li>To comply with legal obligations</li>
+        </ul>
+      </div>
+    </div>
+    <div class="privacy-section">
+      <h3 id="share" class="privacy-collapsible"><i class="fa-solid fa-share-nodes"></i> Sharing Your Information <span class="privacy-toggle">&#9660;</span></h3>
+      <div class="privacy-content">
+        <ul>
+          <li>We do not sell your personal data to third parties.</li>
+          <li>We may share data with trusted partners for service delivery and legal compliance.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="privacy-section">
+      <h3 id="choices" class="privacy-collapsible"><i class="fa-solid fa-user-check"></i> Your Choices <span class="privacy-toggle">&#9660;</span></h3>
+      <div class="privacy-content">
+        <ul>
+          <li>You can update or delete your account information at any time.</li>
+          <li>You can opt out of marketing emails.</li>
+          <li>Contact us for any privacy-related concerns.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="privacy-section">
+      <h3 id="contact" class="privacy-collapsible"><i class="fa-solid fa-envelope"></i> Contact Us <span class="privacy-toggle">&#9660;</span></h3>
+      <div class="privacy-content">
+        <p>If you have questions about our privacy policy, email us at <a href="mailto:info@homyhive.com" style="color:#fe424d;font-weight:600;">info@homyhive.com</a> or use the form below:</p>
+        <form action="/privacy-contact" method="POST" class="privacy-contact-form">
+          <input type="text" name="name" placeholder="Your Name" required>
+          <input type="email" name="email" placeholder="Your Email" required>
+          <textarea name="message" rows="3" placeholder="Your Message" required></textarea>
+          <button type="submit"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
+        </form>
+      </div>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-globe"></i> Language</h3>
+      <p>Coming soon: Multi-language support for our privacy policy.</p>
+    </div>
+    <div class="privacy-section">
+      <h3><i class="fa-solid fa-badge-check"></i> Compliance</h3>
+      <p><span class="privacy-badge">GDPR Compliant</span> <span class="privacy-badge">CCPA Ready</span></p>
+    </div>
+  </div>
+</div>
+<script>
+// Collapsible sections
+document.querySelectorAll('.privacy-collapsible').forEach(function(header) {
+  header.addEventListener('click', function() {
+    var content = header.nextElementSibling;
+    content.style.display = (content.style.display === 'none' || !content.style.display) ? 'block' : 'none';
+    header.querySelector('.privacy-toggle').textContent = content.style.display === 'block' ? '\u25B2' : '\u25BC';
+  });
+});
+// Start with all collapsed except intro
+document.querySelectorAll('.privacy-content').forEach(function(content, idx) {
+  if(idx !== 0) content.style.display = 'none';
+});
+</script>
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/68ecded270596719501f57a5/1j7ekcqk7';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->

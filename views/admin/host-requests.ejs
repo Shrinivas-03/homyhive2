@@ -1,0 +1,135 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Host Registration Requests</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/admin/dashboard" class="btn btn-outline-primary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="btn-group" role="group">
+                <a href="/admin/host-requests?status=all" class="btn btn-sm <%= status === 'all' ? 'btn-primary' : 'btn-outline-primary' %>">All</a>
+                <a href="/admin/host-requests?status=submitted" class="btn btn-sm <%= status === 'submitted' ? 'btn-primary' : 'btn-outline-primary' %>">Submitted</a>
+                <a href="/admin/host-requests?status=under_review" class="btn btn-sm <%= status === 'under_review' ? 'btn-primary' : 'btn-outline-primary' %>">Under Review</a>
+                <a href="/admin/host-requests?status=approved" class="btn btn-sm <%= status === 'approved' ? 'btn-success' : 'btn-outline-success' %>">Approved</a>
+                <a href="/admin/host-requests?status=rejected" class="btn btn-sm <%= status === 'rejected' ? 'btn-danger' : 'btn-outline-danger' %>">Rejected</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Verification</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% requests.forEach(req => { %>
+                    <tr>
+                        <td>
+                            <strong><%= req.personalInfo.firstName %> <%= req.personalInfo.lastName %></strong>
+                        </td>
+                        <td><%= req.personalInfo.email %></td>
+                        <td><%= req.personalInfo.phone %></td>
+                        <td>
+                            <% if (req.applicationStatus === 'submitted') { %>
+                                <span class="badge bg-info">Submitted</span>
+                            <% } else if (req.applicationStatus === 'under_review') { %>
+                                <span class="badge bg-warning">Under Review</span>
+                            <% } else if (req.applicationStatus === 'approved') { %>
+                                <span class="badge bg-success">Approved</span>
+                            <% } else if (req.applicationStatus === 'rejected') { %>
+                                <span class="badge bg-danger">Rejected</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary"><%= req.applicationStatus %></span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <small><%= req.submittedAt ? req.submittedAt.toLocaleDateString() : 'N/A' %></small>
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: <%= req.getVerificationPercentage() %>%" aria-valuenow="<%= req.getVerificationPercentage() %>" aria-valuemin="0" aria-valuemax="100">
+                                    <%= req.getVerificationPercentage() %>%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="/admin/host-requests/<%= req._id %>" class="btn btn-sm btn-primary">View Details</a>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <% if (requests.length === 0) { %>
+        <div class="alert alert-info text-center">
+            <p>No host registration requests found.</p>
+        </div>
+    <% } %>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/host-requests?page=1&status=<%= status %>">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/host-requests?page=<%= currentPage - 1 %>&status=<%= status %>">Previous</a>
+                    </li>
+                <% } %>
+
+                <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/admin/host-requests?page=<%= i %>&status=<%= status %>"><%= i %></a>
+                    </li>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/host-requests?page=<%= currentPage + 1 %>&status=<%= status %>">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/host-requests?page=<%= totalPages %>&status=<%= status %>">Last</a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    <% } %>
+
+    <div class="mt-4 text-muted">
+        <p>Total Requests: <strong><%= totalRequests %></strong></p>
+    </div>
+</div>
+
+<style>
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    .btn-group .btn:first-child {
+        border-radius: 0.375rem 0 0 0.375rem;
+    }
+    .btn-group .btn:last-child {
+        border-radius: 0 0.375rem 0.375rem 0;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>

@@ -1,0 +1,82 @@
+<% layout('/layouts/boilerplate') %>
+<style>
+  .booking-hero {
+    background: linear-gradient(135deg, #fe424d 0%, #ff6b6b 100%);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin-bottom: 2.5rem;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .booking-list {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .booking-card {
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    background: #fff;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: box-shadow 0.2s;
+  }
+  .booking-card:hover {
+    box-shadow: 0 8px 32px rgba(254,66,77,0.13);
+  }
+  .booking-card .img {
+    width: 90px;
+    height: 70px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .booking-card .img i {
+    font-size: 2rem;
+    color: #fe424d;
+  }
+  .booking-card .details {
+    flex: 1;
+  }
+  .booking-card .details .title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+  }
+  .booking-card .details .date {
+    color: #888;
+    font-size: 0.97rem;
+  }
+</style>
+<div class="container py-5">
+  <div class="booking-hero">
+    <h2 class="fw-bold mb-1"><i class="fa-solid fa-calendar-check me-2"></i>My Bookings</h2>
+    <div class="mb-2">All your upcoming and past stays in one place.</div>
+    <% if(user && user.displayName) { %>
+      <div class="mb-2">Welcome, <%= user.displayName %>!</div>
+    <% } %>
+  </div>
+  <div class="booking-list">
+    <!-- Example booking card (replace with real data loop) -->
+    <div class="booking-card">
+      <div class="img">
+        <i class="fa-solid fa-bed"></i>
+      </div>
+      <div class="details">
+        <div class="title">No bookings yet</div>
+        <div class="date">Your future bookings will appear here.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,172 @@
+<% layout("/layouts/boilerplate")%>
+
+<style>
+  /* Enhanced Signup Page Styles - HomyHive Theme */
+  body {
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .signup-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .signup-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(254, 66, 77, 0.15);
+    padding: 3rem;
+    width: 100%;
+    max-width: 480px;
+    border: 1px solid rgba(254, 66, 77, 0.1);
+    animation: slideInUp 0.8s ease-out;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .signup-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .signup-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fe424d 0%, #e03850 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .signup-subtitle {
+    color: #718096;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-floating {
+    position: relative;
+  }
+
+  .form-floating .form-control {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    height: 60px;
+    width: 100%;
+  }
+
+  .form-floating .form-control:focus {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, 0.1);
+    background: white;
+    outline: none;
+  }
+
+  .form-floating label {
+    left: 3rem;
+    color: #718096;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fe424d;
+    font-size: 1.1rem;
+    z-index: 10;
+  }
+
+  .form-floating .form-control:focus + label,
+  .form-floating .form-control:not(:placeholder-shown) + label {
+    opacity: 0.8;
+    transform: scale(0.85) translateY(-1rem) translateX(-0.15rem);
+  }
+
+  .signup-btn-main {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fe424d 0%, #e03850 100%);
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .signup-btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(254, 66, 77, 0.3);
+    background: linear-gradient(135deg, #e03850, #d12c3a);
+  }
+
+  .error-message {
+    background: linear-gradient(135deg, #fe424d 0%, #e03850 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    animation: shake 0.5s ease-in-out;
+  }
+
+</style>
+
+<div class="signup-container">
+    <div class="signup-card">
+        <div class="signup-header">
+            <h1 class="signup-title">Verify Your Email</h1>
+            <p class="signup-subtitle">We've sent an OTP to your email address. Please enter it below.</p>
+        </div>
+
+        <% if(typeof error !== 'undefined' && error.length > 0) { %>
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <%= error %>
+        </div>
+        <% } %>
+
+        <form action="/verify-otp" method="POST" class="signup-form">
+            <div class="form-floating">
+                <i class="fas fa-key input-icon"></i>
+                <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter OTP" required>
+                <label for="otp">OTP</label>
+            </div>
+            <button type="submit" class="signup-btn-main">Verify OTP</button>
+        </form>
+    </div>
+</div>

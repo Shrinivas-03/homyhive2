@@ -1,0 +1,1152 @@
+<style>
+  /* Modern HomyHive Navbar */
+  .homyhive-navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    z-index: 9999 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+
+  .homyhive-navbar.scrolled {
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(20px);
+  }
+
+  /* Brand Styling */
+  .navbar-brand {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fe424d !important;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .navbar-brand:hover {
+    color: #e03850 !important;
+    transform: scale(1.02);
+  }
+
+  .brand-icon {
+    font-size: 1.8rem;
+    color: #fe424d;
+  }
+
+  /* Navigation Links */
+  .nav-link {
+    color: #555 !important;
+    font-weight: 500;
+    padding: 0.6rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin: 0 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-link:hover {
+    color: #fe424d !important;
+    background-color: rgba(254, 66, 77, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .nav-link i {
+    font-size: 0.9rem;
+  }
+
+  /* Search Container */
+  .search-container {
+    position: relative;
+    max-width: 380px;
+    margin: 0 1rem;
+  }
+
+  .search-wrapper {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 50px;
+    padding: 4px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+
+  .search-wrapper:focus-within {
+    border-color: #fe424d;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, 0.1), 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+    outline: none;
+    color: #333;
+    min-width: 200px;
+  }
+
+  .search-input::placeholder {
+    color: #6c757d;
+  }
+
+  .search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    margin-top: 5px;
+  }
+
+  .search-suggestions.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .suggestion-item {
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f4;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .suggestion-item:hover {
+    background: #f8f9fa;
+    color: #fe424d;
+  }
+
+  .suggestion-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 15px 15px;
+  }
+
+  .suggestion-item:first-child {
+    border-radius: 15px 15px 0 0;
+  }
+
+  /* Notifications */
+  .notification-section {
+    position: relative;
+  }
+
+  .notification-btn {
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 1.2rem;
+    padding: 0.6rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .notification-btn:hover {
+    background: rgba(254, 66, 77, 0.1);
+    color: #fe424d;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #fe424d;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+
+  .notification-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+    width: 320px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .notification-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .notification-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+  }
+
+  .notification-header h6 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .btn-clear-all {
+    background: none;
+    border: none;
+    color: #fe424d;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .notification-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .notification-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f8f9fa;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .notification-item:hover {
+    background: #f8f9fa;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+
+  .notification-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .notification-content {
+    flex: 1;
+  }
+
+  .notification-content p {
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .notification-content small {
+    color: #6c757d;
+    font-size: 0.8rem;
+  }
+
+  .notification-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #f1f3f4;
+  }
+
+  .search-btn {
+    background: linear-gradient(135deg, #fe424d, #ff6b6b);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.7rem 1.3rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .search-btn:hover {
+    background: linear-gradient(135deg, #e03850, #e55353);
+    transform: scale(1.02);
+    color: white;
+  }
+
+  /* Host Dropdown */
+  .host-dropdown-container {
+    position: relative;
+    margin: 0 0.5rem;
+  }
+
+  .host-btn {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white !important;
+    text-decoration: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+  }
+
+  .host-btn:hover {
+    background: linear-gradient(135deg, #047857, #059669);
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+  }
+
+  .dropdown-arrow {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+  }
+
+  .host-btn.active .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .host-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    min-width: 280px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+  }
+
+  .host-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .host-dropdown .dropdown-header {
+    padding: 1rem 1.2rem 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .host-dropdown .dropdown-header h6 {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .host-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+  }
+
+  .host-dropdown .dropdown-item:last-child {
+    border-bottom: none;
+  }
+
+  .host-dropdown .dropdown-item:hover {
+    background: rgba(5, 150, 105, 0.05);
+    color: #059669;
+  }
+
+  .host-dropdown .dropdown-item i {
+    font-size: 1.1rem;
+    color: #059669;
+    width: 20px;
+    text-align: center;
+  }
+
+  .host-dropdown .dropdown-item div strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+
+  .host-dropdown .dropdown-item div small {
+    color: #6b7280;
+    font-size: 0.85rem;
+  }
+
+  /* Authentication Buttons */
+  .auth-section {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn-login, .btn-signup {
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-login {
+    color: #333;
+    border: 2px solid #dee2e6;
+    background: transparent;
+  }
+
+  .btn-login:hover {
+    color: #fe424d;
+    border-color: #fe424d;
+    background: rgba(254, 66, 77, 0.05);
+  }
+
+  .btn-signup {
+    background: #fe424d;
+    color: white;
+    border: 2px solid #fe424d;
+  }
+
+  .btn-signup:hover {
+    background: #e03850;
+    border-color: #e03850;
+    color: white;
+  }
+
+  /* User Profile Section */
+  .user-section {
+    position: relative;
+    margin-left: 1rem;
+  }
+
+  .user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fe424d, #ff6b6b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    overflow: hidden;
+  }
+
+  .user-avatar:hover {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, 0.2);
+    transform: scale(1.05);
+  }
+
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Dropdown Menu */
+  .user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+    padding: 1rem 0;
+    min-width: 240px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .user-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .dropdown-header {
+    padding: 0.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #f1f3f4;
+    margin-bottom: 0.5rem;
+  }
+
+  .dropdown-header h6 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .dropdown-header small {
+    color: #6c757d;
+  }
+
+  .dropdown-item {
+    padding: 0.8rem 1.5rem;
+    color: #333;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .dropdown-item:hover {
+    background: #f8f9fa;
+    color: #fe424d;
+  }
+
+  .dropdown-item i {
+    width: 16px;
+    font-size: 0.9rem;
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: #f1f3f4;
+    margin: 0.5rem 0;
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 991px) {
+    .search-container {
+      margin: 1rem 0;
+      max-width: 100%;
+    }
+    
+    .navbar-nav {
+      text-align: center;
+      padding: 1rem 0;
+    }
+    
+    .host-btn, .auth-section {
+      margin: 0.5rem 0;
+      justify-content: center;
+    }
+
+    .search-input {
+      min-width: auto;
+    }
+
+    .navbar-collapse {
+      background: rgba(255, 255, 255, 0.98);
+      margin-top: 1rem;
+      border-radius: 15px;
+      padding: 1rem;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .navbar-brand {
+      font-size: 1.4rem;
+    }
+
+    .search-btn span {
+      display: none;
+    }
+
+    .host-btn span {
+      display: none;
+    }
+  }
+
+  .navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+  }
+
+</style>
+
+<nav class="navbar navbar-expand-lg homyhive-navbar">
+  <div class="container-fluid">
+    <!-- Brand -->
+    <a class="navbar-brand" href="/listings">
+      <i class="fa-solid fa-house-heart brand-icon"></i>
+      HomyHive
+    </a>
+    
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Left Navigation -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/listings">
+            <i class="fa-solid fa-compass"></i>
+            Explore
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/about">
+            <i class="fa-solid fa-info-circle"></i>
+            About
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/help">
+            <i class="fa-solid fa-headset"></i>
+            Help
+          </a>
+        </li>
+      </ul>
+      
+      <!-- Search Section (Desktop) -->
+      <div class="search-container d-none d-lg-block">
+        <form class="search-wrapper" onsubmit="handleSearch(event)">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Where do you want to go?"
+            id="searchInput"
+            autocomplete="off"
+          >
+          <div class="search-suggestions" id="searchSuggestions"></div>
+          <button type="submit" class="search-btn">
+            <i class="fa-solid fa-search"></i>
+            <span>Search</span>
+          </button>
+        </form>
+      </div>
+      
+      <!-- Right Navigation -->
+      <div class="navbar-nav ms-auto d-flex align-items-center">
+        <!-- Notifications (only for logged in users) -->
+        <% if(typeof currUser !== "undefined" && currUser) { %>
+        <div class="notification-section me-3">
+          <button class="notification-btn" onclick="toggleNotifications()" id="notificationBtn">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">3</span>
+          </button>
+          
+          <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+              <h6>Notifications</h6>
+              <button class="btn-clear-all" onclick="clearAllNotifications()">Clear All</button>
+            </div>
+            <div class="notification-list">
+              <div class="notification-item">
+                <div class="notification-icon bg-success">
+                  <i class="fa-solid fa-check"></i>
+                </div>
+                <div class="notification-content">
+                  <p>Welcome to HomyHive!</p>
+                  <small>Complete your profile to get started</small>
+                </div>
+              </div>
+              <div class="notification-item">
+                <div class="notification-icon bg-info">
+                  <i class="fa-solid fa-lightbulb"></i>
+                </div>
+                <div class="notification-content">
+                  <p>Hosting Tips Available</p>
+                  <small>Learn how to optimize your listings</small>
+                </div>
+              </div>
+            </div>
+            <div class="notification-footer">
+              <a href="/user/notifications" class="btn btn-sm btn-outline-primary w-100">View All</a>
+            </div>
+          </div>
+        </div>
+        <% } %>
+        
+        <!-- Host Dropdown Menu -->
+        <div class="host-dropdown-container">
+          <button class="host-btn" onclick="toggleHostDropdown()" id="hostDropdownBtn">
+            <i class="fa-solid fa-home"></i>
+            <span>Host</span>
+            <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+          </button>
+          
+          <div class="host-dropdown" id="hostDropdown">
+            <div class="dropdown-header">
+              <h6>Host Services</h6>
+            </div>
+            <a href="/host" class="dropdown-item">
+              <i class="fa-solid fa-plus"></i>
+              <div>
+                <strong>Become a Host</strong>
+                <small>Register and start earning</small>
+              </div>
+            </a>
+            <a href="/host-resources" class="dropdown-item">
+              <i class="fa-solid fa-book"></i>
+              <div>
+                <strong>Host Resources</strong>
+                <small>Guides and tools for hosts</small>
+              </div>
+            </a>
+            <a href="/host-support" class="dropdown-item">
+              <i class="fa-solid fa-headset"></i>
+              <div>
+                <strong>Host Support</strong>
+                <small>Get help and assistance</small>
+              </div>
+            </a>
+          </div>
+        </div>
+        
+        <% if((typeof currUser === "undefined" || !currUser) && !supabaseUser) { %>
+        <!-- Guest Authentication -->
+        <div class="auth-section">
+          <a href="/login" class="btn-login">
+            <i class="fa-solid fa-sign-in-alt"></i>
+            Log in
+          </a>
+          <a href="/signup" class="btn-signup">
+            <i class="fa-solid fa-user-plus"></i>
+            Sign up
+          </a>
+        </div>
+        <% } else { %>
+        <!-- Authenticated User (Supabase or currUser) -->
+        <div class="user-section">
+          <div class="user-avatar" onclick="toggleUserDropdown()" id="userAvatar">
+            <% if(supabaseUser && supabaseUser.profilePicture && supabaseUser.profilePicture.url) { %>
+              <img src="<%= supabaseUser.profilePicture.url %>" alt="<%= supabaseUser.username || 'User' %>">
+            <% } else if (currUser && currUser.image && currUser.image.url) { %>
+              <img src="<%= currUser.image.url %>" alt="<%= currUser.username || 'User' %>">
+            <% } else { %>
+              <%= (supabaseUser && (supabaseUser.displayName || supabaseUser.username) ? (supabaseUser.displayName || supabaseUser.username) : (currUser && (currUser.displayName || currUser.username) ? (currUser.displayName || currUser.username) : 'User')).charAt(0).toUpperCase() %>
+            <% } %>
+          </div>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-header">
+              <h6><%= (supabaseUser && (supabaseUser.displayName || supabaseUser.username)) ? (supabaseUser.displayName || supabaseUser.username) : (currUser && (currUser.displayName || currUser.username) ? (currUser.displayName || currUser.username) : 'User') %></h6>
+              <% if((supabaseUser && supabaseUser.email) || (currUser && currUser.email)) { %>
+                <small><%= (supabaseUser && supabaseUser.email) ? supabaseUser.email : currUser.email %></small>
+              <% } %>
+            </div>
+            <a href="/user/profile" class="dropdown-item">
+              <i class="fa-solid fa-user"></i>
+              My Profile
+            </a>
+            <a href="/user/bookings" class="dropdown-item">
+              <i class="fa-solid fa-calendar-check"></i>
+              My Bookings
+            </a>
+            <a href="/user/wishlist" class="dropdown-item">
+              <i class="fa-solid fa-heart"></i>
+              Wishlists
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="/listings/new" class="dropdown-item">
+              <i class="fa-solid fa-home"></i>
+              List Your Space
+            </a>
+            <a href="/user/hosting" class="dropdown-item">
+              <i class="fa-solid fa-key"></i>
+              Manage Listings
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="/help" class="dropdown-item">
+              <i class="fa-solid fa-question-circle"></i>
+              Help Center
+            </a>
+            <a href="/user/settings" class="dropdown-item">
+              <i class="fa-solid fa-cog"></i>
+              Account Settings
+            </a>
+            <div class="dropdown-divider"></div>
+            <button onclick="handleLogout()" class="dropdown-item">
+              <i class="fa-solid fa-sign-out-alt"></i>
+              Log out
+            </button>
+          </div>
+        </div>
+        <% } %>
+      </div>
+      
+      <!-- Mobile Search -->
+      <div class="search-container d-lg-none mt-3">
+        <form class="search-wrapper" onsubmit="handleSearch(event)">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Where do you want to go?"
+          >
+          <button type="submit" class="search-btn">
+            <i class="fa-solid fa-search"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+// Host dropdown functionality
+function toggleHostDropdown() {
+  const dropdown = document.getElementById('hostDropdown');
+  const button = document.getElementById('hostDropdownBtn');
+  
+  dropdown.classList.toggle('show');
+  button.classList.toggle('active');
+  
+  // Close other dropdowns
+  const userDropdown = document.getElementById('userDropdown');
+  const notificationDropdown = document.getElementById('notificationDropdown');
+  
+  if (userDropdown) {
+    userDropdown.classList.remove('show');
+  }
+  if (notificationDropdown) {
+    notificationDropdown.classList.remove('show');
+  }
+}
+
+// User dropdown functionality
+function toggleUserDropdown() {
+  const dropdown = document.getElementById('userDropdown');
+  dropdown.classList.toggle('show');
+  
+  // Close other dropdowns
+  const notificationDropdown = document.getElementById('notificationDropdown');
+  const hostDropdown = document.getElementById('hostDropdown');
+  const hostButton = document.getElementById('hostDropdownBtn');
+  
+  if (notificationDropdown) {
+    notificationDropdown.classList.remove('show');
+  }
+  if (hostDropdown) {
+    hostDropdown.classList.remove('show');
+  }
+  if (hostButton) {
+    hostButton.classList.remove('active');
+  }
+}
+
+// Notification functionality
+function toggleNotifications() {
+  const dropdown = document.getElementById('notificationDropdown');
+  dropdown.classList.toggle('show');
+  
+  // Close other dropdowns
+  const userDropdown = document.getElementById('userDropdown');
+  const hostDropdown = document.getElementById('hostDropdown');
+  const hostButton = document.getElementById('hostDropdownBtn');
+  
+  if (userDropdown) {
+    userDropdown.classList.remove('show');
+  }
+  if (hostDropdown) {
+    hostDropdown.classList.remove('show');
+  }
+  if (hostButton) {
+    hostButton.classList.remove('active');
+  }
+  
+  // Hide notification badge when opened
+  const badge = document.getElementById('notificationBadge');
+  if (dropdown.classList.contains('show') && badge) {
+    badge.style.display = 'none';
+  }
+}
+
+function clearAllNotifications() {
+  const notificationList = document.querySelector('.notification-list');
+  if (notificationList) {
+    notificationList.innerHTML = '<div class="text-center py-3 text-muted">No notifications</div>';
+  }
+  const badge = document.getElementById('notificationBadge');
+  if (badge) {
+    badge.style.display = 'none';
+  }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+  const userSection = document.querySelector('.user-section');
+  const userDropdown = document.getElementById('userDropdown');
+  const notificationSection = document.querySelector('.notification-section');
+  const notificationDropdown = document.getElementById('notificationDropdown');
+  const hostSection = document.querySelector('.host-dropdown-container');
+  const hostDropdown = document.getElementById('hostDropdown');
+  const hostButton = document.getElementById('hostDropdownBtn');
+  
+  if (userSection && !userSection.contains(event.target)) {
+    userDropdown?.classList.remove('show');
+  }
+  
+  if (notificationSection && !notificationSection.contains(event.target)) {
+    notificationDropdown?.classList.remove('show');
+  }
+  
+  if (hostSection && !hostSection.contains(event.target)) {
+    hostDropdown?.classList.remove('show');
+    hostButton?.classList.remove('active');
+  }
+});
+
+// Enhanced search functionality with suggestions
+let searchTimeout;
+const popularDestinations = [
+  { name: 'Mumbai, Maharashtra', type: 'city', icon: 'fa-city' },
+  { name: 'Delhi, India', type: 'city', icon: 'fa-city' },
+  { name: 'Bangalore, Karnataka', type: 'city', icon: 'fa-city' },
+  { name: 'Goa, India', type: 'state', icon: 'fa-umbrella-beach' },
+  { name: 'Kerala, India', type: 'state', icon: 'fa-mountain' },
+  { name: 'Rajasthan, India', type: 'state', icon: 'fa-mosque' },
+  { name: 'Himachal Pradesh, India', type: 'state', icon: 'fa-mountain' },
+  { name: 'Beach Houses', type: 'category', icon: 'fa-water' },
+  { name: 'Mountain Cabins', type: 'category', icon: 'fa-mountain' },
+  { name: 'City Apartments', type: 'category', icon: 'fa-building' }
+];
+
+function showSearchSuggestions(query) {
+  const suggestionContainer = document.getElementById('searchSuggestions');
+  if (!suggestionContainer) return;
+  
+  if (!query || query.length < 2) {
+    suggestionContainer.classList.remove('show');
+    return;
+  }
+  
+  const filteredSuggestions = popularDestinations.filter(dest => 
+    dest.name.toLowerCase().includes(query.toLowerCase())
+  );
+  
+  if (filteredSuggestions.length === 0) {
+    suggestionContainer.classList.remove('show');
+    return;
+  }
+  
+  suggestionContainer.innerHTML = filteredSuggestions.map(suggestion => `
+    <div class="suggestion-item" onclick="selectSuggestion('${suggestion.name}')">
+      <i class="fa-solid ${suggestion.icon} text-muted"></i>
+      <div>
+        <div>${suggestion.name}</div>
+        <small class="text-muted">${suggestion.type}</small>
+      </div>
+    </div>
+  `).join('');
+  
+  suggestionContainer.classList.add('show');
+}
+
+function selectSuggestion(suggestion) {
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.value = suggestion;
+  }
+  
+  const suggestionContainer = document.getElementById('searchSuggestions');
+  if (suggestionContainer) {
+    suggestionContainer.classList.remove('show');
+  }
+  
+  // Trigger search
+  handleSearch({ preventDefault: () => {}, target: { querySelector: () => searchInput } });
+}
+
+function handleSearch(event) {
+  event.preventDefault();
+  const searchInput = event.target.querySelector('.search-input');
+  const query = searchInput.value.trim();
+  
+  if (query) {
+    // Redirect to listings page with search query
+    window.location.href = `/listings?search=${encodeURIComponent(query)}`;
+  } else {
+    // If no query, just go to listings page
+    window.location.href = '/listings';
+  }
+  
+  // Hide suggestions
+  const suggestionContainer = document.getElementById('searchSuggestions');
+  if (suggestionContainer) {
+    suggestionContainer.classList.remove('show');
+  }
+}
+
+// Logout functionality
+function handleLogout() {
+  if (confirm('Are you sure you want to log out?')) {
+    window.location.href = '/logout';
+  }
+}
+
+// Navbar scroll effects
+let lastScrollTop = 0;
+window.addEventListener('scroll', function() {
+  const navbar = document.querySelector('.homyhive-navbar');
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  
+  // Add scrolled class for styling
+  if (scrollTop > 100) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+  
+  lastScrollTop = scrollTop;
+});
+
+// Auto-collapse mobile menu on scroll
+window.addEventListener('scroll', function() {
+  if (window.innerWidth <= 991) {
+    const navbarCollapse = document.getElementById('navbarContent');
+    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+      const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+        toggle: false
+      });
+      bsCollapse.hide();
+    }
+  }
+});
+
+// Enhanced search with suggestions and Enter key support
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInputs = document.querySelectorAll('.search-input');
+  
+  searchInputs.forEach(input => {
+    // Search suggestions on input
+    input.addEventListener('input', function(e) {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        showSearchSuggestions(this.value);
+      }, 300);
+    });
+    
+    // Handle Enter key
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const form = this.closest('form');
+        if (form) {
+          const event = new Event('submit', { bubbles: true, cancelable: true });
+          form.dispatchEvent(event);
+        }
+      }
+    });
+    
+    // Hide suggestions on blur (with delay for clicking)
+    input.addEventListener('blur', function() {
+      setTimeout(() => {
+        const suggestionContainer = document.getElementById('searchSuggestions');
+        if (suggestionContainer) {
+          suggestionContainer.classList.remove('show');
+        }
+      }, 200);
+    });
+  });
+});
+
+// Keyboard navigation for dropdowns
+document.addEventListener('keydown', function(e) {
+  const userDropdown = document.getElementById('userDropdown');
+  const notificationDropdown = document.getElementById('notificationDropdown');
+  
+  if (e.key === 'Escape') {
+    if (userDropdown && userDropdown.classList.contains('show')) {
+      userDropdown.classList.remove('show');
+      document.getElementById('userAvatar')?.focus();
+    }
+    if (notificationDropdown && notificationDropdown.classList.contains('show')) {
+      notificationDropdown.classList.remove('show');
+      document.getElementById('notificationBtn')?.focus();
+    }
+  }
+});
+
+// Initialize notifications (simulate real-time updates)
+document.addEventListener('DOMContentLoaded', function() {
+  // Show notification badge if user is logged in
+  const notificationBadge = document.getElementById('notificationBadge');
+  if (notificationBadge && document.querySelector('.user-section')) {
+    notificationBadge.style.display = 'flex';
+  }
+  
+  // Enhanced sticky navbar with scroll effects
+  const navbar = document.querySelector('.homyhive-navbar');
+  let lastScrollTop = 0;
+  
+  window.addEventListener('scroll', function() {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Add scrolled class for enhanced styling
+    if (scrollTop > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+    
+    // Optional: Hide navbar on scroll down, show on scroll up
+    // Uncomment the following block if you want this behavior
+    /*
+    if (scrollTop > lastScrollTop && scrollTop > 100) {
+      // Scrolling down
+      navbar.style.transform = 'translateY(-100%)';
+    } else {
+      // Scrolling up
+      navbar.style.transform = 'translateY(0)';
+    }
+    */
+    
+    lastScrollTop = scrollTop;
+  });
+});
+</script>

@@ -1,0 +1,320 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-5 mb-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><%= host.personalInfo.firstName %> <%= host.personalInfo.lastName %></h1>
+            <p class="text-muted">Application ID: <%= host._id %></p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/admin/host-requests" class="btn btn-outline-primary">Back to Requests</a>
+        </div>
+    </div>
+
+    <!-- Application Status -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Application Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Current Status:</strong></p>
+                            <% if (host.applicationStatus === 'submitted') { %>
+                                <span class="badge bg-info" style="font-size: 14px; padding: 8px 12px;">Submitted</span>
+                            <% } else if (host.applicationStatus === 'under_review') { %>
+                                <span class="badge bg-warning" style="font-size: 14px; padding: 8px 12px;">Under Review</span>
+                            <% } else if (host.applicationStatus === 'approved') { %>
+                                <span class="badge bg-success" style="font-size: 14px; padding: 8px 12px;">Approved</span>
+                            <% } else if (host.applicationStatus === 'rejected') { %>
+                                <span class="badge bg-danger" style="font-size: 14px; padding: 8px 12px;">Rejected</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary" style="font-size: 14px; padding: 8px 12px;"><%= host.applicationStatus %></span>
+                            <% } %>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Verification Progress:</strong></p>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar" role="progressbar" style="width: <%= host.getVerificationPercentage() %>%;" aria-valuenow="<%= host.getVerificationPercentage() %>" aria-valuemin="0" aria-valuemax="100">
+                                    <%= host.getVerificationPercentage() %>%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>First Name:</strong> <%= host.personalInfo.firstName %></p>
+                            <p><strong>Email:</strong> <%= host.personalInfo.email %></p>
+                            <p><strong>Date of Birth:</strong> <%= host.personalInfo.dateOfBirth ? host.personalInfo.dateOfBirth.toLocaleDateString() : 'N/A' %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Last Name:</strong> <%= host.personalInfo.lastName %></p>
+                            <p><strong>Phone:</strong> <%= host.personalInfo.phone %></p>
+                            <p><strong>Gender:</strong> <%= host.personalInfo.gender %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Identification Information -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Identification Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>ID Type:</strong> <%= host.identification.idType %></p>
+                            <p><strong>Verification Status:</strong> 
+                                <% if (host.identification.verificationStatus === 'verified') { %>
+                                    <span class="badge bg-success">Verified</span>
+                                <% } else if (host.identification.verificationStatus === 'rejected') { %>
+                                    <span class="badge bg-danger">Rejected</span>
+                                <% } else { %>
+                                    <span class="badge bg-warning">Pending</span>
+                                <% } %>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>ID Number:</strong> <%= host.identification.idNumber %></p>
+                            <% if (host.identification.verificationNotes) { %>
+                                <p><strong>Notes:</strong> <%= host.identification.verificationNotes %></p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bank Details -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Bank Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Bank Account:</strong> <%= host.bankDetails.bankAccount %></p>
+                            <p><strong>Bank Name:</strong> <%= host.bankDetails.bankName || 'N/A' %></p>
+                            <p><strong>Verification Status:</strong>
+                                <% if (host.bankDetails.verificationStatus === 'verified') { %>
+                                    <span class="badge bg-success">Verified</span>
+                                <% } else if (host.bankDetails.verificationStatus === 'rejected') { %>
+                                    <span class="badge bg-danger">Rejected</span>
+                                <% } else { %>
+                                    <span class="badge bg-warning">Pending</span>
+                                <% } %>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>IFSC Code:</strong> <%= host.bankDetails.ifscCode %></p>
+                            <p><strong>Branch Name:</strong> <%= host.bankDetails.branchName || 'N/A' %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Information -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Address Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Address:</strong> <%= host.address.address %></p>
+                            <p><strong>City:</strong> <%= host.address.city %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>PIN Code:</strong> <%= host.address.pincode %></p>
+                            <p><strong>State:</strong> <%= host.address.state %></p>
+                        </div>
+                    </div>
+                    <p><strong>Verification Status:</strong>
+                        <% if (host.address.verificationStatus === 'verified') { %>
+                            <span class="badge bg-success">Verified</span>
+                        <% } else if (host.address.verificationStatus === 'rejected') { %>
+                            <span class="badge bg-danger">Rejected</span>
+                        <% } else { %>
+                            <span class="badge bg-warning">Pending</span>
+                        <% } %>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property Media (Images & Video) -->
+    <% if (host.propertyMedia && (host.propertyMedia.images?.length || host.propertyMedia.video)) { %>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Property Media</h5>
+                </div>
+                <div class="card-body">
+                    <% if (host.propertyMedia.images && host.propertyMedia.images.length) { %>
+                        <div class="mb-3">
+                            <strong>Images:</strong>
+                            <div class="row g-2">
+                                <% host.propertyMedia.images.forEach(function(img) { %>
+                                    <div class="col-6 col-md-3">
+                                        <img src="/<%= img.path.replace('public/', '') %>" alt="Property Image" class="img-fluid rounded border" style="max-height:180px;object-fit:cover;">
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+                    <% if (host.propertyMedia.video && host.propertyMedia.video.filename) { %>
+                        <div>
+                            <strong>Video:</strong>
+                            <video controls style="width:100%;max-width:400px;display:block;margin-top:10px;">
+                                <source src="/<%= host.propertyMedia.video.path.replace('public/', '') %>" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+    <!-- Timeline -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Submitted:</strong> <%= host.submittedAt ? host.submittedAt.toLocaleString() : 'N/A' %></p>
+                            <% if (host.approvedAt) { %>
+                                <p><strong>Approved:</strong> <%= host.approvedAt.toLocaleString() %></p>
+                            <% } %>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Last Updated:</strong> <%= host.lastUpdatedAt ? host.lastUpdatedAt.toLocaleString() : 'N/A' %></p>
+                            <% if (host.rejectedAt) { %>
+                                <p><strong>Rejected:</strong> <%= host.rejectedAt.toLocaleString() %></p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Admin Actions</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/admin/host-requests/<%= host._id %>/status" method="POST" id="statusForm">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="status" class="form-label"><strong>Update Status:</strong></label>
+                                <select id="status" name="status" class="form-select" required>
+                                    <option value="">Select Status</option>
+                                    <option value="submitted" <%= host.applicationStatus === 'submitted' ? 'selected' : '' %>>Submitted</option>
+                                    <option value="under_review" <%= host.applicationStatus === 'under_review' ? 'selected' : '' %>>Under Review</option>
+                                    <option value="approved" <%= host.applicationStatus === 'approved' ? 'selected' : '' %>>Approved</option>
+                                    <option value="rejected" <%= host.applicationStatus === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Update Status</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="adminNote" class="form-label"><strong>Admin Note (Optional):</strong></label>
+                            <textarea id="adminNote" name="adminNote" class="form-control" rows="3" placeholder="Add a note for this application..."></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Notes History -->
+    <% if (host.adminNotes && host.adminNotes.length > 0) { %>
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Admin Notes History</h5>
+                    </div>
+                    <div class="card-body">
+                        <% host.adminNotes.forEach(note => { %>
+                            <div class="mb-3 pb-3" style="border-bottom: 1px solid #eee;">
+                                <p class="mb-1"><strong><%= note.addedBy %></strong> - <small class="text-muted"><%= note.addedAt.toLocaleString() %></small></p>
+                                <p class="mb-0"><%= note.note %></p>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    // Convert form to AJAX submission
+    document.getElementById('statusForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            status: document.getElementById('status').value,
+            adminNote: document.getElementById('adminNote').value
+        };
+        
+        try {
+            const response = await fetch(this.action, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                alert('Status updated successfully!');
+                location.reload();
+            } else {
+                alert('Failed to update status');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+</script>

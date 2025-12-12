@@ -1,0 +1,333 @@
+<% layout("/layouts/boilerplate")%>
+
+<div class="blog-container">
+  <div class="blog-hero">
+    <h1>HomyHive Blog</h1>
+    <p>Travel stories, hosting tips, and industry insights</p>
+  </div>
+
+  <div class="blog-content">
+    <div class="blog-categories">
+      <button class="category-btn active" data-category="all">All Posts</button>
+      <button class="category-btn" data-category="travel">Travel Tips</button>
+      <button class="category-btn" data-category="hosting">Hosting Guide</button>
+      <button class="category-btn" data-category="destinations">Destinations</button>
+      <button class="category-btn" data-category="company">Company News</button>
+    </div>
+
+    <div class="blog-grid">
+      <!-- Featured Post -->
+      <div class="blog-post featured" data-category="company">
+        <div class="post-image">
+          <div class="placeholder-image featured-bg">
+            <i class="fa-solid fa-newspaper"></i>
+          </div>
+          <span class="post-category">Company News</span>
+        </div>
+        <div class="post-content">
+          <h2>HomyHive Launches in India: Revolutionizing Local Travel</h2>
+          <p class="post-excerpt">We're excited to announce our official launch in India, bringing unique travel experiences and connecting travelers with amazing local hosts across the country.</p>
+          <div class="post-meta">
+            <span class="post-date">October 25, 2025</span>
+            <span class="read-time">3 min read</span>
+          </div>
+          <a href="#" class="read-more" onclick="openPost('HomyHive Launches in India')">Read More</a>
+        </div>
+      </div>
+
+      <!-- Regular Posts -->
+      <div class="blog-post" data-category="travel">
+        <div class="post-image">
+          <div class="placeholder-image travel-bg">
+            <i class="fa-solid fa-map-location-dot"></i>
+          </div>
+          <span class="post-category">Travel Tips</span>
+        </div>
+        <div class="post-content">
+          <h3>10 Essential Tips for First-Time Travelers in India</h3>
+          <p class="post-excerpt">Planning your first trip to India? Here are insider tips to make your journey smooth and memorable.</p>
+          <div class="post-meta">
+            <span class="post-date">October 20, 2025</span>
+            <span class="read-time">5 min read</span>
+          </div>
+          <a href="#" class="read-more" onclick="openPost('10 Essential Tips for First-Time Travelers')">Read More</a>
+        </div>
+      </div>
+
+      <div class="blog-post" data-category="hosting">
+        <div class="post-image">
+          <div class="placeholder-image hosting-bg">
+            <i class="fa-solid fa-home"></i>
+          </div>
+          <span class="post-category">Hosting Guide</span>
+        </div>
+        <div class="post-content">
+          <h3>How to Become a Superhost: Complete Guide for 2025</h3>
+          <p class="post-excerpt">Learn the secrets to earning excellent reviews, maximizing bookings, and building a successful hosting business.</p>
+          <div class="post-meta">
+            <span class="post-date">October 18, 2025</span>
+            <span class="read-time">7 min read</span>
+          </div>
+          <a href="#" class="read-more" onclick="openPost('How to Become a Superhost')">Read More</a>
+        </div>
+      </div>
+
+      <div class="blog-post" data-category="destinations">
+        <div class="post-image">
+          <div class="placeholder-image destination-bg">
+            <i class="fa-solid fa-mountain-sun"></i>
+          </div>
+          <span class="post-category">Destinations</span>
+        </div>
+        <div class="post-content">
+          <h3>Hidden Gems: 5 Offbeat Destinations in Himachal Pradesh</h3>
+          <p class="post-excerpt">Discover serene villages and breathtaking landscapes away from the crowded tourist spots.</p>
+          <div class="post-meta">
+            <span class="post-date">October 15, 2025</span>
+            <span class="read-time">6 min read</span>
+          </div>
+          <a href="#" class="read-more" onclick="openPost('Hidden Gems in Himachal Pradesh')">Read More</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="newsletter-signup">
+      <h3>Stay Updated</h3>
+      <p>Subscribe to our newsletter for the latest travel tips and hosting insights.</p>
+      <form action="/newsletter" method="POST" class="newsletter-form">
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.blog-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.blog-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  background: linear-gradient(135deg, #fe424d 0%, #ff7e5f 100%);
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 20px;
+}
+
+.blog-hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.blog-categories {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.category-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.category-btn.active,
+.category-btn:hover {
+  background: #fe424d;
+  color: white;
+  border-color: #fe424d;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.blog-post {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.blog-post:hover {
+  transform: translateY(-5px);
+}
+
+.blog-post.featured {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.post-image {
+  position: relative;
+  height: 200px;
+}
+
+.featured .post-image {
+  height: 300px;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: white;
+}
+
+.featured-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.travel-bg {
+  background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+}
+
+.hosting-bg {
+  background: linear-gradient(135deg, #48cae4 0%, #0077b6 100%);
+}
+
+.destination-bg {
+  background: linear-gradient(135deg, #06d6a0 0%, #118ab2 100%);
+}
+
+.post-category {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+}
+
+.post-content {
+  padding: 1.5rem;
+}
+
+.featured .post-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.post-content h2 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.post-content h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.post-excerpt {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #999;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.read-more {
+  color: #fe424d;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.newsletter-signup {
+  text-align: center;
+  background: #f8f9fa;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.newsletter-form input {
+  flex: 1;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.newsletter-form button {
+  background: #fe424d;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .blog-post.featured {
+    grid-template-columns: 1fr;
+  }
+  
+  .newsletter-form {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+function openPost(title) {
+  alert(`Blog post "${title}" is coming soon! Our content team is working on high-quality travel and hosting articles. Subscribe to our newsletter to be notified when new posts are published.`);
+}
+
+// Category filtering
+document.addEventListener('DOMContentLoaded', function() {
+  const categoryButtons = document.querySelectorAll('.category-btn');
+  const blogPosts = document.querySelectorAll('.blog-post');
+  
+  categoryButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const category = this.dataset.category;
+      
+      categoryButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      
+      blogPosts.forEach(post => {
+        if (category === 'all' || post.dataset.category === category) {
+          post.style.display = 'block';
+        } else {
+          post.style.display = 'none';
+        }
+      });
+    });
+  });
+});
+</script>

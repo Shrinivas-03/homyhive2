@@ -1,0 +1,576 @@
+<% layout("/layouts/boilerplate")%>
+
+<style>
+  /* Enhanced Signup Page Styles - HomyHive Theme */
+  body {
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .signup-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #f8f9fa;
+  }
+
+  .signup-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 900px;
+    border: 1px solid #e2e8f0;
+    animation: slideInUp 0.8s ease-out;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .signup-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .signup-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fe424d 0%, #e03850 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .signup-subtitle {
+    color: #718096;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .signup-form {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .form-floating {
+    position: relative;
+  }
+
+  .form-floating .form-control {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    height: 60px;
+    width: 100%;
+  }
+
+  .form-floating .form-control:focus {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, 0.1);
+    background: white;
+    outline: none;
+  }
+
+  .form-floating label {
+    left: 3rem;
+    color: #718096;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fe424d;
+    font-size: 1.1rem;
+    z-index: 10;
+  }
+
+  .form-floating .form-control:focus + label,
+  .form-floating .form-control:not(:placeholder-shown) + label {
+    opacity: 0.8;
+    transform: scale(0.85) translateY(-1rem) translateX(-0.15rem);
+  }
+
+  .signup-btn-main {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fe424d 0%, #e03850 100%);
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .signup-btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(254, 66, 77, 0.3);
+    background: linear-gradient(135deg, #e03850, #d12c3a);
+  }
+
+  .signup-btn-main:active {
+    transform: translateY(0);
+  }
+
+  .signup-btn-main:disabled {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .divider {
+    position: relative;
+    text-align: center;
+    margin: 2rem 0;
+  }
+
+  .divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+  }
+
+  .divider span {
+    background: white;
+    padding: 0 1.5rem;
+    color: #718096;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .oauth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .signup-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: white;
+  }
+
+  .signup-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .signup-btn:hover::before {
+    left: 100%;
+  }
+
+  .signup-google {
+    color: #db4437;
+    border-color: rgba(219, 68, 55, 0.2);
+    background: rgba(219, 68, 55, 0.05);
+  }
+
+  .signup-google:hover {
+    background: rgba(219, 68, 55, 0.1);
+    border-color: #db4437;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(219, 68, 55, 0.2);
+  }
+
+  .signup-facebook {
+    color: #4267b2;
+    border-color: rgba(66, 103, 178, 0.2);
+    background: rgba(66, 103, 178, 0.05);
+  }
+
+  .signup-facebook:hover {
+    background: rgba(66, 103, 178, 0.1);
+    border-color: #4267b2;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(66, 103, 178, 0.2);
+  }
+
+  .signup-email {
+    color: #718096;
+    border-color: rgba(113, 128, 150, 0.2);
+    background: rgba(113, 128, 150, 0.05);
+  }
+
+  .signup-email:hover {
+    background: rgba(113, 128, 150, 0.1);
+    border-color: #718096;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(113, 128, 150, 0.2);
+  }
+
+  .signup-btn i {
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+  }
+
+  .terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(254, 66, 77, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(254, 66, 77, 0.1);
+  }
+
+  .terms-checkbox input[type="checkbox"] {
+    margin-top: 0.2rem;
+    accent-color: #fe424d;
+    transform: scale(1.2);
+  }
+
+  .terms-checkbox label {
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+
+  .terms-checkbox a {
+    color: #fe424d;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .terms-checkbox a:hover {
+    color: #e03850;
+    text-decoration: underline;
+  }
+
+  .login-link {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .login-link a {
+    color: #fe424d;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .login-link a:hover {
+    color: #e03850;
+  }
+
+  .error-message {
+    background: linear-gradient(135deg, #fe424d 0%, #e03850 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  .success-message {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  /* Enhanced form states */
+  .form-control.is-valid {
+    border-color: #48bb78;
+    box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+  }
+
+  .form-control.is-invalid {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, 0.1);
+  }
+
+  .valid-feedback {
+    color: #48bb78;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+
+  .invalid-feedback {
+    color: #fe424d;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .signup-card {
+      padding: 2rem 1.5rem;
+      margin: 1rem;
+      border-radius: 16px;
+    }
+
+    .signup-title {
+      font-size: 2rem;
+    }
+
+    .form-floating .form-control {
+      height: 55px;
+      padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+    }
+
+    .input-icon {
+      left: 0.875rem;
+      font-size: 1rem;
+    }
+
+    .oauth-buttons {
+      gap: 0.75rem;
+    }
+
+    .terms-checkbox {
+      padding: 0.75rem;
+    }
+  }
+
+  /* Loading states */
+  .loading {
+    position: relative;
+    pointer-events: none;
+  }
+
+  .loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Focus states for accessibility */
+  .form-control:focus,
+  .signup-btn-main:focus,
+  .signup-btn:focus {
+    outline: 2px solid #fe424d;
+    outline-offset: 2px;
+  }
+</style>
+
+<div class="signup-container">
+  <div class="signup-card">
+    <div class="signup-header">
+      <h1 class="signup-title">Join HomyHive</h1>
+      <p class="signup-subtitle">Create your account to start exploring amazing stays</p>
+    </div>
+
+    <!-- Flash Messages -->
+    <% if(typeof error !== 'undefined' && error.length > 0) { %>
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <%= error %>
+      </div>
+    <% } %>
+
+    <% if(typeof success !== 'undefined' && success.length > 0) { %>
+      <div class="success-message">
+        <i class="fas fa-check-circle me-2"></i>
+        <%= success %>
+      </div>
+    <% } %>
+
+    <form action="/signup" method="POST" class="signup-form" id="signupForm">
+      <div class="row w-100 gx-4 gy-3">
+        <!-- First Row: Username & Phone -->
+        <div class="col-12 mb-2">
+          <div class="row gx-3">
+            <div class="col-md-6 col-12 mb-2">
+              <div class="form-floating">
+                <i class="fas fa-user input-icon"></i>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  class="form-control"
+                  placeholder="Enter your username"
+                  required
+                  autocomplete="username"
+                >
+                <label for="username">Username</label>
+                <div class="invalid-feedback">Please enter a valid username.</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-12 mb-2">
+              <div class="form-floating">
+                <i class="fas fa-phone input-icon"></i>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="form-control"
+                  placeholder="Enter your phone number"
+                  required
+                  autocomplete="tel"
+                >
+                <label for="phone">Phone Number</label>
+                <div class="invalid-feedback">Please enter a valid phone number.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Second Row: Email & Password -->
+        <div class="col-12 mb-2">
+          <div class="row gx-3">
+            <div class="col-md-6 col-12 mb-2">
+              <div class="form-floating">
+                <i class="fas fa-envelope input-icon"></i>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                  placeholder="Enter your email"
+                  required
+                  autocomplete="email"
+                >
+                <label for="email">Email</label>
+                <div class="invalid-feedback">Please enter a valid email.</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-12 mb-2">
+              <div class="form-floating position-relative">
+                <i class="fas fa-lock input-icon"></i>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="form-control"
+                  placeholder="Create a password"
+                  required
+                  autocomplete="new-password"
+                  minlength="6"
+                >
+                <label for="password">Password</label>
+                <span class="toggle-password" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); cursor:pointer; color:#fe424d; font-size:1.2rem; z-index:11;" onclick="togglePasswordVisibility()">
+                  <i class="fas fa-eye" id="eyeIcon"></i>
+                </span>
+                <div class="invalid-feedback">Password must be at least 6 characters long.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 mt-2">
+          <div class="terms-checkbox">
+            <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+            <label for="agreeTerms">
+              I agree to HomyHive's <a href="/terms" target="_blank">Terms of Service</a> and
+              <a href="/privacy" target="_blank">Privacy Policy</a>. I also agree to receive
+              marketing communications from HomyHive.
+            </label>
+          </div>
+        </div>
+        <div class="col-12 mt-2">
+          <button type="submit" class="signup-btn-main w-100" id="signupBtn">
+            <span class="btn-text">Create Account</span>
+          </button>
+        </div>
+      </div>
+    <script>
+      function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          eyeIcon.classList.remove('fa-eye');
+          eyeIcon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          eyeIcon.classList.remove('fa-eye-slash');
+          eyeIcon.classList.add('fa-eye');
+        }
+      }
+    </script>
+    </form>
+
+    <div class="divider">
+      <span>Or sign up with</span>
+    </div>
+
+    <div class="oauth-buttons">
+      <button type="button" class="signup-btn signup-google" onclick="window.location.href='/auth/google'">
+        <i class="fab fa-google"></i>
+        Continue with Google
+      </button>
+
+      <button type="button" class="signup-btn signup-facebook" onclick="window.location.href='/auth/facebook'">
+        <i class="fab fa-facebook-f"></i>
+        Continue with Facebook
+      </button>
+    </div>
+
+    <div class="login-link">
+      <span class="text-muted">Already have an account? </span>
+      <a href="/login">Sign in here</a>
+    </div>
+  </div>
+</div>

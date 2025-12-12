@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>HomyHive Assistant</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/static/chatbot/chatbot-full.css">
+  <link rel="stylesheet" href="/static/chatbot/chatbot.css"> <!-- reuse widget styles -->
+</head>
+<body>
+  <header style="display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid #eee;background:#fff;">
+    <a href="/" style="text-decoration:none;color:#111;font-weight:700">← Home</a>
+    <h1 style="margin:0;font-size:20px">HomyHive Assistant</h1>
+    <div style="margin-left:auto" class="hc-small">Context-aware help</div>
+  </header>
+
+  <main style="display:flex;gap:24px;max-width:1100px;margin:22px auto;padding:0 18px">
+    <section style="flex:1 1 680px;display:flex;flex-direction:column" aria-live="polite">
+      <div id="fullChatRoot" data-api-path="<%= chatbotConfig && chatbotConfig.apiPath ? chatbotConfig.apiPath : '/api/chat' %>"></div>
+    </section>
+
+    <aside style="width:320px" aria-hidden="true">
+      <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(2,6,23,0.06)">
+        <h3 style="margin-top:0">Quick actions</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <button onclick="document.querySelector('#fullChatRoot').dispatchEvent(new CustomEvent('quickAction',{detail:'show-verification'}))" style="padding:10px;border-radius:8px;border:1px solid #eee;background:#fff;cursor:pointer">Show verification status</button>
+          <button onclick="document.querySelector('#fullChatRoot').dispatchEvent(new CustomEvent('quickAction',{detail:'open-listing'}))" style="padding:10px;border-radius:8px;border:1px solid #eee;background:#fff;cursor:pointer">Open my listing</button>
+          <button onclick="document.querySelector('#fullChatRoot').dispatchEvent(new CustomEvent('quickAction',{detail:'upload-id'}))" style="padding:10px;border-radius:8px;border:1px solid #eee;background:#fff;cursor:pointer">Upload ID</button>
+        </div>
+
+        <hr style="margin:12px 0;border:none;border-top:1px solid #f3f4f6">
+        <div class="small" style="color:#6b7280">HomyBot is a retrieval-augmented assistant. It uses your listing & docs (if provided) to answer help queries.</div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="/static/chatbot/chatbot-full.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+
+
+
+<footer class="footer airbnb-footer">
+   <div class="footer-sections">
+      <div class="footer-section brand">
+         <span class="footer-logo">HomyHive</span>
+         <span class="footer-copyright">&copy; <span id="year"></span> Private Limited</span>
+         <div class="footer-socials">
+            <a href="https://facebook.com" target="_blank" title="Facebook"><i class="fa-brands fa-square-facebook"></i></a>
+            <a href="https://instagram.com" target="_blank" title="Instagram"><i class="fa-brands fa-square-instagram"></i></a>
+            <a href="https://linkedin.com" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+         </div>
+      </div>
+      <div class="footer-section legal">
+         <h4>Legal & Info</h4>
+         <a href="/privacy">Privacy</a>
+         <a href="/terms">Terms & Conditions</a>
+         <a href="/contact">Contact Us</a>
+      </div>
+      <div class="footer-section explore">
+         <h4>Explore</h4>
+         <a href="/about">About</a>
+         <a href="/faq">FAQ</a>
+         <a href="/careers">Careers</a>
+         <a href="/blog">Blog</a>
+         <a href="/help">Help Center</a>
+      </div>
+      <div class="footer-section hosting">
+         <h4>Hosting</h4>
+         <a href="/host">Become a Host</a>
+         <a href="/host-resources">Host Resources</a>
+         <a href="/host-support">Host Support</a>
+      </div>
+      <div class="footer-section community">
+         <h4>Community</h4>
+         <a href="/community">Community Hub</a>
+         <a href="/events">Events</a>
+         <a href="/stories">Guest Stories</a>
+      </div>
+         <div class="footer-section support">
+            <h4>Support</h4>
+            <a href="/tips">Travel Tips</a>
+            <a href="/safety">Safety Info</a>
+            <a href="/accessibility">Accessibility</a>
+         </div>
+      <div class="footer-section newsletter">
+         <h4>Newsletter</h4>
+         <form action="/newsletter" method="POST" class="newsletter-form">
+            <label for="newsletter-email">Subscribe to our newsletter:</label>
+            <input type="email" id="newsletter-email" name="email" placeholder="Enter your email" required>
+            <button type="submit"><i class="fa-solid fa-paper-plane"></i> Subscribe</button>
+         </form>
+      </div>
+   </div>
+   <div class="footer-bottom airbnb-footer-bottom">
+      <span>Made with <i class="fa-solid fa-heart" style="color:#fe424d;"></i> by HomyHive Team</span>
+   </div>
+   <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+   </script>
+</footer>

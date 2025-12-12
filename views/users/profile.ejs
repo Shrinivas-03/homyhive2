@@ -1,0 +1,314 @@
+<%- layout("/layouts/boilerplate") %>
+<style>
+  .profile-hero {
+    background: linear-gradient(135deg, #fe424d 0%, #ff6b6b 100%);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin-bottom: 2.5rem;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .profile-avatar {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    border: 4px solid #fff;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+  }
+  .profile-hero h2 {
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.5px;
+  }
+  .profile-hero .email {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    margin-bottom: 0.5rem;
+  }
+  .profile-hero .bio {
+    font-size: 1.05rem;
+    opacity: 0.95;
+    margin-bottom: 0.5rem;
+  }
+  .profile-details {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    padding: 2rem 2rem 1.5rem 2rem;
+    max-width: 540px;
+    margin: -2.5rem auto 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .profile-details .row {
+    margin-bottom: 1.2rem;
+  }
+  .profile-details label {
+    color: #fe424d;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .profile-details .value {
+    color: #222;
+    font-size: 1.08rem;
+    font-weight: 500;
+  }
+  .edit-btn {
+    margin-top: 1.5rem;
+    background: #fff;
+    color: #fe424d;
+    border: 2px solid #fe424d;
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .edit-btn:hover {
+    background: #fe424d;
+    color: #fff;
+    border-color: #fe424d;
+  }
+</style>
+<div class="container py-5">
+  <div class="profile-hero">
+    <% if(user && user.profilePicture && user.profilePicture.url) { %>
+      <img src="<%= user.profilePicture.url %>" class="profile-avatar" alt="Profile">
+    <% } else if(user) { %>
+      <div class="profile-avatar d-flex align-items-center justify-content-center bg-white text-danger" style="font-size:2.8rem;">
+        <%= (user.displayName || user.username || 'U').charAt(0).toUpperCase() %>
+      </div>
+    <% } %>
+    <h2><%= user ? (user.displayName || user.username || 'User') : 'User' %></h2>
+    <div class="email"><i class="fa-solid fa-envelope me-1"></i> <%= user && user.email ? user.email : '' %></div>
+    <div class="bio"><i class="fa-solid fa-quote-left me-1"></i> <%= user && user.bio ? user.bio : 'No bio provided.' %></div>
+  </div>
+  <div class="profile-details">
+    <div class="row">
+      <div class="col-5"><label>Phone</label></div>
+      <div class="col-7 value"><i class="fa-solid fa-phone me-1"></i> <%= user && user.phone ? user.phone : 'Not set' %></div>
+    </div>
+    <div class="row">
+      <div class="col-5"><label>Joined</label></div>
+      <div class="col-7 value"><i class="fa-solid fa-calendar me-1"></i> <%= user && user.joinedDate ? new Date(user.joinedDate).toLocaleDateString() : 'N/A' %></div>
+    </div>
+    <a href="/user/settings" class="edit-btn"><i class="fa-solid fa-pen me-1"></i> Edit Profile</a>
+  </div>
+</div>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      <div class="card profile-sidebar">
+        <div class="card-body text-center">
+          <div class="profile-avatar-large mb-3">
+            <% if(user && user.profilePicture && user.profilePicture.url) { %>
+              <img src="<%= user.profilePicture.url %>" alt="Profile" class="rounded-circle">
+            <% } else if(user) { %>
+              <div class="avatar-placeholder">
+                <%= (user.displayName || user.username || 'User').charAt(0).toUpperCase() %>
+              </div>
+            <% } %>
+          </div>
+          <h5><%= user ? (user.displayName || user.username) : '' %></h5>
+          <p class="text-muted"><%= user && user.email ? user.email : '' %></p>
+          <% if(user && user.bio) { %>
+            <p class="bio-text"><%= user.bio %></p>
+          <% } %>
+          <small class="text-muted">
+            Joined <%= user && (user.joinedDate || user.createdAt) ? new Date(user.joinedDate || user.createdAt).toLocaleDateString() : '' %>
+          </small>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <div class="card mt-3">
+        <div class="list-group list-group-flush">
+          <a href="/user/profile" class="list-group-item list-group-item-action active">
+            <i class="fa-solid fa-user me-2"></i> Profile
+          </a>
+          <a href="/user/dashboard" class="list-group-item list-group-item-action">
+            <i class="fa-solid fa-chart-line me-2"></i> Dashboard
+          </a>
+          <a href="/user/bookings" class="list-group-item list-group-item-action">
+            <i class="fa-solid fa-calendar-check me-2"></i> My Bookings
+          </a>
+          <a href="/user/wishlist" class="list-group-item list-group-item-action">
+            <i class="fa-solid fa-heart me-2"></i> Wishlist
+          </a>
+          <a href="/user/hosting" class="list-group-item list-group-item-action">
+            <i class="fa-solid fa-key me-2"></i> Hosting
+          </a>
+          <a href="/user/settings" class="list-group-item list-group-item-action">
+            <i class="fa-solid fa-cog me-2"></i> Settings
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+      <div class="row">
+        <!-- Profile Info Card -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Profile Information</h5>
+              <a href="/user/profile/edit" class="btn btn-outline-primary">
+                <i class="fa-solid fa-edit"></i> Edit Profile
+              </a>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>Personal Details</h6>
+                  <p><strong>Name:</strong> <%= user ? (user.displayName || user.username) : '' %></p>
+                  <p><strong>Email:</strong> <%= user && user.email ? user.email : '' %></p>
+                  <% if(user && user.phone) { %>
+                    <p><strong>Phone:</strong> <%= user.phone %></p>
+                  <% } %>
+                  <% if(user && user.bio) { %>
+                    <p><strong>Bio:</strong> <%= user.bio %></p>
+                  <% } %>
+                </div>
+                <div class="col-md-6">
+                  <h6>Account Details</h6>
+                  <p><strong>Account Type:</strong>
+                    <span class="badge <%= user && user.isHost ? 'bg-success' : 'bg-secondary' %>">
+                      <%= user && user.isHost ? 'Host' : 'Guest' %>
+                    </span>
+                  </p>
+                  <p><strong>Member Since:</strong> <%= user && (user.joinedDate || user.createdAt) ? new Date(user.joinedDate || user.createdAt).toLocaleDateString() : '' %></p>
+                  <p><strong>Last Active:</strong> <%= user && user.lastActive ? new Date(user.lastActive).toLocaleDateString() : '' %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Listings -->
+        <div class="col-12 mt-4">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">My Listings (<%= userListings && userListings.length ? userListings.length : 0 %>)</h5>
+              <a href="/listings/new" class="btn btn-success">
+                <i class="fa-solid fa-plus"></i> Add New Listing
+              </a>
+            </div>
+            <div class="card-body">
+              <% if(userListings && userListings.length > 0) { %>
+                <div class="row">
+                  <% userListings.forEach(listing => { %>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                      <div class="card listing-card">
+                        <% if(listing.image && listing.image.url) { %>
+                          <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>">
+                        <% } %>
+                        <div class="card-body">
+                          <h6 class="card-title"><%= listing.title %></h6>
+                          <p class="card-text text-muted small">
+                            <i class="fa-solid fa-location-dot"></i> <%= listing.location %>, <%= listing.country %>
+                          </p>
+                          <p class="card-text">
+                            <strong>₹<%= listing.price.toLocaleString() %></strong>/night
+                          </p>
+                          <div class="btn-group btn-group-sm w-100">
+                            <a href="/listings/<%= listing._id %>" class="btn btn-outline-primary">View</a>
+                            <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary">Edit</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } else { %>
+                <div class="text-center py-5">
+                  <i class="fa-solid fa-home fa-3x text-muted mb-3"></i>
+                  <h5>No listings yet</h5>
+                  <p class="text-muted">Start hosting by creating your first listing!</p>
+                  <a href="/listings/new" class="btn btn-success">
+                    <i class="fa-solid fa-plus"></i> Create Your First Listing
+                  </a>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.profile-sidebar {
+  border: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.profile-avatar-large {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.profile-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #fe424d, #ff6b6b);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.bio-text {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 1rem;
+}
+
+.listing-card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.listing-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.listing-card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.list-group-item-action:hover {
+  background-color: rgba(254, 66, 77, 0.1);
+  color: #fe424d;
+}
+
+.list-group-item-action.active {
+  background-color: #fe424d;
+  border-color: #fe424d;
+}
+</style>

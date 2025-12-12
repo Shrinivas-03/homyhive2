@@ -1,0 +1,291 @@
+<% layout('/layouts/boilerplate') %>
+
+<style>
+  body { background: #f7faf9; }
+  .support-container { min-height: 100vh; padding: 3rem 0; }
+  .hero-section { text-align: center; padding: 2.5rem 1rem 1rem; margin-bottom: 1.5rem; }
+  .hero-title { font-size: 2.2rem; font-weight: 700; color: #064e3b; margin-bottom: .25rem; }
+  .hero-subtitle { color: #475569; max-width: 900px; margin: 0 auto; }
+
+    .support-content { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+      /* Use a flex layout to guarantee exact 3 cards per row on desktop, 2 on tablet, 1 on mobile */
+      .support-grid { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 2.4rem; justify-content: center; }
+
+  /* card layout and visuals */
+  .support-card { display:flex; flex-direction:column; justify-content:space-between; min-height: 260px; background:#fff; border-radius:12px; padding:1.6rem; box-shadow:0 10px 30px rgba(7,10,21,0.06); border:1px solid rgba(6,78,59,0.04); text-align:center; }
+  /* Desktop: 3 per row */
+  .support-card { flex: 0 0 calc((100% - 4rem) / 3); max-width: calc((100% - 4rem) / 3); }
+  .support-card:hover { transform: translateY(-6px); box-shadow:0 18px 40px rgba(7,10,21,0.08); }
+
+  .support-icon { width:64px; height:64px; background:linear-gradient(135deg,#10b981,#059669); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem }
+  .support-icon i { color:#fff; font-size:1.35rem }
+
+  .support-title { font-size:1.15rem; font-weight:700; color:#064e3b; margin-bottom:.5rem }
+  .support-description { color:#64748b; margin-bottom:1rem }
+  .contact-info { color:#065f46; font-weight:700; margin-bottom:.5rem }
+  .support-button { background:linear-gradient(90deg,#10b981,#059669); color:#fff; padding:.6rem 1rem; border-radius:8px; text-decoration:none; font-weight:700 }
+
+  .faq-section { background:#fff; border-radius:12px; padding:1.75rem; box-shadow:0 12px 30px rgba(7,10,21,0.06); margin-top:1.75rem }
+  .faq-title { color:#064e3b; font-weight:700; margin-bottom:1rem }
+  .faq-question { font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:.75rem 0 }
+  .faq-answer { display:none; color:#64748b }
+  .faq-answer.active { display:block }
+
+  .emergency-section { background: linear-gradient(135deg,#dc2626,#ef4444); color:#fff; border-radius:12px; padding:1rem; text-align:center; margin-top:1.5rem }
+  .emergency-button { background:#fff; color:#dc2626; padding:.6rem 1rem; border-radius:8px; text-decoration:none; font-weight:700 }
+
+  /* tablet */
+  @media (max-width: 1200px) {
+    /* Tablet: 2 per row */
+    .support-card { flex: 0 0 calc((100% - 2rem) / 2); max-width: calc((100% - 2rem) / 2); }
+  }
+
+  /* mobile */
+  @media (max-width: 768px) {
+    /* Mobile: 1 per row */
+    .support-card { flex: 0 0 100%; max-width: 100%; }
+    .support-grid { gap: 1.2rem; }
+    .hero-title { font-size: 1.6rem; }
+    .support-card { min-height: unset; padding:1.25rem; }
+  }
+</style>
+
+  <div class="support-container">
+    <div class="hero-section">
+      <h1 class="hero-title">Host Support</h1>
+      <p class="hero-subtitle">We're here to help you succeed as a host on HomyHive</p>
+    </div>
+
+    <div class="support-content">
+      <!-- Support Options -->
+      <div class="support-grid">
+        <!-- 24/7 Phone Support -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-phone"></i>
+          </div>
+          <h3 class="support-title">24/7 Phone Support</h3>
+          <p class="support-description">
+            Get immediate assistance from our dedicated host support team. Available round the clock for urgent issues.
+          </p>
+          <div class="contact-info">+91 9035430915</div>
+          <a href="tel:+919035430915" class="support-button">Call Now</a>
+        </div>
+
+        <!-- Email Support -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <h3 class="support-title">Email Support</h3>
+          <p class="support-description">
+            Send us detailed questions or issues. We typically respond within 4-6 hours during business days.
+          </p>
+          <div class="contact-info">host-support@homyhive.com</div>
+          <a href="mailto:host-support@homyhive.com" class="support-button">Send Email</a>
+        </div>
+
+        <!-- Live Chat -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h3 class="support-title">Live Chat</h3>
+          <p class="support-description">
+            Chat with our support agents in real-time. Perfect for quick questions and instant assistance.
+          </p>
+          <div class="contact-info">Available 9 AM - 9 PM IST</div>
+          <a href="/contact" class="support-button">Start Chat</a>
+        </div>
+
+        <!-- Host Community -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3 class="support-title">Host Community</h3>
+          <p class="support-description">
+            Connect with other hosts, share experiences, and get tips from our vibrant host community.
+          </p>
+          <div class="contact-info">Join 500+ Active Hosts</div>
+          <a href="/community" class="support-button">Join Community</a>
+        </div>
+
+        <!-- Help Center -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-book"></i>
+          </div>
+          <h3 class="support-title">Help Center</h3>
+          <p class="support-description">
+            Browse our comprehensive knowledge base with step-by-step guides and troubleshooting tips.
+          </p>
+          <div class="contact-info">100+ Articles & Guides</div>
+          <a href="/help" class="support-button">Browse Help</a>
+        </div>
+
+        <!-- Priority Support -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <h3 class="support-title">Priority Support</h3>
+          <p class="support-description">
+            Superhost members get priority support with faster response times and dedicated assistance.
+          </p>
+          <div class="contact-info">For Superhost Members</div>
+          <a href="#" class="support-button">Learn More</a>
+        </div>
+
+        <!-- Booking Help -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <h3 class="support-title">Booking Help</h3>
+          <p class="support-description">
+            Need help with reservations, modifications, or cancellations? Find the right steps here.
+          </p>
+          <div class="contact-info">Manage bookings & cancellations</div>
+          <a href="/resources/booking-help" class="support-button">Learn More</a>
+        </div>
+
+        <!-- Safety & Trust -->
+        <div class="support-card">
+          <div class="support-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3 class="support-title">Safety & Trust</h3>
+          <p class="support-description">
+            Important safety guidelines, guest screening, and what to do in case of an incident.
+          </p>
+          <div class="contact-info">Safety guidance & reporting</div>
+          <a href="/resources/safety-and-trust" class="support-button">Learn More</a>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="faq-section">
+        <h2 class="faq-title">Frequently Asked Questions</h2>
+      
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            How do I get paid for hosting?
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            Payments are processed within 24 hours of guest checkout and transferred to your registered bank account. You can track all earnings in your host dashboard.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            What if a guest damages my property?
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            All bookings are covered by our Host Protection Program. Report any damages within 24 hours and we'll help you get compensated quickly.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            How do I optimize my listing for more bookings?
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            Use high-quality photos, write detailed descriptions, maintain competitive pricing, and respond quickly to inquiries. Our host resources page has detailed optimization tips.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Can I cancel a booking?
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            Host cancellations should be avoided as they negatively impact your profile. Contact support immediately if you have an emergency situation requiring cancellation.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            What taxes do I need to pay as a host?
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            Host income is subject to income tax. You may also need to register for GST if your annual earnings exceed ₹20 lakhs. Consult our tax guidelines or a tax professional.
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency Support -->
+      <div class="emergency-section">
+        <h3 class="emergency-title">🚨 Emergency Support</h3>
+        <p class="emergency-description">
+          For urgent safety or security issues that require immediate attention, contact our emergency hotline 24/7.
+        </p>
+        <a href="tel:+919035430915" class="emergency-button">Emergency Hotline: +91 9035430915</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleFaq(element) {
+      const answer = element.nextElementSibling;
+      const icon = element.querySelector('.faq-icon');
+    
+      // Close all other FAQs
+      document.querySelectorAll('.faq-answer').forEach(item => {
+        if (item !== answer) {
+          item.classList.remove('active');
+        }
+      });
+    
+      document.querySelectorAll('.faq-icon').forEach(item => {
+        if (item !== icon) {
+          item.classList.remove('rotated');
+        }
+      });
+    
+      // Toggle current FAQ
+      answer.classList.toggle('active');
+      icon.classList.toggle('rotated');
+    }
+
+    // Add smooth animations on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+      const cards = document.querySelectorAll('.support-card');
+    
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.animation = 'slideInUp 0.6s ease-out forwards';
+          }
+        });
+      }, observerOptions);
+
+      cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        observer.observe(card);
+      });
+    });
+
+    // CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>

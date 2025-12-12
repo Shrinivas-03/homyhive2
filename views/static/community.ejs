@@ -1,0 +1,44 @@
+<% layout("/layouts/boilerplate")%>
+
+<div class="coming-soon-wrapper">
+  <div class="coming-soon-content">
+    <div class="icon-container">
+      <i class="fa-solid fa-users"></i>
+    </div>
+    <h1>Community Hub</h1>
+    <p class="subtitle">Connect with fellow travelers and hosts worldwide</p>
+    
+    <div class="coming-soon-message">
+      <h2>Coming Soon!</h2>
+      <p>We're building an amazing community platform where you can:</p>
+      
+      <div class="features-list">
+        <div class="feature">✨ Share travel experiences and tips</div>
+        <div class="feature">🤝 Connect with hosts and guests</div>
+        <div class="feature">📸 Share photos from your trips</div>
+        <div class="feature">💡 Get local recommendations</div>
+        <div class="feature">🎉 Join community events</div>
+      </div>
+      
+      <div class="cta-buttons">
+        <a href="/contact" class="btn-primary">Get Notified</a>
+        <a href="/listings" class="btn-secondary">Explore Listings</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  body { background: #f7faf9; }
+  .coming-soon-wrapper { max-width: 760px; margin:0 auto; padding:3rem 1.25rem; text-align:center; display:flex; align-items:center; justify-content:center; }
+  .coming-soon-content { background:#fff; padding:2.25rem; border-radius:12px; box-shadow:0 12px 30px rgba(7,10,21,0.06); width:100%; }
+  .icon-container { width:84px; height:84px; background:linear-gradient(135deg,#10b981 0%,#059669 100%); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-size:1.6rem; }
+  .coming-soon-content h1{ color:#064e3b; font-size:2rem; margin-bottom:.25rem; }
+  .subtitle{ color:#475569; margin-bottom:.75rem; }
+  .features-list{ text-align:left; max-width:480px; margin:1.25rem auto; }
+  .feature{ color:#0f172a; margin-bottom:.6rem; font-size:1rem; }
+  .cta-buttons{ display:flex; gap:.75rem; justify-content:center; margin-top:1rem }
+  .btn-primary{ background:#059669; color:#fff; padding:.6rem 1.1rem; border-radius:8px; text-decoration:none; font-weight:700 }
+  .btn-secondary{ background:transparent; color:#065f46; border:2px solid #e6f7ef; padding:.55rem 1rem; border-radius:8px; text-decoration:none }
+  @media(max-width:768px){ .coming-soon-content h1{ font-size:1.5rem } .cta-buttons{ flex-direction:column } }
+</style>

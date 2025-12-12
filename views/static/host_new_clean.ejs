@@ -1,0 +1,451 @@
+<% layout("/layouts/boilerplate")%>
+
+<style>
+  /* Host Registration Form Styles */
+  body {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .registration-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+
+  .registration-form-wrapper {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .form-header {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-subtitle {
+    opacity: 0.9;
+    margin: 0;
+  }
+
+  .form-content {
+    padding: 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .required {
+    color: #dc2626;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .security-notice {
+    background: rgba(5, 150, 105, 0.1);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #059669;
+    font-size: 0.9rem;
+  }
+
+  .error-message {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .success-message {
+    background: #f0fdf4;
+    color: #10b981;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .registration-form-wrapper {
+      margin: 1rem;
+    }
+    
+    .form-content {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<div class="registration-container">
+  <div class="registration-form-wrapper">
+    <div class="form-header">
+      <h1 class="form-title">Become a Host</h1>
+      <p class="form-subtitle">Join our community and start earning today</p>
+    </div>
+    
+    <div class="form-content">
+      <!-- Messages -->
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <!-- Security Notice -->
+      <div class="security-notice">
+        <i class="fas fa-shield-alt"></i>
+        Your information is protected with bank-grade encryption and security measures.
+      </div>
+
+      <form id="hostRegistrationForm" action="/host/signup" method="POST" enctype="multipart/form-data" novalidate>
+        <!-- Personal Information -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="firstName">First Name <span class="required">*</span></label>
+            <input type="text" id="firstName" name="firstName" class="form-input" required autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lastName">Last Name <span class="required">*</span></label>
+            <input type="text" id="lastName" name="lastName" class="form-input" required autocomplete="family-name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" class="form-input" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone Number <span class="required">*</span></label>
+          <input type="tel" id="phone" name="phone" class="form-input" required autocomplete="tel" placeholder="10-digit mobile number">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="gender">Gender <span class="required">*</span></label>
+            <select id="gender" name="gender" class="form-input" required>
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer-not-to-say">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Identity Verification -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="idType">ID Type <span class="required">*</span></label>
+            <select id="idType" name="idType" class="form-input" required>
+              <option value="">Select ID Type</option>
+              <option value="aadhar">Aadhar Card</option>
+              <option value="pan">PAN Card</option>
+              <option value="passport">Passport</option>
+              <option value="driving-license">Driving License</option>
+              <option value="voter-id">Voter ID</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="idNumber">ID Number <span class="required">*</span></label>
+            <input type="text" id="idNumber" name="idNumber" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="governmentId">Upload ID Document <span class="required">*</span></label>
+          <input type="file" id="governmentId" name="governmentId" class="form-input" accept="image/*,application/pdf" required>
+        </div>
+
+        <!-- Banking Information -->
+        <div class="form-group">
+          <label class="form-label" for="bankAccount">Bank Account Number <span class="required">*</span></label>
+          <input type="text" id="bankAccount" name="bankAccount" class="form-input" required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="ifscCode">IFSC Code <span class="required">*</span></label>
+          <input type="text" id="ifscCode" name="ifscCode" class="form-input" required autocomplete="off" placeholder="e.g., SBIN0123456">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="bankName">Bank Name</label>
+            <input type="text" id="bankName" name="bankName" class="form-input" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bankBranch">Branch</label>
+            <input type="text" id="bankBranch" name="bankBranch" class="form-input" readonly>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="form-group">
+          <label class="form-label" for="address">Address <span class="required">*</span></label>
+          <textarea id="address" name="address" class="form-input" rows="3" required autocomplete="street-address"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="city">City <span class="required">*</span></label>
+            <input type="text" id="city" name="city" class="form-input" required autocomplete="address-level2">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="state">State <span class="required">*</span></label>
+            <input type="text" id="state" name="state" class="form-input" required autocomplete="address-level1">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="pincode">Pincode <span class="required">*</span></label>
+            <input type="text" id="pincode" name="pincode" class="form-input" required autocomplete="postal-code" placeholder="6-digit pincode">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="country">Country <span class="required">*</span></label>
+            <select id="country" name="country" class="form-input" required>
+              <option value="">Select Country</option>
+              <option value="IN" selected>India</option>
+              <option value="US">United States</option>
+              <option value="UK">United Kingdom</option>
+              <option value="CA">Canada</option>
+              <option value="AU">Australia</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="form-group">
+          <label class="form-label">
+            <input type="checkbox" id="agreeTerms" name="agreeTerms" required style="margin-right: 0.5rem;">
+            I agree to the <a href="/static/terms" target="_blank">Terms and Conditions</a> and <a href="/static/privacy" target="_blank">Privacy Policy</a> <span class="required">*</span>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn" id="submitBtn">
+          Complete Registration
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('hostRegistrationForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const errorMessage = document.getElementById('errorMessage');
+  const successMessage = document.getElementById('successMessage');
+
+  // Show error message
+  function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block';
+    successMessage.style.display = 'none';
+    window.scrollTo(0, 0);
+  }
+
+  // Show success message
+  function showSuccess(message) {
+    successMessage.textContent = message;
+    successMessage.style.display = 'block';
+    errorMessage.style.display = 'none';
+    window.scrollTo(0, 0);
+  }
+
+  // IFSC Code validation and bank details fetch
+  const ifscInput = document.getElementById('ifscCode');
+  const bankNameInput = document.getElementById('bankName');
+  const bankBranchInput = document.getElementById('bankBranch');
+
+  ifscInput.addEventListener('blur', async function() {
+    const ifsc = this.value.trim().toUpperCase();
+    if (ifsc.length === 11) {
+      try {
+        const response = await fetch(`https://ifsc.razorpay.com/${ifsc}`);
+        if (response.ok) {
+          const data = await response.json();
+          bankNameInput.value = data.BANK;
+          bankBranchInput.value = data.BRANCH;
+        } else {
+          bankNameInput.value = '';
+          bankBranchInput.value = '';
+          showError('Invalid IFSC code. Please check and try again.');
+        }
+      } catch (error) {
+        console.error('Error fetching bank details:', error);
+      }
+    }
+  });
+
+  // Phone number validation
+  const phoneInput = document.getElementById('phone');
+  phoneInput.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').substring(0, 10);
+  });
+
+  // Pincode validation
+  const pincodeInput = document.getElementById('pincode');
+  pincodeInput.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').substring(0, 6);
+  });
+
+  // Form submission
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Validate required fields
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+      if (!field.value.trim()) {
+        isValid = false;
+        field.style.borderColor = '#ef4444';
+      } else {
+        field.style.borderColor = '#e5e7eb';
+      }
+    });
+
+    if (!isValid) {
+      showError('Please fill in all required fields.');
+      return;
+    }
+
+    // Validate phone number
+    if (phoneInput.value.length !== 10) {
+      showError('Please enter a valid 10-digit phone number.');
+      phoneInput.focus();
+      return;
+    }
+
+    // Validate pincode
+    if (pincodeInput.value.length !== 6) {
+      showError('Please enter a valid 6-digit pincode.');
+      pincodeInput.focus();
+      return;
+    }
+
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
+
+    try {
+      const formData = new FormData(form);
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        showSuccess('Registration submitted successfully! You will receive confirmation within 24-48 hours.');
+        form.reset();
+        setTimeout(() => {
+          window.location.href = '/static/login?message=registration-success';
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        showError(errorData.message || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      showError('Registration failed. Please check your connection and try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Complete Registration';
+    }
+  });
+
+  // Real-time validation for required fields
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      if (this.hasAttribute('required') && !this.value.trim()) {
+        this.style.borderColor = '#ef4444';
+      } else {
+        this.style.borderColor = '#e5e7eb';
+      }
+    });
+  });
+});
+</script>

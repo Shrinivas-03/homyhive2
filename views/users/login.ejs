@@ -1,0 +1,158 @@
+<% layout("/layouts/boilerplate")%>
+
+<style>
+  /* SAME YOUR STYLES – NO CHANGE */
+  body {
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .login-card { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 3rem; width: 100%; max-width: 450px; box-shadow: 0 20px 40px rgba(254,66,77,0.15); }
+  .login-header { text-align: center; margin-bottom: 2.5rem; }
+  .login-title { font-size: 2.5rem; font-weight: 700; background: linear-gradient(135deg,#fe424d,#e03850); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .form-floating {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .input-icon {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fe424d;
+    font-size: 1.3rem;
+    pointer-events: none;
+    z-index: 2;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .form-control {
+    padding-left: 2.8rem !important;
+    height: 52px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    background: #fff;
+  }
+  .form-floating label {
+    left: 2.8rem;
+    font-size: 1rem;
+    color: #888;
+    padding-top: 0.2rem;
+  }
+  .toggle-password {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #fe424d;
+    font-size: 1.3rem;
+    z-index: 3;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .form-control:focus { border-color:#fe424d; box-shadow:0 0 0 3px rgba(254,66,77,0.1); }
+  .login-btn { width:100%; padding:1rem; background:#fe424d; border:none; color:white; border-radius:12px; font-weight:600; }
+</style>
+
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1 class="login-title">Welcome Back</h1>
+      <p class="login-subtitle">Sign in to your HomyHive account</p>
+    </div>
+
+    <!-- Flash Messages -->
+    <% if(typeof error !== 'undefined' && error.length > 0) { %>
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <%= error %>
+      </div>
+    <% } %>
+
+    <% if(typeof success !== 'undefined' && success.length > 0) { %>
+      <div class="success-message">
+        <i class="fas fa-check-circle me-2"></i>
+        <%= success %>
+      </div>
+    <% } %>
+
+    <!-- ⭐ FIXED FORM ⭐ -->
+    <form action="/login" method="POST" id="loginForm" novalidate>
+
+      <!-- FIXED EMAIL FIELD -->
+      <div class="form-floating">
+        <i class="fas fa-envelope input-icon"></i>
+        <input
+          name="email"
+          id="email"
+          type="email"
+          class="form-control"
+          placeholder="Enter your email"
+          required
+          autocomplete="email"
+        >
+        <label for="email">Email</label>
+        <div class="invalid-feedback">Please enter your email.</div>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="form-floating position-relative">
+        <i class="fas fa-lock input-icon"></i>
+        <input
+          name="password"
+          id="password"
+          type="password"
+          class="form-control"
+          placeholder="Enter your password"
+          required
+          autocomplete="current-password"
+        >
+        <label for="password">Password</label>
+        <span class="toggle-password" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); cursor:pointer; color:#fe424d; font-size:1.2rem; z-index:3;" onclick="togglePasswordVisibility()">
+          <i class="fas fa-eye" id="eyeIcon"></i>
+        </span>
+      </div>
+<script>
+function togglePasswordVisibility() {
+  const passwordInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eyeIcon');
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    eyeIcon.classList.remove('fa-eye');
+    eyeIcon.classList.add('fa-eye-slash');
+  } else {
+    passwordInput.type = 'password';
+    eyeIcon.classList.remove('fa-eye-slash');
+    eyeIcon.classList.add('fa-eye');
+  }
+}
+</script>
+
+      <button type="submit" class="login-btn">Sign In</button>
+    </form>
+
+    <div class="signup-link text-center mt-3">
+      <span class="text-muted">Don't have an account? </span>
+      <a href="/signup">Create one here</a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", () => {
+  console.log("DEBUG → Email value:", document.getElementById("email").value);
+});
+</script>
