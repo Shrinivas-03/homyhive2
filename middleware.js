@@ -48,7 +48,7 @@ function injectChatbot(options = {}) {
       const skip = shouldSkipChatbot(path);
       res.locals.showChatbot = !skip;
       res.locals.chatbotConfig = { apiPath };
-    } catch (e) {
+    } catch {
       res.locals.showChatbot = false;
       res.locals.chatbotConfig = { apiPath };
     }
@@ -56,43 +56,64 @@ function injectChatbot(options = {}) {
   };
 }
 
+/**
+ * Attach MongoDB user (if exists) using Supabase session email
+ * Mongo is OPTIONAL here (Supabase is source of truth for auth)
+ */
 async function attachSupabaseUser(req, res, next) {
   try {
-    if (req.session && req.session.supabaseUser) {
+    if (req.session?.supabaseUser) {
       const sbUser = req.session.supabaseUser;
+
+      // Optional Mongo lookup (safe if user does not exist)
       const user = await User.findOne({ email: sbUser.email }).exec();
+
       req.user = user || null;
       res.locals.currUser = user || null;
+
+      // 🔹 expose role to templates (admin / user)
+      res.locals.userRole = req.session.role || "user";
     } else {
       req.user = null;
       res.locals.currUser = null;
+      res.locals.userRole = null;
     }
   } catch (e) {
-    console.warn("attachSupabaseUser error:", e && e.message ? e.message : e);
+    console.warn("attachSupabaseUser error:", e?.message || e);
     req.user = null;
     res.locals.currUser = null;
+    res.locals.userRole = null;
   }
   next();
 }
 
+/**
+ * Login check (Supabase session based)
+ * Slightly hardened
+ */
 const isLoggedIn = (req, res, next) => {
-  if (req.session && req.session.supabaseUser) return next();
+  if (req.session?.supabaseUser) return next();
+
   req.session.redirectUrl = req.originalUrl;
   req.flash("error", "You must be logged in.");
   return res.redirect("/login");
 };
 
 const saveRedirectUrl = (req, res, next) => {
-  if (req.session && req.session.redirectUrl) {
+  if (req.session?.redirectUrl) {
     res.locals.redirectUrl = req.session.redirectUrl;
   }
   next();
 };
 
+/**
+ * Listing owner check (Mongo based)
+ */
 const isOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
     const listing = await Listing.findById(id).exec();
+
     if (
       !listing ||
       !res.locals.currUser ||
@@ -110,27 +131,30 @@ const isOwner = async (req, res, next) => {
 const validateListing = (req, res, next) => {
   const { error } = listingSchema.validate(req.body);
   if (error) {
-    const msg = error.details.map((d) => d.message).join(", ");
-    throw new ExpressError(400, msg);
-  } else {
-    next();
+    throw new ExpressError(
+      400,
+      error.details.map((d) => d.message).join(", ")
+    );
   }
+  next();
 };
 
 const validateReview = (req, res, next) => {
   const { error } = reviewSchema.validate(req.body);
   if (error) {
-    const msg = error.details.map((d) => d.message).join(", ");
-    throw new ExpressError(400, msg);
-  } else {
-    next();
+    throw new ExpressError(
+      400,
+      error.details.map((d) => d.message).join(", ")
+    );
   }
+  next();
 };
 
 const isReviewAuthor = async (req, res, next) => {
   try {
     const { reviewId, id } = req.params;
     const review = await Review.findById(reviewId).exec();
+
     if (
       !review ||
       !res.locals.currUser ||
@@ -145,8 +169,18 @@ const isReviewAuthor = async (req, res, next) => {
   }
 };
 
+/**
+ * 🔐 ADMIN CHECK (SUPABASE ROLE BASED)
+ * This is now the ONLY source of truth for admin access
+ */
 const isAdmin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) return next();
+  if (req.session?.role === "admin") return next();
+
+  console.warn(
+    "Admin access denied:",
+    req.session?.supabaseUser?.email || "unknown user"
+  );
+
   req.flash("error", "Admin only access");
   return res.redirect("/login");
 };

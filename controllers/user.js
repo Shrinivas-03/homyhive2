@@ -1,28 +1,33 @@
-// controllers/supabaseAuth.js
 const supabase = require("../utils/supabaseClient");
+
+module.exports.renderLogin = (req, res) => {
+  res.render("users/login");
+};
 
 module.exports.login = async (req, res) => {
   const { email, password } = req.body;
 
+  // 1️⃣ LOGIN USING SUPABASE AUTH
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) {
-    req.flash("error", error.message);
+  if (error || !data?.user) {
+    req.flash("error", "Invalid email or password");
     return res.redirect("/login");
   }
 
   const user = data.user;
 
-  // ✅ CHECK ADMIN TABLE
+  // 2️⃣ CHECK ADMIN TABLE (ROLE CHECK ONLY)
   const { data: admin } = await supabase
     .from("admins")
-    .select("*")
+    .select("id, role")
     .eq("id", user.id)
-    .single();
+    .maybeSingle(); // ✅ VERY IMPORTANT
 
+  // 3️⃣ SESSION SETUP
   req.session.supabaseUser = {
     id: user.id,
     email: user.email,
@@ -33,12 +38,12 @@ module.exports.login = async (req, res) => {
     return res.redirect("/admin/dashboard");
   }
 
-  // ✅ ELSE NORMAL USER
   req.session.role = "user";
   return res.redirect("/");
 };
 
-module.exports.logout = async (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
+module.exports.logout = (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
 };

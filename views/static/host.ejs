@@ -54,6 +54,10 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
 </style>
 </head>
 <body>
+  <script>
+    const serverHostData = <%- typeof host !== 'undefined' ? JSON.stringify(host) : 'null' %>;
+    const serverListingData = <%- typeof listing !== 'undefined' ? JSON.stringify(listing) : 'null' %>;
+  </script>
   <div id="toast" class="toast"></div>
 
   <div class="container">
@@ -318,6 +322,7 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
     pills.forEach((p,i)=> p.classList.toggle('active', i <= idxMap[name]));
     if (push) history.pushState({page:name}, '', name === 'host' ? '/host-details' : (name === 'property' ? '/property-details' : '/host-verify'));
   }
+  let imgs, vid; // Declare here
   window.addEventListener('popstate', e=> { const s = (e.state && e.state.page) || (location.pathname.includes('verify') ? 'verify' : (location.pathname.includes('property') ? 'property' : 'host')); showPage(s,false); });
   $('navHost').addEventListener('click', ()=> showPage('host')); $('navProperty').addEventListener('click', ()=> showPage('property')); $('navVerify').addEventListener('click', ()=> showPage('verify'));
 
@@ -340,7 +345,19 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
 
     $('hostSave').addEventListener('click', e=>{ e.preventDefault(); const draft = { firstName:$('hostFirstName').value, lastName:$('hostLastName').value, email:$('hostEmail').value, phone:$('hostPhone').value, bio:$('hostBio').value }; localStorage.setItem('hostDraft', JSON.stringify(draft)); showToast('Host draft saved'); });
     $('toProperty').addEventListener('click', ()=> { if (!$('hostFirstName').value.trim() || !$('hostEmail').value.trim()){ showToast('Please fill required fields'); return; } try { localStorage.setItem('hostDraft', JSON.stringify({ firstName:$('hostFirstName').value, lastName:$('hostLastName').value, email:$('hostEmail').value, phone:$('hostPhone').value, bio:$('hostBio').value })); } catch(e){}; showPage('property'); });
-    try { const s = localStorage.getItem('hostDraft'); if (s){ const o = JSON.parse(s); $('hostFirstName').value = o.firstName||''; $('hostLastName').value=o.lastName||''; $('hostEmail').value=o.email||''; $('hostPhone').value=o.phone||''; $('hostBio').value=o.bio||''; $('previewHostName').textContent = (o.firstName||'') + (o.lastName ? ' ' + o.lastName : ''); $('previewHostBio').textContent = o.bio || 'Host bio will appear here'; } } catch(e){}
+
+    if (serverHostData && serverHostData.personalInfo) {
+      const data = serverHostData.personalInfo;
+      $('hostFirstName').value = data.firstName||'';
+      $('hostLastName').value = data.lastName||'';
+      $('hostEmail').value = data.email||'';
+      $('hostPhone').value = data.phone||'';
+      $('hostBio').value = data.bio||'';
+      $('previewHostName').textContent = (data.firstName||'') + (data.lastName ? ' ' + data.lastName : '');
+      $('previewHostBio').textContent = data.bio || 'Host bio will appear here';
+    } else {
+      try { const s = localStorage.getItem('hostDraft'); if (s){ const o = JSON.parse(s); $('hostFirstName').value = o.firstName||''; $('hostLastName').value=o.lastName||''; $('hostEmail').value=o.email||''; $('hostPhone').value=o.phone||''; $('hostBio').value=o.bio||''; $('previewHostName').textContent = (o.firstName||'') + (o.lastName ? ' ' + o.lastName : ''); $('previewHostBio').textContent = o.bio || 'Host bio will appear here'; } } catch(e){}
+    }
   })();
 
   /* -------- Property page handlers (compact) ---------- */
@@ -362,8 +379,8 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
       return { getFile: ()=> file, render };
     }
 
-    const imgs = wireImage('imageDrop','propertyImages','imagePreview',8);
-    const vid = wireVideo('videoDrop','propertyVideo','videoPreview');
+    imgs = wireImage('imageDrop','propertyImages','imagePreview',8);
+    vid = wireVideo('videoDrop','propertyVideo','videoPreview');
 
     const title = $('title'), pType = $('propertyType'), guests = $('guests'), price = $('price');
     function updateMeta(){ $('previewTitle').textContent = title.value.trim()||'Your listing title'; $('previewSub').textContent = (pType.value||'Property') + ' • ' + (guests.value||'—') + ' guests'; $('previewCounts').textContent = `${imgs.getFiles().length} photos • ${vid.getFile() ? 1 : 0} videos`; $('previewPrice').textContent = price.value ? ('Price: ₹'+price.value) : 'Price: —'; const mainBox=$('mainPreviewPhoto'); if (imgs.getFiles().length){ mainBox.innerHTML=''; const im=document.createElement('img'); im.src=URL.createObjectURL(imgs.getFiles()[0]); im.style.width='100%'; im.style.height='100%'; im.style.objectFit='cover'; mainBox.appendChild(im); } else mainBox.innerHTML='No photo'; }
@@ -415,21 +432,33 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
     $('savePropertyDraft').addEventListener('click', e=>{ e.preventDefault(); const meta={ title:title.value, propertyType:pType.value, guests:guests.value, price:price.value, amenities: amenities }; localStorage.setItem('propertyDraft', JSON.stringify(meta)); showToast('Property draft saved'); });
     $('goVerify').addEventListener('click', ()=> showPage('verify'));
 
-    try {
-      const s=localStorage.getItem('propertyDraft');
-      if (s){
-        const o=JSON.parse(s);
-        title.value=o.title||'';
-        pType.value=o.propertyType||'';
-        guests.value=o.guests||'1';
-        price.value=o.price||'';
-        if(Array.isArray(o.amenities)) {
-            amenities = o.amenities;
-            renderAmenities();
-        }
-        updateMeta();
+    if (serverListingData) {
+      $('title').value = serverListingData.title || '';
+      $('propertyType').value = serverListingData.propertyType || '';
+      $('guests').value = serverListingData.guests || '1';
+      $('price').value = serverListingData.price || '';
+      if(Array.isArray(serverListingData.amenities)) {
+          amenities = serverListingData.amenities;
+          renderAmenities();
       }
-    } catch(e){}
+      updateMeta();
+    } else {
+      try {
+        const s=localStorage.getItem('propertyDraft');
+        if (s){
+          const o=JSON.parse(s);
+          title.value=o.title||'';
+          pType.value=o.propertyType||'';
+          guests.value=o.guests||'1';
+          price.value=o.price||'';
+          if(Array.isArray(o.amenities)) {
+              amenities = o.amenities;
+              renderAmenities();
+          }
+          updateMeta();
+        }
+      } catch(e){}
+    }
     setInterval(updateMeta, 400);
   })();
 
@@ -472,7 +501,7 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
       $('idStatusDot').className='status-dot pending'; $('idStatusText').textContent='Submitting';
       logActivity('idActivity', 'Submitting ID for verification');
       try {
-        const res = await fetch('/verify/id', { method:'POST', body: fd });
+        const res = await fetch('/host/verify-id', { method:'POST', body: fd });
         if (res.ok) { showToast('ID submitted'); logActivity('verificationActivity', 'ID submitted for verification'); $('idStatusText').textContent='Pending'; $('idStatusDot').className='status-dot pending'; }
         else { const j = await res.json().catch(()=>({ message:'Submission failed' })); alert(j.message || 'Failed to submit ID'); }
       } catch(e){ alert('Network error'); }
@@ -525,7 +554,70 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
     });
 
     $('v_backToProperty').addEventListener('click', ()=> showPage('property'));
-    $('v_done').addEventListener('click', ()=> { showToast('All set — you can continue'); showPage('host'); });
+    $('v_done').addEventListener('click', async () => {
+      showToast('Submitting your application...');
+
+      const formData = new FormData();
+
+      // Host data
+      const hostDraft = JSON.parse(localStorage.getItem('hostDraft') || '{}');
+      formData.append('hostFirstName', hostDraft.firstName || '');
+      formData.append('hostLastName', hostDraft.lastName || '');
+      formData.append('hostEmail', hostDraft.email || '');
+      formData.append('hostPhone', hostDraft.phone || '');
+      formData.append('hostBio', hostDraft.bio || '');
+
+      if ($('avatarDrop')._file) {
+        formData.append('hostProfilePhoto', $('avatarDrop')._file);
+      }
+
+      // Property data
+      const propertyDraft = JSON.parse(localStorage.getItem('propertyDraft') || '{}');
+      formData.append('title', propertyDraft.title || '');
+      formData.append('propertyType', propertyDraft.propertyType || '');
+      formData.append('guests', propertyDraft.guests || '');
+      formData.append('price', propertyDraft.price || '');
+      formData.append('cancellation', propertyDraft.cancellation || '');
+      if (propertyDraft.amenities) {
+        propertyDraft.amenities.forEach(a => formData.append('amenities[]', a));
+      }
+
+      if (imgs) {
+        const imageFiles = imgs.getFiles();
+        imageFiles.forEach((file, i) => {
+          formData.append('propertyImages', file, file.name);
+        });
+      }
+
+      if (vid) {
+        const videoFile = vid.getFile();
+        if (videoFile) {
+          formData.append('propertyVideo', videoFile, videoFile.name);
+        }
+      }
+
+      try {
+        const response = await fetch('/host/onboarding-complete', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('Successfully completed!');
+          localStorage.removeItem('hostDraft');
+          localStorage.removeItem('propertyDraft');
+          // Optionally, redirect or update the UI
+          showPage('host');
+        } else {
+          showToast(result.message || 'An error occurred.', 5000);
+        }
+      } catch (error) {
+        console.error('Submission failed:', error);
+        showToast('Submission failed. Check the console for details.', 5000);
+      }
+    });
   })();
 
   // Expose showPage for external calls if needed

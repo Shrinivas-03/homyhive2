@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sendMail = require("../utils/sendMail");
 const hostController = require("../controllers/hosts");
+const { isLoggedIn } = require("../middleware");
 const expressAsyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
@@ -486,7 +487,26 @@ router.get("/help", (req, res) => res.render("static/help"));
 router.get("/contact", (req, res) => res.render("static/contact"));
 
 // Host Feature Pages - Separate and Distinct
-router.get("/host", (req, res) => res.render("static/host")); // Host Registration/Become a Host
+router.get(
+  "/host",
+  isLoggedIn,
+  expressAsyncHandler(hostController.renderHostOnboarding),
+);
+router.get(
+  "/host-details",
+  isLoggedIn,
+  expressAsyncHandler(hostController.renderHostOnboarding),
+);
+router.get(
+  "/property-details",
+  isLoggedIn,
+  expressAsyncHandler(hostController.renderHostOnboarding),
+);
+router.get(
+  "/host-verify",
+  isLoggedIn,
+  expressAsyncHandler(hostController.renderHostOnboarding),
+);
 router.get("/host-resources", (req, res) =>
   res.render("static/host-resources"),
 ); // Host Resources & Guides

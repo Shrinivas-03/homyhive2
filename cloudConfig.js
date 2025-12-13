@@ -1,10 +1,10 @@
-const cloudinary = require('cloudinary').v2;
-const msc = require('multer-storage-cloudinary');
+const cloudinary = require("cloudinary");
+const msc = require("multer-storage-cloudinary");
 
 cloudinary.config({
-    cloud_name:process.env.CLOUD_NAME,
-    api_key:process.env.CLOUD_API_KEY,
-    api_secret:process.env.CLOUD_API_SECRET,
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
 });
 
 const CloudinaryStorage = msc && (msc.CloudinaryStorage || msc);
@@ -12,8 +12,8 @@ const CloudinaryStorage = msc && (msc.CloudinaryStorage || msc);
 const storageParams = {
   cloudinary: cloudinary,
   params: {
-    folder: 'HomyHive_DEV',
-    allowedFormats: ["png","jpg","jpeg"],
+    folder: "HomyHive_DEV",
+    allowedFormats: ["png", "jpg", "jpeg", "mp4", "webm", "mov"],
   },
 };
 
@@ -26,12 +26,12 @@ try {
     // Some versions export a factory function
     storage = CloudinaryStorage(storageParams);
   } catch (err) {
-    console.error('Failed to create Cloudinary storage:', e, err);
+    console.error("Failed to create Cloudinary storage:", e, err);
     storage = null;
   }
 }
 
-module.exports={
-    cloudinary,
-    storage
+module.exports = {
+  cloudinary: cloudinary.v2,
+  storage,
 };

@@ -1,5 +1,6 @@
 // FILE: E:\homyhive2\controllers\hosts.js
 const Host = require("../models/host"); // Ensure filename matches your actual model file
+const Listing = require("../models/listing.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -50,6 +51,20 @@ module.exports.uploadDocuments = upload.fields([
 ]);
 
 // --- Controllers ---
+
+module.exports.renderHostOnboarding = async (req, res) => {
+  let host = null;
+  let listing = null;
+
+  if (req.user) {
+    host = await Host.findOne({ user: req.user._id });
+    if (host) {
+      listing = await Listing.findOne({ host: host._id });
+    }
+  }
+
+  res.render("static/host", { host, listing });
+};
 
 module.exports.hostRegister = async (req, res) => {
   try {
@@ -107,13 +122,11 @@ module.exports.hostRegister = async (req, res) => {
     const criticalMissing = missing.filter((m) => !personalFields.includes(m));
 
     if (criticalMissing.length) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Missing required fields",
-          missing: criticalMissing,
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+        missing: criticalMissing,
+      });
     }
 
     // Auto-fill test data if personal fields are missing (optional logic you had)
@@ -198,13 +211,11 @@ module.exports.hostRegister = async (req, res) => {
   } catch (error) {
     console.error("Registration Error:", error);
     if (error.name === "ValidationError") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Validation failed",
-          errors: Object.values(error.errors).map((e) => e.message),
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: Object.values(error.errors).map((e) => e.message),
+      });
     }
     res.status(500).json({ success: false, message: "Registration failed" });
   }
@@ -311,7 +322,31 @@ module.exports.pincodeVerify = async (req, res) => {
 };
 
 module.exports.verifyGovernmentId = async (req, res) => {
-  setTimeout(() => res.json({ success: true, verified: true }), 1000);
+  if (!req.user) {
+    return res
+      .status(401)
+      .json({ success: false, message: "You must be logged in to do that." });
+  }
+
+  if (!req.session.uploadedIdFiles) {
+    req.session.uploadedIdFiles = {};
+  }
+
+  if (req.files && req.files.idFront) {
+    req.session.uploadedIdFiles.idFront = {
+      path: req.files.idFront[0].path,
+      filename: req.files.idFront[0].filename,
+    };
+  }
+
+  if (req.files && req.files.idBack) {
+    req.session.uploadedIdFiles.idBack = {
+      path: req.files.idBack[0].path,
+      filename: req.files.idBack[0].filename,
+    };
+  }
+
+  res.json({ success: true, verified: true });
 };
 
 module.exports.getAllHostApplications = async (req, res) => {
@@ -327,5 +362,112 @@ module.exports.updateApplicationStatus = async (req, res) => {
     res.json({ success: true, message: "Updated" });
   } catch (e) {
     res.status(500).json({ success: false, message: "Error" });
+  }
+};
+
+module.exports.completeOnboarding = async (req, res) => {
+  try {
+    const {
+      hostFirstName,
+      hostLastName,
+      hostEmail,
+      hostPhone,
+      hostBio,
+      propertyType,
+      guests,
+      title,
+      price,
+      cancellation,
+      amenities,
+    } = req.body;
+
+    // Assuming user is logged in and req.user is available.
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "You must be logged in to do that." });
+    }
+    const owner = req.user._id;
+
+    const newHost = new Host({
+      personalInfo: {
+        firstName: hostFirstName,
+        lastName: hostLastName,
+        email: hostEmail,
+        phone: hostPhone,
+        bio: hostBio,
+      },
+      user: owner,
+      applicationStatus: "pending-approval",
+      documents: {},
+    });
+
+    if (req.files && req.files.hostProfilePhoto) {
+      newHost.documents.profilePhoto = {
+        filename: req.files.hostProfilePhoto[0].filename,
+        path: req.files.hostProfilePhoto[0].path,
+        uploadedAt: new Date(),
+        verificationStatus: "pending",
+      };
+    }
+
+    if (req.session.uploadedIdFiles) {
+      if (req.session.uploadedIdFiles.idFront) {
+        newHost.documents.governmentIdFront = {
+          filename: req.session.uploadedIdFiles.idFront.filename,
+          path: req.session.uploadedIdFiles.idFront.path,
+          uploadedAt: new Date(),
+          verificationStatus: "pending",
+        };
+      }
+      if (req.session.uploadedIdFiles.idBack) {
+        newHost.documents.governmentIdBack = {
+          filename: req.session.uploadedIdFiles.idBack.filename,
+          path: req.session.uploadedIdFiles.idBack.path,
+          uploadedAt: new Date(),
+          verificationStatus: "pending",
+        };
+      }
+    }
+
+    await newHost.save();
+
+    const newListing = new Listing({
+      title,
+      description: hostBio, // Using hostBio as listing description.
+      price,
+      propertyType,
+      guests,
+      cancellation,
+      amenities,
+      owner,
+      host: newHost._id,
+      // Leaving location, country, and geometry empty for now
+      // as they are not provided in the form.
+    });
+
+    if (req.files && req.files.propertyImages) {
+      newListing.images = req.files.propertyImages.map((f) => ({
+        url: f.path,
+        filename: f.filename,
+      }));
+    }
+
+    // The form has a video upload, but the listing schema doesn't have a field for it.
+    // I will ignore the video for now.
+
+    await newListing.save();
+
+    delete req.session.uploadedIdFiles;
+
+    res.json({
+      success: true,
+      message: "Onboarding completed successfully!",
+      hostId: newHost._id,
+      listingId: newListing._id,
+    });
+  } catch (error) {
+    console.error("Onboarding Error:", error);
+    res.status(500).json({ success: false, message: "Onboarding failed" });
   }
 };

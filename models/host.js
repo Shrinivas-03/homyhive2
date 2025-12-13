@@ -14,8 +14,13 @@ const hostSchema = new Schema(
       phone: String,
       dateOfBirth: String,
       gender: String,
+      bio: String,
     },
     // ... add the rest of your schema fields here
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     applicationStatus: { type: String, default: "submitted" },
     documents: { type: Object, default: {} },
   },
