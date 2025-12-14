@@ -58,9 +58,16 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
   <script>
     const serverHostData = <%- typeof host !== 'undefined' ? JSON.stringify(host) : 'null' %>;
     const serverListingData = <%- typeof listing !== 'undefined' ? JSON.stringify(listing) : 'null' %>;
-    // Supabase client setup (replace with your actual values or use EJS vars)
+    // ✅ Get authenticated user from SERVER SESSION (set by Express)
+    const currentUser = <%- typeof session !== 'undefined' && session.supabaseUser ? JSON.stringify(session.supabaseUser) : 'null' %>;
+    const userToken = <%- typeof authToken !== 'undefined' ? JSON.stringify(authToken) : 'null' %>;
+    
+    console.log('Current User:', currentUser);
+    console.log('Has Token:', !!userToken);
+    
+    // Supabase client setup (for reference, but we'll use server session)
     const SUPABASE_URL = '<%= process.env.SUPABASE_URL || "" %>';
-    const SUPABASE_KEY = '<%= process.env.SUPABASE_ANON_KEY || "" %>';
+    const SUPABASE_KEY = '<%= process.env.SUPABASE_SERVICE_KEY || "" %>';
     const supabase = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
   </script>
   <div id="toast" class="toast"></div>
@@ -496,29 +503,73 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
     wireDrop('v_idFrontDrop','v_idFrontFile','v_idFrontHint');
     wireDrop('v_idBackDrop','v_idBackFile','v_idBackHint');
 
+    // Check authentication on page load
+    function checkAuth() {
+      if (!currentUser) {
+        console.warn('Not authenticated. Redirecting to login...');
+        window.location.href = '/users/login';
+        return false;
+      }
+      console.log('✓ Authenticated as:', currentUser.email);
+      return true;
+    }
+
+    // Check on page load
+    checkAuth();
+
     // submit ID
     $('v_submitId').addEventListener('click', async ()=>{
+      if (!currentUser) {
+        alert('You must be logged in to submit ID.');
+        window.location.href = '/users/login';
+        return;
+      }
+
       const type = $('v_idType').value, num = $('v_idNumber').value.trim();
       const front = $('v_idFrontDrop')._file, back = $('v_idBackDrop')._file;
       if (!type || !num || !front) { showToast('Select ID type, number and front image'); return; }
-      const fd = new FormData(); fd.append('idType', type); fd.append('idNumber', num); fd.append('idFront', front, front.name); if (back) fd.append('idBack', back, back.name);
+      
+      const fd = new FormData(); 
+      fd.append('idType', type); 
+      fd.append('idNumber', num); 
+      fd.append('idFront', front, front.name); 
+      if (back) fd.append('idBack', back, back.name);
+      
       // optimistic UI
-      $('idStatusDot').className='status-dot pending'; $('idStatusText').textContent='Submitting';
+      $('idStatusDot').className='status-dot pending'; 
+      $('idStatusText').textContent='Submitting';
       logActivity('idActivity', 'Submitting ID for verification');
+      
       try {
-        let token = null;
-        if (supabase) {
-          const { data: { session } } = await supabase.auth.getSession();
-          token = session?.access_token;
-        }
+        // Send request WITHOUT Authorization header - Express session will handle it
         const res = await fetch('/host/verify-id', {
           method:'POST',
           body: fd,
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          credentials: 'include'  // ✅ Send cookies with request for session
         });
-        if (res.ok) { showToast('ID submitted'); logActivity('verificationActivity', 'ID submitted for verification'); $('idStatusText').textContent='Pending'; $('idStatusDot').className='status-dot pending'; }
-        else { const j = await res.json().catch(()=>({ message:'Submission failed' })); alert(j.message || 'Failed to submit ID'); }
-      } catch(e){ alert('Network error'); }
+        
+        const responseData = await res.json().catch(() => ({}));
+        
+        if (res.ok) { 
+          showToast('ID submitted successfully'); 
+          logActivity('verificationActivity', 'ID submitted for verification'); 
+          $('idStatusText').textContent='Pending'; 
+          $('idStatusDot').className='status-dot pending'; 
+        } else { 
+          console.error('Submit failed:', responseData);
+          if (res.status === 401) {
+            alert('Session expired. Please log in again.');
+            window.location.href = '/users/login';
+          } else {
+            alert(responseData.message || 'Failed to submit ID'); 
+            $('idStatusText').textContent='Error'; 
+            $('idStatusDot').className='status-dot'; 
+          }
+        }
+      } catch(e){ 
+        console.error('Error:', e);
+        alert('Network error: ' + e.message); 
+      }
     });
 
     $('v_resubmitId').addEventListener('click', ()=> { $('v_idType').value=''; $('v_idNumber').value=''; $('v_idFrontDrop')._file = null; $('v_idBackDrop')._file = null; $('v_idFrontHint').textContent=''; $('v_idBackHint').textContent=''; showToast('Cleared ID fields'); });

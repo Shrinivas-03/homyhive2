@@ -60,16 +60,28 @@ module.exports.renderHostOnboarding = async (req, res) => {
   let host = null;
   let listing = null;
 
-  // ✅ Find host by Supabase user email
-  if (req.session?.supabaseUser) {
-    const userEmail = req.session.supabaseUser.email;
-    host = await Host.findOne({ "personalInfo.email": userEmail });
-    if (host) {
-      listing = await Listing.findOne({ host: host._id });
-    }
+  // Check if user is authenticated
+  if (!req.session?.supabaseUser) {
+    console.log('User not authenticated, redirecting to login');
+    return res.redirect('/users/login');
   }
 
-  res.render("static/host", { host, listing });
+  // ✅ Find host by Supabase user ID
+  const userId = req.session.supabaseUser.id;
+  console.log('renderHostOnboarding: Finding host for user:', userId);
+  
+  host = await Host.findOne({ supabaseUserId: userId });
+  if (host) {
+    listing = await Listing.findOne({ host: host._id });
+  }
+
+  // ✅ Pass session user to template
+  res.render("static/host", { 
+    host, 
+    listing, 
+    session: req.session,
+    isAuthenticated: !!req.session.supabaseUser 
+  });
 };
 
 // ==========================================
@@ -360,13 +372,46 @@ module.exports.pincodeVerify = async (req, res) => {
 // ==========================================
 
 module.exports.verifyGovernmentId = async (req, res) => {
+  console.log('verifyGovernmentId called');
+  console.log('req.user:', req.user ? { id: req.user.id, email: req.user.email } : 'undefined');
+  console.log('req.session.supabaseUser:', req.session?.supabaseUser ? { id: req.session.supabaseUser.id, email: req.session.supabaseUser.email } : 'undefined');
+  
   if (!req.user) {
     return res
       .status(401)
       .json({ success: false, message: "You must be logged in to do that." });
   }
-  const host = await Host.findOne({ user: req.user._id });
-  if (!host) return res.status(404).json({ success: false, message: "Host not found" });
+  
+  // Use ID from req.user (which could be from session or token)
+  const userId = req.user.id;
+  console.log('Looking for host with supabaseUserId:', userId);
+  
+  let host = await Host.findOne({ supabaseUserId: userId });
+  
+  // If host doesn't exist, create one automatically
+  if (!host) {
+    console.log('Host not found, creating new host for user:', userId);
+    
+    // Get email from user object (either from session or token)
+    const userEmail = req.user.email;
+    
+    host = new Host({
+      supabaseUserId: userId,
+      personalInfo: {
+        email: userEmail,
+        firstName: req.user.username?.split(" ")[0] || userEmail.split("@")[0],
+        lastName: req.user.username?.split(" ")[1] || "",
+      },
+      applicationStatus: "pending-verification",
+      documents: {}
+    });
+    
+    await host.save();
+    console.log('✓ New host created:', host._id);
+  }
+  
+  console.log('Host ready:', host._id);
+  
   // Save files to host.documents
   if (req.files && req.files.idFront) {
     host.documents = host.documents || {};
@@ -388,8 +433,11 @@ module.exports.verifyGovernmentId = async (req, res) => {
   host.idVerification = host.idVerification || {};
   host.idVerification.status = "pending";
   host.idVerification.submittedAt = new Date();
+  
   await host.save();
-  res.json({ success: true, status: "pending" });
+  
+  console.log('✓ ID verification submitted for host:', host._id);
+  res.json({ success: true, status: "pending", message: "ID submitted for verification" });
 };
 
 // ==========================================

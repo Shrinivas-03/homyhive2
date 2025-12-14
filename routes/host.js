@@ -48,7 +48,7 @@ router.post(
 
 router.get("/verify/status", supabase.supabaseAuthMiddleware, async (req, res) => {
   if (!req.user) return res.json({ id: "not_submitted", bank: "not_verified", events: [] });
-  const host = await require("../models/host").findOne({ user: req.user.id });
+  const host = await require("../models/host").findOne({ supabaseUserId: req.user.id });
   if (!host) return res.json({ id: "not_submitted", bank: "not_verified", events: [] });
   res.json({
     id: host.idVerification?.status || "not_submitted",

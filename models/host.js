@@ -21,6 +21,11 @@ const hostSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    supabaseUserId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allow null for backward compatibility
+    },
     applicationStatus: { type: String, default: "submitted" },
     documents: { type: Object, default: {} },
     idVerification: {
