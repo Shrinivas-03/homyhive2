@@ -20,6 +20,7 @@ const CHATBOT_EXCLUDE = [
   "/admin/",
   "/static/",
   "/api/",
+  "/verify-otp",
 ];
 
 function normalizePath(p) {

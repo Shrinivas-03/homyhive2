@@ -1,15 +1,15 @@
 // public/chatbot/chatbot.js
 // Floating widget — uses dataset.apiPath (set by server partial)
 (() => {
-  const root = document.getElementById('homyChatRoot');
+  const root = document.getElementById("homyChatRoot");
   if (!root) return;
-  const API = root.dataset.apiPath || '/api/chat';
+  const API = root.dataset.apiPath || "/api/chat";
   // Build DOM
-  const minimized = document.createElement('div');
-  minimized.className = 'hc-minimized';
+  const minimized = document.createElement("div");
+  minimized.className = "hc-minimized";
   minimized.innerHTML = `<button id="hcOpenBtn" class="hc-toggle" aria-label="Open chat">H</button>`;
-  const widget = document.createElement('div');
-  widget.className = 'hc-widget hidden';
+  const widget = document.createElement("div");
+  widget.className = "hc-widget hidden";
   widget.innerHTML = `
     <div class="hc-header">
       <div style="display:flex;flex-direction:column">
@@ -30,33 +30,35 @@
   root.appendChild(minimized);
   root.appendChild(widget);
 
-  const btnOpen = document.getElementById('hcOpenBtn');
-  const btnClose = document.getElementById('hcClose');
-  const btnSend = document.getElementById('hcSend');
-  const btnFull = document.getElementById('hcOpenFull');
-  const hcBody = document.getElementById('hcBody');
-  const hcInput = document.getElementById('hcInput');
+  const btnOpen = document.getElementById("hcOpenBtn");
+  const btnClose = document.getElementById("hcClose");
+  const btnSend = document.getElementById("hcSend");
+  const btnFull = document.getElementById("hcOpenFull");
+  const hcBody = document.getElementById("hcBody");
+  const hcInput = document.getElementById("hcInput");
 
   // session storage key
-  const HISTORY_KEY = 'homy_chat_history_v1';
-  let history = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+  const HISTORY_KEY = "homy_chat_history_v1";
+  let history = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || "[]");
 
   function renderHistory() {
-    hcBody.innerHTML = '';
+    hcBody.innerHTML = "";
     for (const m of history) appendMessage(m.role, m.text, false, m.meta);
     hcBody.scrollTop = hcBody.scrollHeight;
   }
 
   function appendMessage(role, text, save = true, meta = null) {
-    const container = document.createElement('div');
-    container.className = 'hc-msg ' + (role === 'user' ? 'user' : 'bot');
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    bubble.textContent = text;
+    const container = document.createElement("div");
+    container.className = "hc-msg " + (role === "user" ? "user" : "bot");
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    // Basic markdown to HTML
+    let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    bubble.innerHTML = html;
     container.appendChild(bubble);
     if (meta && meta.source_used) {
-      const s = document.createElement('div');
-      s.className = 'hc-source';
+      const s = document.createElement("div");
+      s.className = "hc-source";
       s.textContent = `Source: ${meta.source_used}`;
       container.appendChild(s);
     }
@@ -69,65 +71,75 @@
   }
 
   function openWidget() {
-    minimized.classList.add('hidden');
-    widget.classList.remove('hidden');
+    minimized.classList.add("hidden");
+    widget.classList.remove("hidden");
     hcInput.focus();
     renderHistory();
   }
   function closeWidget() {
-    widget.classList.add('hidden');
-    minimized.classList.remove('hidden');
+    widget.classList.add("hidden");
+    minimized.classList.remove("hidden");
   }
 
-  btnOpen.addEventListener('click', openWidget);
-  btnClose.addEventListener('click', closeWidget);
-  btnFull.addEventListener('click', () => { // open full chat page
+  btnOpen.addEventListener("click", openWidget);
+  btnClose.addEventListener("click", closeWidget);
+  btnFull.addEventListener("click", () => {
+    // open full chat page
     const current = encodeURIComponent(JSON.stringify(history.slice(-50)));
     // open in new tab — server-side /chat will mount full page
-    window.open('/chat', '_blank');
+    window.open("/chat", "_blank");
   });
 
   async function sendMessage(text) {
     if (!text || !text.trim()) return;
-    appendMessage('user', text);
-    hcInput.value = '';
+    appendMessage("user", text);
+    hcInput.value = "";
     hcInput.disabled = true;
     btnSend.disabled = true;
 
     // optimistic bot placeholder
-    const place = document.createElement('div');
-    place.className = 'hc-msg bot';
+    const place = document.createElement("div");
+    place.className = "hc-msg bot";
     place.innerHTML = `<div class="bubble hc-loading">Thinking…</div>`;
     hcBody.appendChild(place);
     hcBody.scrollTop = hcBody.scrollHeight;
 
     try {
       const res = await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, k: 3, temperature: 0.0 })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, k: 3, temperature: 0.0 }),
       });
       if (!res.ok) {
-        const t = await res.text().catch(() => 'Error');
-        place.querySelector('.bubble').textContent = `Error: ${t}`;
+        const t = await res.text().catch(() => "Error");
+        place.querySelector(".bubble").innerHTML = `Error: ${t}`;
       } else {
         const j = await res.json();
-        const reply = j && (j.reply || j.answer || j.text) || 'No response';
-        place.querySelector('.bubble').textContent = reply;
+        const reply = (j && (j.reply || j.answer || j.text)) || "No response";
+
+        // Basic markdown to HTML
+        const html = reply.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        place.querySelector(".bubble").innerHTML = html;
+
         // show source if available
         if (j && j.source_used) {
-          const s = document.createElement('div');
-          s.className = 'hc-source';
+          const s = document.createElement("div");
+          s.className = "hc-source";
           s.textContent = `Source: ${j.source_used}`;
           place.appendChild(s);
         }
         // save in history
-        history.push({ role: 'bot', text: reply, meta: { source_used: j.source_used || null }, t: Date.now() });
+        history.push({
+          role: "bot",
+          text: reply,
+          meta: { source_used: j.source_used || null },
+          t: Date.now(),
+        });
         sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(-60)));
       }
     } catch (err) {
-      console.error('Chat error', err);
-      place.querySelector('.bubble').textContent = 'Network error. Try again.';
+      console.error("Chat error", err);
+      place.querySelector(".bubble").innerHTML = "Network error. Try again.";
     } finally {
       hcInput.disabled = false;
       btnSend.disabled = false;
@@ -135,9 +147,9 @@
     }
   }
 
-  btnSend.addEventListener('click', () => sendMessage(hcInput.value));
-  hcInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  btnSend.addEventListener("click", () => sendMessage(hcInput.value));
+  hcInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage(hcInput.value);
     }
