@@ -47,6 +47,9 @@ const listingSchema = new Schema({
       type: [Number],
     },
   },
+  promotionExpiresAt: {
+    type: Date,
+  },
 });
 
 // Add index for geospatial queries

@@ -1,3 +1,64 @@
+// --- Razorpay Onboarding Payment Integration ---
+const razorpay = require("../utils/razorpay");
+const crypto = require("crypto");
+
+// POST /host/create-onboarding-order
+module.exports.createOnboardingOrder = async (req, res) => {
+  const { hostId } = req.body;
+  if (!hostId) return res.status(400).json({ success: false, message: "Missing hostId" });
+  // You can set a fixed onboarding fee or fetch from config
+  const amount = 49900; // ₹499.00 in paise
+  const currency = "INR";
+  const receipt = `onboard_${hostId}_${Date.now()}`;
+  try {
+    const order = await razorpay.orders.create({
+      amount,
+      currency,
+      receipt,
+      payment_capture: 1
+    });
+    res.json({
+      id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: process.env.RAZORPAY_KEY_ID
+    });
+  } catch (err) {
+    console.error("Razorpay order error:", err);
+    res.status(500).json({ success: false, message: "Failed to create order" });
+  }
+};
+
+// POST /host/verify-onboarding-payment
+module.exports.verifyOnboardingPayment = async (req, res) => {
+  const { hostId, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+  if (!hostId || !razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+    return res.status(400).json({ success: false, message: "Missing payment details" });
+  }
+  // Verify signature
+  const generated_signature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    .update(razorpay_order_id + "|" + razorpay_payment_id)
+    .digest('hex');
+  if (generated_signature !== razorpay_signature) {
+    return res.status(400).json({ success: false, message: "Invalid payment signature" });
+  }
+  // Mark host as paid (add a field if needed)
+  try {
+    const host = await Host.findById(hostId);
+    if (!host) return res.status(404).json({ success: false, message: "Host not found" });
+    host.onboardingFeePaid = true;
+    host.onboardingPayment = {
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id,
+      paidAt: new Date()
+    };
+    await host.save();
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Payment verification error:", err);
+    res.status(500).json({ success: false, message: "Failed to verify payment" });
+  }
+};
 // FILE: E:\homyhive2\controllers\hosts.js
 const Host = require("../models/host"); // Ensure filename matches your actual model file
 const Listing = require("../models/listing.js");
@@ -323,30 +384,33 @@ module.exports.pincodeVerify = async (req, res) => {
 
 module.exports.verifyGovernmentId = async (req, res) => {
   if (!req.user) {
-    return res
-      .status(401)
-      .json({ success: false, message: "You must be logged in to do that." });
+    return res.status(401).json({ success: false, message: "You must be logged in to do that." });
   }
-
-  if (!req.session.uploadedIdFiles) {
-    req.session.uploadedIdFiles = {};
-  }
-
+  const host = await Host.findOne({ user: req.user._id });
+  if (!host) return res.status(404).json({ success: false, message: "Host not found" });
+  // Save files to host.documents
   if (req.files && req.files.idFront) {
-    req.session.uploadedIdFiles.idFront = {
+    host.documents = host.documents || {};
+    host.documents.idFront = {
       path: req.files.idFront[0].path,
       filename: req.files.idFront[0].filename,
+      uploadedAt: new Date()
     };
   }
-
   if (req.files && req.files.idBack) {
-    req.session.uploadedIdFiles.idBack = {
+    host.documents = host.documents || {};
+    host.documents.idBack = {
       path: req.files.idBack[0].path,
       filename: req.files.idBack[0].filename,
+      uploadedAt: new Date()
     };
   }
-
-  res.json({ success: true, verified: true });
+  // Set verification status to pending
+  host.idVerification = host.idVerification || {};
+  host.idVerification.status = "pending";
+  host.idVerification.submittedAt = new Date();
+  await host.save();
+  res.json({ success: true, status: "pending" });
 };
 
 module.exports.getAllHostApplications = async (req, res) => {

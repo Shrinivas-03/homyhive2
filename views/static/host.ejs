@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/+esm"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Host onboarding — Host / Property / Verification</title>
@@ -57,6 +58,10 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
   <script>
     const serverHostData = <%- typeof host !== 'undefined' ? JSON.stringify(host) : 'null' %>;
     const serverListingData = <%- typeof listing !== 'undefined' ? JSON.stringify(listing) : 'null' %>;
+    // Supabase client setup (replace with your actual values or use EJS vars)
+    const SUPABASE_URL = '<%= process.env.SUPABASE_URL || "" %>';
+    const SUPABASE_KEY = '<%= process.env.SUPABASE_ANON_KEY || "" %>';
+    const supabase = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
   </script>
   <div id="toast" class="toast"></div>
 
@@ -501,7 +506,16 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
       $('idStatusDot').className='status-dot pending'; $('idStatusText').textContent='Submitting';
       logActivity('idActivity', 'Submitting ID for verification');
       try {
-        const res = await fetch('/host/verify-id', { method:'POST', body: fd });
+        let token = null;
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession();
+          token = session?.access_token;
+        }
+        const res = await fetch('/host/verify-id', {
+          method:'POST',
+          body: fd,
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
         if (res.ok) { showToast('ID submitted'); logActivity('verificationActivity', 'ID submitted for verification'); $('idStatusText').textContent='Pending'; $('idStatusDot').className='status-dot pending'; }
         else { const j = await res.json().catch(()=>({ message:'Submission failed' })); alert(j.message || 'Failed to submit ID'); }
       } catch(e){ alert('Network error'); }
@@ -605,11 +619,68 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
         const result = await response.json();
 
         if (result.success) {
-          showToast('Successfully completed!');
-          localStorage.removeItem('hostDraft');
-          localStorage.removeItem('propertyDraft');
-          // Optionally, redirect or update the UI
-          showPage('host');
+          showToast('Onboarding details submitted! Please complete payment to finish onboarding.');
+          // Show payment button
+          let payBtn = document.getElementById('onboardingPayBtn');
+          if (!payBtn) {
+            payBtn = document.createElement('button');
+            payBtn.id = 'onboardingPayBtn';
+            payBtn.className = 'btn primary';
+            payBtn.textContent = 'Pay Onboarding Fee';
+            payBtn.style.marginTop = '18px';
+            document.body.appendChild(payBtn);
+          }
+          payBtn.onclick = async function() {
+            payBtn.disabled = true;
+            payBtn.textContent = 'Processing...';
+            // Call backend to create order
+            const res = await fetch('/host/create-onboarding-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hostId: result.hostId }) });
+            const order = await res.json();
+            if (!order.id) { showToast('Order creation failed'); payBtn.disabled = false; payBtn.textContent = 'Pay Onboarding Fee'; return; }
+            const options = {
+              key: order.key,
+              amount: order.amount,
+              currency: order.currency,
+              name: 'HomyHive',
+              description: 'Host Onboarding Fee',
+              order_id: order.id,
+              handler: async function (response) {
+                // Verify payment
+                const verifyRes = await fetch('/host/verify-onboarding-payment', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    hostId: result.hostId,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature
+                  })
+                });
+                const verifyResult = await verifyRes.json();
+                if (verifyResult.success) {
+                  showToast('Payment successful! Onboarding complete.');
+                  localStorage.removeItem('hostDraft');
+                  localStorage.removeItem('propertyDraft');
+                  showPage('host');
+                  payBtn.remove();
+                } else {
+                  showToast(verifyResult.message || 'Payment verification failed', 5000);
+                  payBtn.disabled = false;
+                  payBtn.textContent = 'Pay Onboarding Fee';
+                }
+              },
+              prefill: {},
+              theme: { color: '#fe424d' },
+              modal: {
+                ondismiss: function() {
+                  payBtn.disabled = false;
+                  payBtn.textContent = 'Pay Onboarding Fee';
+                }
+              }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+          };
         } else {
           showToast(result.message || 'An error occurred.', 5000);
         }
@@ -618,6 +689,13 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
         showToast('Submission failed. Check the console for details.', 5000);
       }
     });
+    // Add Razorpay script if not present
+    if (!document.getElementById('razorpayScript')) {
+      const script = document.createElement('script');
+      script.id = 'razorpayScript';
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      document.body.appendChild(script);
+    }
   })();
 
   // Expose showPage for external calls if needed
@@ -632,11 +710,26 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
       if (!res.ok) return;
       const j = await res.json();
       // j = { id: 'verified'|'pending'|'failed', bank: 'verified'|'pending'|'failed', events: [] }
+      // ID Verification status
       if (j.id) {
-        $('idStatusText').textContent = j.id === 'verified' ? 'Verified' : (j.id === 'pending' ? 'Pending' : 'Action required');
-        $('idStatusDot').className = 'status-dot ' + (j.id === 'verified' ? 'verified' : 'pending');
+        let idText = 'Not submitted', idClass = 'pending', idDesc = 'Upload a clear photo of your ID to start verification.';
+        if (j.id === 'pending') { idText = 'Pending'; idClass = 'pending'; idDesc = 'Your ID is under review.'; }
+        else if (j.id === 'verified') { idText = 'Verified'; idClass = 'verified'; idDesc = 'Your ID has been verified.'; }
+        else if (j.id === 'rejected') { idText = 'Rejected'; idClass = 'pending'; idDesc = 'Your ID was rejected. Please re-submit.'; }
+        $('idStatusText').textContent = idText;
+        $('idStatusText').className = 'status-' + idClass;
+        $('idStatusDot').className = 'status-dot ' + idClass;
+        $('idStatusDesc').textContent = idDesc;
       }
-      if (j.bank) $('v_bankStatus').textContent = j.bank === 'verified' ? 'Verified' : j.bank;
+      // Bank Verification status
+      if (j.bank) {
+        let bankText = 'Not verified', bankClass = 'pending';
+        if (j.bank === 'pending') { bankText = 'Pending'; bankClass = 'pending'; }
+        else if (j.bank === 'verified') { bankText = 'Verified'; bankClass = 'verified'; }
+        else if (j.bank === 'rejected') { bankText = 'Rejected'; bankClass = 'pending'; }
+        $('v_bankStatus').textContent = bankText;
+        $('v_bankStatus').className = 'small status-' + bankClass;
+      }
       if (Array.isArray(j.events)) {
         j.events.slice(0,5).forEach(ev => {
           const container = $('verificationActivity');

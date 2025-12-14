@@ -1,69 +1,224 @@
-<% layout("/layouts/boilerplate")%>
+<% layout("/layouts/boilerplate") %>
 
-<div class="coming-soon-wrapper">
-  <div class="coming-soon-content">
-    <div class="icon-container">
+<div class="accessibility-page">
+  <div class="card">
+    
+    <!-- Icon -->
+    <div class="icon-wrap">
       <i class="fa-solid fa-universal-access"></i>
     </div>
-    <h1>Accessibility</h1>
-    <p class="subtitle">Travel for everyone, everywhere</p>
-    
-    <div class="coming-soon-message">
-      <h2>Coming Soon!</h2>
-      <p>We're building accessibility features and partnering with hosts to ensure comfortable accommodations for travelers with different needs and abilities.</p>
-      
-      <div class="cta-buttons">
-        <a href="/contact" class="btn-primary">Request Features</a>
-        <a href="/listings" class="btn-secondary">Browse Accessible Listings</a>
-      </div>
+
+    <!-- Heading -->
+    <h1>Accessibility for Everyone</h1>
+    <p class="subtitle">
+      Because travel should be comfortable, inclusive, and empowering for all.
+    </p>
+
+    <!-- Feature Preview -->
+    <div class="features">
+      <span><i class="fa-solid fa-wheelchair"></i> Wheelchair-Friendly Homes</span>
+      <span><i class="fa-solid fa-ear-deaf"></i> Hearing-Friendly Stays</span>
+      <span><i class="fa-solid fa-eye"></i> Vision-Assisted Navigation</span>
+      <span><i class="fa-solid fa-hands-helping"></i> Host Accessibility Support</span>
     </div>
+
+    <!-- Coming Soon -->
+    <div class="coming-box">
+      <h2>🚧 Coming Soon</h2>
+      <p>
+        We’re actively building accessibility tools and working closely with hosts
+        to verify inclusive stays — from step-free entrances to assistive amenities.
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <a href="/contact" class="btn-primary">Request a Feature</a>
+      <a href="/listings" class="btn-outline">Explore Listings</a>
+    </div>
+
+    <!-- Trust Section -->
+    <div class="promise">
+      <i class="fa-solid fa-heart"></i>
+      <p>
+        Accessibility is not an add-on — it’s a promise.
+      </p>
+    </div>
+
   </div>
 </div>
 
 <style>
-  body { background: #f7faf9; }
-  .coming-soon-wrapper {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 3.5rem 1.5rem;
-    text-align: center;
-    min-height: 60vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Page Background */
+body {
+  background: linear-gradient(135deg, #ecfdf5, #f0fdfa);
+}
+
+/* Wrapper */
+.accessibility-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+/* Card */
+.card {
+  max-width: 720px;
+  width: 100%;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 3rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.08);
+  animation: fadeUp .7s ease;
+}
+
+/* Icon */
+.icon-wrap {
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-size: 2.3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.2rem;
+  box-shadow: 0 10px 30px rgba(16,185,129,0.35);
+}
+
+/* Headings */
+.card h1 {
+  font-size: 2.4rem;
+  color: #064e3b;
+  margin-bottom: .4rem;
+}
+
+.subtitle {
+  color: #475569;
+  margin-bottom: 1.8rem;
+}
+
+/* Features */
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .6rem;
+  margin-bottom: 2rem;
+}
+
+.features span {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: .55rem .9rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-weight: 600;
+}
+
+/* Coming Box */
+.coming-box {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 1.6rem;
+  margin-bottom: 1.8rem;
+}
+
+.coming-box h2 {
+  color: #0f172a;
+  margin-bottom: .6rem;
+}
+
+.coming-box p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: .9rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+  background: #059669;
+  color: white;
+  padding: .75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all .25s ease;
+}
+
+.btn-primary:hover {
+  background: #047857;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 2px solid #d1fae5;
+  color: #065f46;
+  padding: .7rem 1.4rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all .25s ease;
+}
+
+.btn-outline:hover {
+  background: #ecfdf5;
+}
+
+/* Promise */
+.promise {
+  display: inline-flex;
+  align-items: center;        /* ⭐ KEY FIX */
+  justify-content: center;
+  gap: .45rem;
+  color: #065f46;
+  font-weight: 600;
+  font-size: .9rem;
+  line-height: 1;             /* ⭐ PREVENT ICON JUMP */
+}
+
+.promise i {
+  font-size: 1rem;
+  line-height: 1;             /* ⭐ KEEP ICON CENTERED */
+}
+
+
+/* Animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-
-  .coming-soon-content {
-    background: #ffffff;
-    padding: 2.5rem;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(7,10,21,0.06);
-    width: 100%;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  .icon-container {
-    width: 88px;
-    height: 88px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.25rem;
-    font-size: 2rem;
+/* Mobile */
+@media (max-width: 768px) {
+  .card {
+    padding: 2rem 1.5rem;
   }
-
-  .coming-soon-content h1 { color: #064e3b; font-size: 2.25rem; margin-bottom: .4rem; }
-  .subtitle { color: #475569; font-size: 1rem; margin-bottom: 1rem; }
-
-  .coming-soon-message h2 { color: #0f172a; margin-bottom: .75rem; font-size: 1.25rem; }
-  .coming-soon-message p { color: #64748b; line-height: 1.6; margin-bottom: 1rem; }
-
-  .cta-buttons { display:flex; gap: .75rem; justify-content:center; margin-top: 1rem; }
-
-  .btn-primary { background: #059669; color: white; padding: .7rem 1.25rem; border-radius: 8px; text-decoration:none; font-weight:700; }
-  .btn-secondary { background: transparent; color: #065f46; border: 2px solid #e6f7ef; padding: .65rem 1.2rem; border-radius:8px; text-decoration:none; font-weight:600; }
-
-  @media (max-width: 768px) { .coming-soon-content h1 { font-size: 1.6rem; } .cta-buttons { flex-direction: column; } }
+  .card h1 {
+    font-size: 1.7rem;
+  }
+  .actions {
+    flex-direction: column;
+  }
+}
 </style>

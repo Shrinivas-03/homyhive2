@@ -23,6 +23,20 @@ const hostSchema = new Schema(
     },
     applicationStatus: { type: String, default: "submitted" },
     documents: { type: Object, default: {} },
+    idVerification: {
+      status: { type: String, enum: ["not_submitted", "pending", "verified", "rejected"], default: "not_submitted" },
+      submittedAt: Date,
+      verifiedAt: Date,
+      rejectedAt: Date,
+      reason: String
+    },
+    bankVerification: {
+      status: { type: String, enum: ["not_verified", "pending", "verified", "rejected"], default: "not_verified" },
+      submittedAt: Date,
+      verifiedAt: Date,
+      rejectedAt: Date,
+      reason: String
+    },
   },
   { timestamps: true },
 );

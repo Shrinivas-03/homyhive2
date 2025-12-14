@@ -22,6 +22,8 @@ const staticRouter = require("./routes/static");
 const adminRouter = require("./routes/admin");
 const hostRouter = require("./routes/host");
 const chatbotRouter = require("./routes/chatbot");
+const paymentRouter = require("./routes/payment");
+const hostPaymentRouter = require("./routes/host_payment");
 
 // Middleware helpers
 const { attachSupabaseUser, injectChatbot } = require("./middleware");
@@ -63,9 +65,7 @@ mongoose
     console.log("Connected to MongoDB");
     await ensureDefaultAdmin(); // ✅ ONLY ADDITION
   })
-  .catch((err) =>
-    console.error("MongoDB connection error:", err.message)
-  );
+  .catch((err) => console.error("MongoDB connection error:", err.message));
 
 // ---------------- VIEW ENGINE ----------------
 app.engine("ejs", ejsMate);
@@ -97,7 +97,7 @@ app.use(
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
-  })
+  }),
 );
 
 app.use(flash());
@@ -118,9 +118,11 @@ app.use(injectChatbot({ apiPath: "/api/chat" }));
 
 // ---------------- ROUTES ----------------
 app.use("/newsletter", newsletterRouter);
+app.use("/", paymentRouter); // paymentRouter is now here
+app.use("/", hostPaymentRouter);
 app.use("/listings", listingsRouter);
 app.use("/listings/:id/reviews", reviewRouter);
-app.use("/admin", adminRouter);   // ✅ ADMIN ACCESS
+app.use("/admin", adminRouter); // ✅ ADMIN ACCESS
 app.use("/host", hostRouter);
 app.use("/", userRouter);
 app.use("/", staticRouter);
@@ -138,9 +140,7 @@ app.get("/chat", (req, res) => {
 app.get("/", (req, res) => res.render("home"));
 
 // ---------------- ERROR HANDLERS ----------------
-app.all("*", (req, res, next) =>
-  next(new ExpressError(404, "Page Not Found"))
-);
+app.all("*", (req, res, next) => next(new ExpressError(404, "Page Not Found")));
 
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;
@@ -155,5 +155,5 @@ app.use((err, req, res, next) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () =>
-  console.log(`🚀 HomyHive running on http://localhost:${port}`)
+  console.log(`🚀 HomyHive running on http://localhost:${port}`),
 );

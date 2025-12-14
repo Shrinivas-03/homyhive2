@@ -15,23 +15,23 @@
             <p class="text-muted"><%= resultCount %> properties found</p>
           </div>
         <% } %>
-        
+
         <!-- Advanced Filter Bar -->
         <div class="filter-bar">
           <form method="GET" action="/listings" id="filterForm">
             <div class="row align-items-center">
               <div class="col-lg-3 col-md-6 mb-2">
                 <div class="form-group">
-                  <input 
-                    type="text" 
-                    class="form-control" 
-                    name="search" 
-                    placeholder="Search destinations..." 
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="search"
+                    placeholder="Search destinations..."
                     value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
                   >
                 </div>
               </div>
-              
+
               <div class="col-lg-2 col-md-6 mb-2">
                 <select class="form-select" name="category">
                   <option value="">All Categories</option>
@@ -44,27 +44,27 @@
                   <% } %>
                 </select>
               </div>
-              
+
               <div class="col-lg-2 col-md-6 mb-2">
-                <input 
-                  type="number" 
-                  class="form-control" 
-                  name="minPrice" 
-                  placeholder="Min Price" 
+                <input
+                  type="number"
+                  class="form-control"
+                  name="minPrice"
+                  placeholder="Min Price"
                   value="<%= (typeof filters !== 'undefined' && filters.minPrice) ? filters.minPrice : '' %>"
                 >
               </div>
-              
+
               <div class="col-lg-2 col-md-6 mb-2">
-                <input 
-                  type="number" 
-                  class="form-control" 
-                  name="maxPrice" 
-                  placeholder="Max Price" 
+                <input
+                  type="number"
+                  class="form-control"
+                  name="maxPrice"
+                  placeholder="Max Price"
                   value="<%= (typeof filters !== 'undefined' && filters.maxPrice) ? filters.maxPrice : '' %>"
                 >
               </div>
-              
+
               <div class="col-lg-2 col-md-6 mb-2">
                 <select class="form-select" name="guests">
                   <option value="">Any Guests</option>
@@ -74,7 +74,7 @@
                   <option value="6" <%= (typeof filters !== 'undefined' && filters.guests === '6') ? 'selected' : '' %>>6+ Guests</option>
                 </select>
               </div>
-              
+
               <div class="col-lg-1 col-md-6 mb-2">
                 <button type="submit" class="btn btn-primary w-100">
                   <i class="fa-solid fa-search"></i>
@@ -87,7 +87,7 @@
     </div>
   </div>
 </div>
-    
+
 <style>
   .search-filter-section {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -118,6 +118,13 @@
     border-radius: 10px;
     border: 2px solid #e9ecef;
     transition: all 0.3s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
   }
 
   .filter-bar .form-control:focus,
@@ -370,8 +377,31 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(254, 66, 77, 0.2);
-    min-width: 280px;
     justify-content: center;
+    white-space: normal;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .tax-toggle .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-top: 0.2em;
+    margin-right: 0.5em; /* Add some space between switch and text */
+    cursor: pointer;
+    background-color: #ccc;
+    border-color: #ccc;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  }
+
+  .tax-toggle .form-check-input:checked {
+    background-color: #fe424d;
+    border-color: #fe424d;
+  }
+
+  .tax-toggle .form-check-input:focus {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 0.2rem rgba(254, 66, 77, 0.25);
   }
 
   .tax-toggle:hover {
@@ -464,17 +494,17 @@
       font-size: 0.85rem;
     }
   }
-    
+
     .filter {
       min-width: 70px;
       padding: 0.8rem 0.6rem;
     }
-    
+
     .filter i {
       font-size: 1.4rem;
       margin-bottom: 0.4rem;
     }
-    
+
     .filter p {
       font-size: 0.75rem;
     }
@@ -779,7 +809,7 @@
         <div><i class="fa-solid fa-tree"></i></div>
         <p>Countryside</p>
       </div>
-      
+
       <!-- Row 2: Adventure & Unique -->
       <div class="filter" data-category="camping">
         <div><i class="fa-solid fa-campground"></i></div>
@@ -821,7 +851,7 @@
         <div><i class="fa-solid fa-gem"></i></div>
         <p>Luxe</p>
       </div>
-      
+
       <!-- Row 3: Lifestyle & Climate -->
       <div class="filter" data-category="design">
         <div><i class="fa-solid fa-palette"></i></div>
@@ -877,85 +907,143 @@
     </div>
   </div>
 </div>
-    <div class="row flex-nowrap overflow-auto" style="gap:1.5rem;">
-    <% if(allListings.length > 0) { %>
-        <%for(let listing of allListings) { %>
-            <div class="col-auto d-flex" style="padding-left:0;padding-right:0;">
-                <div class="card listing-card h-100 w-100 position-relative">
-                    <div class="card-img-container">
-                        <% if(listing.image && listing.image.url) { %>
-                            <img src="<%= listing.image.url%>" class="card-img-top" alt="<%= listing.title%>">
-                        <% } else { %>
-                            <div class="no-image-placeholder">
-                                <i class="fa-solid fa-image"></i>
-                                <p>No Image Available</p>
-                            </div>
-                        <% } %>
-                        <!-- Heart/Like Button -->
-                        <button class="like-btn<%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? ' liked' : '' %>" 
-                                onclick="toggleWishlist('<%= listing._id %>', this)" 
-                                title="Add to wishlist" aria-label="Add to wishlist">
-                            <i class="fa-heart <%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? 'fa-solid' : 'fa-regular' %>"></i>
-                        </button>
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title"><%= listing.title%></h5>
-                        <p class="card-text text-muted">
-                            <i class="fa-solid fa-location-dot me-1"></i>
-                            <%= listing.location %>, <%= listing.country %>
-                        </p>
-                        <% if(listing.category) { %>
-                            <span class="badge"><%= listing.category %></span>
-                        <% } %>
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="price-section">
-                                    <span class="price-tag">₹<%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></span>
-                                    <small class="text-muted">/night</small>
-                                    <div class="tax-info" style="display: none;">
-                                        <small class="text-muted">+18% GST</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="/listings/<%= listing._id%>" class="btn btn-primary w-100 btn-view">
-                                <i class="fa-solid fa-eye me-2"></i>View Details
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <%}%>
-    <% } else { %>
-        <!-- No listings found -->
+    <% if(promotedListings && promotedListings.length > 0) { %>
+      <div class="row">
         <div class="col-12">
-            <div class="no-results text-center py-5">
-                <div class="no-results-icon mb-4">
-                    <i class="fa-solid fa-search"></i>
-                </div>
-                <h3>No properties found</h3>
-                <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
-                    <p class="text-muted mb-4">
-                        We couldn't find any properties matching "<%= searchQuery %>". Try adjusting your search criteria.
-                    </p>
-                <% } else { %>
-                    <p class="text-muted mb-4">
-                        No properties are currently available. Please check back later.
-                    </p>
-                <% } %>
-                
-                <div class="no-results-actions">
-                    <a href="/listings" class="btn btn-primary me-3">
-                        <i class="fa-solid fa-refresh me-2"></i>Clear Filters
-                    </a>
-                    <a href="/listings/new" class="btn btn-outline-success">
-                        <i class="fa-solid fa-plus me-2"></i>List Your Property
-                    </a>
-                </div>
-            </div>
+          <h3 class="mb-4">Featured Listings</h3>
         </div>
+      </div>
+      <div class="row flex-nowrap overflow-auto" style="gap:1.5rem;">
+        <% for(let listing of promotedListings) { %>
+          <div class="col-auto d-flex" style="padding-left:0;padding-right:0;">
+            <div class="card listing-card h-100 w-100 position-relative">
+              <div class="card-img-container">
+                <% if(listing.images && listing.images.length > 0) { %>
+                  <img src="<%= listing.images[0].url %>" class="card-img-top" alt="<%= listing.title %>">
+                <% } else { %>
+                  <div class="no-image-placeholder">
+                    <i class="fa-solid fa-image"></i>
+                    <p>No Image Available</p>
+                  </div>
+                <% } %>
+                <button class="like-btn<%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? ' liked' : '' %>" onclick="toggleWishlist('<%= listing._id %>', this)" title="Add to wishlist" aria-label="Add to wishlist">
+                  <i class="fa-heart <%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? 'fa-solid' : 'fa-regular' %>"></i>
+                </button>
+                <span class="badge bg-warning position-absolute top-0 start-0 m-2">Promoted</span>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title"><%= listing.title %></h5>
+                <p class="card-text text-muted">
+                  <i class="fa-solid fa-location-dot me-1"></i>
+                  <%= listing.location %>, <%= listing.country %>
+                </p>
+                <% if(listing.category) { %>
+                  <span class="badge"><%= listing.category %></span>
+                <% } %>
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="price-section" data-price="<%= listing.price %>">
+                      <span class="price-tag">₹<%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></span>
+                      <small class="text-muted">/night</small>
+                      <div class="tax-info" style="display: none;">
+                        <small class="text-muted">+12% GST</small>
+                      </div>
+                    </div>
+                  </div>
+                  <a href="/listings/<%= listing._id %>" class="btn btn-primary w-100 btn-view">
+                    <i class="fa-solid fa-eye me-2"></i>View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+      <hr class="my-5">
     <% } %>
-</div>
-<!-- Wishlist popup -->
+
+    <% if(regularListings && regularListings.length > 0) { %>
+      <div class="row">
+        <div class="col-12">
+          <h3 class="mb-4">All Listings</h3>
+        </div>
+      </div>
+      <div class="row flex-nowrap overflow-auto" style="gap:1.5rem;">
+        <% for(let listing of regularListings) { %>
+          <div class="col-auto d-flex" style="padding-left:0;padding-right:0;">
+            <div class="card listing-card h-100 w-100 position-relative">
+              <div class="card-img-container">
+                <% if(listing.images && listing.images.length > 0) { %>
+                  <img src="<%= listing.images[0].url %>" class="card-img-top" alt="<%= listing.title %>">
+                <% } else { %>
+                  <div class="no-image-placeholder">
+                    <i class="fa-solid fa-image"></i>
+                    <p>No Image Available</p>
+                  </div>
+                <% } %>
+                <button class="like-btn<%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? ' liked' : '' %>" onclick="toggleWishlist('<%= listing._id %>', this)" title="Add to wishlist" aria-label="Add to wishlist">
+                  <i class="fa-heart <%= (currUser && currUser.wishlist && currUser.wishlist.includes(listing._id.toString())) ? 'fa-solid' : 'fa-regular' %>"></i>
+                </button>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title"><%= listing.title %></h5>
+                <p class="card-text text-muted">
+                  <i class="fa-solid fa-location-dot me-1"></i>
+                  <%= listing.location %>, <%= listing.country %>
+                </p>
+                <% if(listing.category) { %>
+                  <span class="badge"><%= listing.category %></span>
+                <% } %>
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="price-section" data-price="<%= listing.price %>">
+                      <span class="price-tag">₹<%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></span>
+                      <small class="text-muted">/night</small>
+                      <div class="tax-info" style="display: none;">
+                        <small class="text-muted">+12% GST</small>
+                      </div>
+                    </div>
+                  </div>
+                  <a href="/listings/<%= listing._id %>" class="btn btn-primary w-100 btn-view">
+                    <i class="fa-solid fa-eye me-2"></i>View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <% if(allListings.length === 0) { %>
+      <!-- No listings found -->
+      <div class="col-12">
+        <div class="no-results text-center py-5">
+          <div class="no-results-icon mb-4">
+            <i class="fa-solid fa-search"></i>
+          </div>
+          <h3>No properties found</h3>
+          <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
+            <p class="text-muted mb-4">
+              We couldn't find any properties matching "<%= searchQuery %>". Try adjusting your search criteria.
+            </p>
+          <% } else { %>
+            <p class="text-muted mb-4">
+              No properties are currently available. Please check back later.
+            </p>
+          <% } %>
+          <div class="no-results-actions">
+            <a href="/listings" class="btn btn-primary me-3">
+              <i class="fa-solid fa-refresh me-2"></i>Clear Filters
+            </a>
+            <a href="/listings/new" class="btn btn-outline-success">
+              <i class="fa-solid fa-plus me-2"></i>List Your Property
+            </a>
+          </div>
+        </div>
+      </div>
+    <% } %>
+    <!-- Wishlist popup -->
 <div id="wishlistPopup" class="wishlist-popup"></div>
 
 <!-- Login/Signup modal (shown when user clicks heart while not logged in) -->
@@ -976,17 +1064,38 @@
 
 <script>
     // Enhanced tax toggle functionality
-    let taxSwitch = document.getElementById("switchCheckDefault");
+    const taxSwitch = document.getElementById("switchCheckDefault");
     if (taxSwitch) {
-        taxSwitch.addEventListener("click", () => {
-            let taxInfo = document.getElementsByClassName("tax-info");
-            for(info of taxInfo) {
-                if(info.style.display != "block") {
-                    info.style.display = "block";
+        taxSwitch.addEventListener("change", () => {
+            const listings = document.querySelectorAll(".listing-card");
+            const showTaxes = taxSwitch.checked;
+
+            listings.forEach(listing => {
+                const priceSection = listing.querySelector(".price-section");
+                if (!priceSection) return;
+
+                const priceTag = priceSection.querySelector(".price-tag");
+                const taxInfo = priceSection.querySelector(".tax-info");
+
+                if (!priceTag || !taxInfo) return;
+
+                const basePrice = parseFloat(priceSection.dataset.price);
+                if (isNaN(basePrice)) return;
+
+                const taxText = taxInfo.querySelector('small');
+                if (!taxText) return;
+
+                if (showTaxes) {
+                    const priceWithTax = Math.round(basePrice * 1.12);
+                    priceTag.textContent = `₹${priceWithTax.toLocaleString("en-IN")}`;
+                    taxText.innerHTML = `<i>(includes 12% GST)</i>`;
+                    taxInfo.style.display = 'block';
                 } else {
-                    info.style.display = "none";
+                    priceTag.textContent = `₹${basePrice.toLocaleString("en-IN")}`;
+                    taxText.innerHTML = `+12% GST`;
+                    taxInfo.style.display = 'none';
                 }
-            }
+            });
         });
     }
 
@@ -995,7 +1104,7 @@
         const filters = document.querySelectorAll('.filter[data-category]');
         const currentParams = new URLSearchParams(window.location.search);
         const currentCategory = currentParams.get('category');
-        
+
         // Filter categories for better organization
         const categoryGroups = {
             popular: ['trending', 'rooms', 'iconic-cities', 'mountains', 'beaches'],
@@ -1004,40 +1113,40 @@
             luxury: ['luxe', 'vineyards', 'design', 'pools'],
             nature: ['farms', 'countryside', 'lakefront', 'tropical', 'desert', 'arctic']
         };
-        
+
         // Highlight active filter
         filters.forEach((filter, index) => {
             // Add staggered animation delay
             filter.style.animationDelay = `${0.1 + (index * 0.05)}s`;
-            
+
             if (filter.dataset.category === currentCategory) {
                 filter.classList.add('active');
             }
-            
+
             // Add click event with analytics
             filter.addEventListener('click', function() {
                 const category = this.dataset.category;
-                
+
                 // Remove active class from all filters
                 filters.forEach(f => f.classList.remove('active'));
-                
+
                 // Add active class to clicked filter
                 this.classList.add('active');
-                
+
                 // Update URL with new category
                 if (category === '') {
                     currentParams.delete('category');
                 } else {
                     currentParams.set('category', category);
                 }
-                
+
                 // Add loading state
                 this.style.opacity = '0.5';
                 this.innerHTML = '<div><i class="fa-solid fa-spinner fa-spin"></i></div><p>Loading...</p>';
-                
+
                 // Navigate to new URL
                 window.location.search = currentParams.toString();
-                
+
                 // Track category selection (for analytics)
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'filter_select', {
@@ -1047,17 +1156,17 @@
                     });
                 }
             });
-            
+
             // Add hover effect for category information
             filter.addEventListener('mouseenter', function() {
                 const category = this.dataset.category;
                 const categoryInfo = getCategoryInfo(category);
-                
+
                 // You can add a tooltip here showing category info
                 this.title = categoryInfo.description;
             });
         });
-        
+
         // Enhanced filter search functionality
         function getCategoryInfo(category) {
             const categoryDetails = {
@@ -1091,10 +1200,10 @@
                 'tropical': { description: 'Tropical paradises and palm trees', emoji: '🌴' },
                 'historical': { description: 'Historic and heritage properties', emoji: '🏛️' }
             };
-            
+
             return categoryDetails[category] || { description: 'Explore all properties', emoji: '🏠' };
         }
-        
+
         // Add category counter badges
         function addCategoryCounters() {
             filters.forEach(filter => {
@@ -1112,7 +1221,7 @@
                     'lakefront': 78,
                     'countryside': 134
                 };
-                
+
                 if (counts[category]) {
                     const badge = document.createElement('span');
                     badge.className = 'category-badge';
@@ -1121,10 +1230,10 @@
                 }
             });
         }
-        
+
         // Initialize category counters
         // addCategoryCounters(); // Uncomment when you have real data
-        
+
         // Add keyboard navigation for filters
         document.addEventListener('keydown', function(e) {
             if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
@@ -1133,19 +1242,19 @@
                     const allFilters = Array.from(filters);
                     const currentIndex = allFilters.indexOf(activeFilter);
                     let nextIndex;
-                    
+
                     if (e.key === 'ArrowRight') {
                         nextIndex = (currentIndex + 1) % allFilters.length;
                     } else {
                         nextIndex = (currentIndex - 1 + allFilters.length) % allFilters.length;
                     }
-                    
+
                     allFilters[nextIndex].click();
                     allFilters[nextIndex].focus();
                 }
             }
         });
-        
+
         // Add filter search functionality
         function createFilterSearch() {
             const searchContainer = document.createElement('div');
@@ -1154,10 +1263,10 @@
                 <input type="text" class="filter-search" placeholder="Search categories..." />
                 <i class="fa-solid fa-search"></i>
             `;
-            
+
             const filtersContainer = document.getElementById('filters');
             filtersContainer.insertBefore(searchContainer, filtersContainer.firstChild);
-            
+
             const searchInput = searchContainer.querySelector('.filter-search');
             searchInput.addEventListener('input', function() {
                 const query = this.value.toLowerCase();
@@ -1171,7 +1280,7 @@
                 });
             });
         }
-        
+
         // Uncomment to add filter search
         // createFilterSearch();
     });
