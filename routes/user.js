@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync");
 const userController = require("../controllers/users");
+const supabaseAuthController = require("../controllers/supabaseAuth");
 
 router
   .route("/signup")
@@ -16,9 +17,7 @@ router
 router
   .route("/login")
   .get(userController.renderLoginForm)
-  .post(wrapAsync(userController.login));
-
-
+  .post(wrapAsync(supabaseAuthController.login));
 
 const { isLoggedIn } = require("../middleware");
 // User profile
@@ -30,8 +29,12 @@ router.get("/user/wishlist", isLoggedIn, userController.renderWishlist);
 // User settings
 router.get("/user/settings", isLoggedIn, userController.renderSettings);
 // User notifications
-router.get("/user/notifications", isLoggedIn, userController.renderNotifications);
+router.get(
+  "/user/notifications",
+  isLoggedIn,
+  userController.renderNotifications,
+);
 
-router.get("/logout", userController.logout);
+router.get("/logout", supabaseAuthController.logout);
 
 module.exports = router;

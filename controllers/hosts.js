@@ -1,15 +1,19 @@
-// FILE: E:\homyhive2\controllers\hosts.js
-const Host = require("../models/host"); // Ensure filename matches your actual model file
+// controllers/hosts.js
+// ✅ Uses Supabase session ONLY - NO MongoDB User dependencies
+
+const Host = require("../models/host");
 const Listing = require("../models/listing.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// --- Multer Configuration ---
+// ==========================================
+// MULTER CONFIGURATION
+// ==========================================
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadPath = path.join(__dirname, "../public/uploads/host-documents");
-    // Create directory if it doesn't exist
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -42,7 +46,6 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-// Export Multer Middleware
 module.exports.uploadDocuments = upload.fields([
   { name: "profilePhoto", maxCount: 1 },
   { name: "governmentId", maxCount: 1 },
@@ -50,14 +53,19 @@ module.exports.uploadDocuments = upload.fields([
   { name: "addressProof", maxCount: 1 },
 ]);
 
-// --- Controllers ---
+// ==========================================
+// RENDER HOST ONBOARDING PAGE
+// ✅ Uses Supabase session email
+// ==========================================
 
 module.exports.renderHostOnboarding = async (req, res) => {
   let host = null;
   let listing = null;
 
-  if (req.user) {
-    host = await Host.findOne({ user: req.user._id });
+  // ✅ Find host by Supabase user email
+  if (req.session?.supabaseUser) {
+    const userEmail = req.session.supabaseUser.email;
+    host = await Host.findOne({ "personalInfo.email": userEmail });
     if (host) {
       listing = await Listing.findOne({ host: host._id });
     }
@@ -65,6 +73,11 @@ module.exports.renderHostOnboarding = async (req, res) => {
 
   res.render("static/host", { host, listing });
 };
+
+// ==========================================
+// HOST REGISTRATION
+// ✅ Uses Supabase session data
+// ==========================================
 
 module.exports.hostRegister = async (req, res) => {
   try {
@@ -79,12 +92,17 @@ module.exports.hostRegister = async (req, res) => {
         .json({ success: false, message: "No form data received." });
     }
 
-    // Defaults for missing personal info if logged in
-    if (req.user) {
-      body.firstName = body.firstName || req.user.firstName || req.user.name;
-      body.lastName = body.lastName || req.user.lastName || "";
-      body.email = body.email || req.user.email;
-      body.phone = body.phone || req.user.phone;
+    // ✅ Get defaults from Supabase session (not MongoDB)
+    const sessionUser = req.session?.supabaseUser;
+    if (sessionUser) {
+      body.firstName =
+        body.firstName ||
+        sessionUser.username?.split(" ")[0] ||
+        sessionUser.email.split("@")[0];
+      body.lastName =
+        body.lastName || sessionUser.username?.split(" ")[1] || "";
+      body.email = body.email || sessionUser.email;
+      body.phone = body.phone || sessionUser.phone || "";
     }
 
     // Required fields check
@@ -107,6 +125,7 @@ module.exports.hostRegister = async (req, res) => {
       "privacyPolicyAccepted",
       "backgroundCheckConsent",
     ];
+
     const missing = required.filter(
       (f) => !body[f] || (typeof body[f] === "string" && body[f].trim() === ""),
     );
@@ -119,6 +138,7 @@ module.exports.hostRegister = async (req, res) => {
       "dateOfBirth",
       "gender",
     ];
+
     const criticalMissing = missing.filter((m) => !personalFields.includes(m));
 
     if (criticalMissing.length) {
@@ -129,7 +149,7 @@ module.exports.hostRegister = async (req, res) => {
       });
     }
 
-    // Auto-fill test data if personal fields are missing (optional logic you had)
+    // Auto-fill test data if personal fields are missing
     if (missing.some((m) => personalFields.includes(m))) {
       body.firstName = body.firstName || "Host";
       body.lastName = body.lastName || "Applicant";
@@ -156,6 +176,7 @@ module.exports.hostRegister = async (req, res) => {
       };
       body.idType = map[body.idType.toLowerCase()] || body.idType;
     }
+
     if (!body.ifscCode && body.ifsc) body.ifscCode = body.ifsc;
 
     // Check duplicates
@@ -174,6 +195,7 @@ module.exports.hostRegister = async (req, res) => {
       });
     }
 
+    // ✅ Create host (store Supabase user ID reference)
     const newHost = new Host({
       personalInfo: {
         firstName: body.firstName,
@@ -195,6 +217,7 @@ module.exports.hostRegister = async (req, res) => {
       privacyPolicyAccepted: body.privacyPolicyAccepted,
       backgroundCheckConsent: body.backgroundCheckConsent,
       applicationStatus: "submitted",
+      supabaseUserId: sessionUser?.id || null, // ✅ Store Supabase user ID
     });
 
     if (newHost.updateVerificationProgress)
@@ -221,10 +244,15 @@ module.exports.hostRegister = async (req, res) => {
   }
 };
 
+// ==========================================
+// DOCUMENT UPLOAD
+// ==========================================
+
 module.exports.handleDocumentUpload = async (req, res) => {
   try {
     const { applicationId } = req.params;
     const host = await Host.findById(applicationId);
+
     if (!host)
       return res
         .status(404)
@@ -251,6 +279,7 @@ module.exports.handleDocumentUpload = async (req, res) => {
       "bankStatement",
       "addressProof",
     ];
+
     const uploadedDocs = host.documents
       ? Object.keys(host.documents).filter((d) => host.documents[d]?.filename)
       : [];
@@ -273,7 +302,9 @@ module.exports.handleDocumentUpload = async (req, res) => {
   }
 };
 
-// ... (Keep your other get/verify controllers here, ensuring they have closing braces)
+// ==========================================
+// GET APPLICATION STATUS
+// ==========================================
 
 module.exports.getApplicationStatus = async (req, res) => {
   try {
@@ -285,6 +316,10 @@ module.exports.getApplicationStatus = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching status" });
   }
 };
+
+// ==========================================
+// VALIDATION ENDPOINTS
+// ==========================================
 
 module.exports.checkEmailAvailability = async (req, res) => {
   try {
@@ -321,8 +356,14 @@ module.exports.pincodeVerify = async (req, res) => {
   res.json({ success: true, data: { city: "Mock City", state: "Mock State" } });
 };
 
+// ==========================================
+// VERIFY GOVERNMENT ID
+// ✅ Uses Supabase session check ONLY
+// ==========================================
+
 module.exports.verifyGovernmentId = async (req, res) => {
-  if (!req.user) {
+  // ✅ Check Supabase session (not req.user)
+  if (!req.session?.supabaseUser) {
     return res
       .status(401)
       .json({ success: false, message: "You must be logged in to do that." });
@@ -349,6 +390,10 @@ module.exports.verifyGovernmentId = async (req, res) => {
   res.json({ success: true, verified: true });
 };
 
+// ==========================================
+// ADMIN ENDPOINTS
+// ==========================================
+
 module.exports.getAllHostApplications = async (req, res) => {
   const apps = await Host.find().sort({ submittedAt: -1 }).limit(50);
   res.json({ success: true, applications: apps });
@@ -364,6 +409,11 @@ module.exports.updateApplicationStatus = async (req, res) => {
     res.status(500).json({ success: false, message: "Error" });
   }
 };
+
+// ==========================================
+// COMPLETE ONBOARDING
+// ✅ Uses Supabase session ONLY - NO MongoDB User
+// ==========================================
 
 module.exports.completeOnboarding = async (req, res) => {
   try {
@@ -381,14 +431,17 @@ module.exports.completeOnboarding = async (req, res) => {
       amenities,
     } = req.body;
 
-    // Assuming user is logged in and req.user is available.
-    if (!req.user) {
+    // ✅ Check Supabase session (not req.user)
+    if (!req.session?.supabaseUser) {
       return res
         .status(401)
         .json({ success: false, message: "You must be logged in to do that." });
     }
-    const owner = req.user._id;
 
+    const userEmail = req.session.supabaseUser.email;
+    const userId = req.session.supabaseUser.id;
+
+    // ✅ Create Host record
     const newHost = new Host({
       personalInfo: {
         firstName: hostFirstName,
@@ -397,11 +450,12 @@ module.exports.completeOnboarding = async (req, res) => {
         phone: hostPhone,
         bio: hostBio,
       },
-      user: owner,
+      supabaseUserId: userId, // ✅ Store Supabase user ID (not MongoDB ObjectId)
       applicationStatus: "pending-approval",
       documents: {},
     });
 
+    // Add profile photo
     if (req.files && req.files.hostProfilePhoto) {
       newHost.documents.profilePhoto = {
         filename: req.files.hostProfilePhoto[0].filename,
@@ -411,6 +465,7 @@ module.exports.completeOnboarding = async (req, res) => {
       };
     }
 
+    // Add government ID documents from session
     if (req.session.uploadedIdFiles) {
       if (req.session.uploadedIdFiles.idFront) {
         newHost.documents.governmentIdFront = {
@@ -420,6 +475,7 @@ module.exports.completeOnboarding = async (req, res) => {
           verificationStatus: "pending",
         };
       }
+
       if (req.session.uploadedIdFiles.idBack) {
         newHost.documents.governmentIdBack = {
           filename: req.session.uploadedIdFiles.idBack.filename,
@@ -431,21 +487,22 @@ module.exports.completeOnboarding = async (req, res) => {
     }
 
     await newHost.save();
+    console.log("✅ Host created:", newHost._id);
 
+    // ✅ Create Listing (store owner email instead of MongoDB User ID)
     const newListing = new Listing({
       title,
-      description: hostBio, // Using hostBio as listing description.
+      description: hostBio,
       price,
       propertyType,
       guests,
       cancellation,
       amenities,
-      owner,
+      ownerEmail: userEmail, // ✅ Store email (not ObjectId)
       host: newHost._id,
-      // Leaving location, country, and geometry empty for now
-      // as they are not provided in the form.
     });
 
+    // Add property images
     if (req.files && req.files.propertyImages) {
       newListing.images = req.files.propertyImages.map((f) => ({
         url: f.path,
@@ -453,11 +510,10 @@ module.exports.completeOnboarding = async (req, res) => {
       }));
     }
 
-    // The form has a video upload, but the listing schema doesn't have a field for it.
-    // I will ignore the video for now.
-
     await newListing.save();
+    console.log("✅ Listing created:", newListing._id);
 
+    // Clean up session
     delete req.session.uploadedIdFiles;
 
     res.json({
@@ -467,7 +523,10 @@ module.exports.completeOnboarding = async (req, res) => {
       listingId: newListing._id,
     });
   } catch (error) {
-    console.error("Onboarding Error:", error);
-    res.status(500).json({ success: false, message: "Onboarding failed" });
+    console.error("💥 Onboarding Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Onboarding failed: " + error.message,
+    });
   }
 };

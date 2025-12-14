@@ -1,6 +1,11 @@
-// Render user profile page
-
+// controllers/users.js
 const Listing = require("../models/listing");
+const supabase = require("../utils/supabase"); // ✅ Use consistent import
+const sendMail = require("../utils/sendMail");
+const bcrypt = require("bcryptjs");
+const User = require("../models/user");
+
+// Render user profile page
 module.exports.renderProfile = async (req, res) => {
   try {
     const user = res.locals.currUser;
@@ -8,7 +13,7 @@ module.exports.renderProfile = async (req, res) => {
       req.flash("error", "User not found. Please log in again.");
       return res.redirect("/login");
     }
-    // Fetch user's listings
+
     const userListings = await Listing.find({ owner: user._id });
     res.render("users/profile.ejs", { user, userListings });
   } catch (err) {
@@ -45,11 +50,10 @@ module.exports.renderNotifications = (req, res) => {
   const user = res.locals.currUser;
   res.render("users/notifications.ejs", { user });
 };
-// controllers/users.js
-const supabase = require("../utils/supabase");
-const sendMail = require("../utils/sendMail");
-const bcrypt = require("bcryptjs");
-const User = require("../models/user");
+
+// ========================================
+// SIGNUP FLOW
+// ========================================
 
 // Render Signup Page
 module.exports.renderSignupForm = (req, res) => {
@@ -66,14 +70,29 @@ module.exports.signup = async (req, res) => {
       return res.redirect("/signup");
     }
 
-    // normalize email
+    // Normalize email
     email = email.trim().toLowerCase();
 
+    // Check if email already exists
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (existingUser) {
+      req.flash("error", "Email already registered. Please login.");
+      return res.redirect("/login");
+    }
+
+    // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000);
 
+    // Store in session
     req.session.userData = { username, email, phone, password };
     req.session.otp = otp;
 
+    // Send OTP email
     await sendMail(
       username,
       email,
@@ -115,7 +134,7 @@ module.exports.verifyOtp = async (req, res) => {
     // Hash password before saving
     const password_hash = await bcrypt.hash(password, 12);
 
-    // Insert into Supabase
+    // Insert into Supabase public.users table
     const { data, error } = await supabase
       .from("users")
       .insert([{ username, email, phone, password_hash }])
@@ -123,7 +142,6 @@ module.exports.verifyOtp = async (req, res) => {
       .single();
 
     console.log("Supabase insert data:", data);
-    console.log("Supabase insert error:", error);
 
     if (error) {
       console.error("Supabase insert error:", error);
@@ -140,6 +158,7 @@ module.exports.verifyOtp = async (req, res) => {
         supabaseId: data.id ? String(data.id) : undefined,
       });
       await mongoUser.save();
+      console.log("MongoDB user created successfully");
     } catch (mongoErr) {
       console.warn(
         "Mongo user creation failed (but Supabase user created):",
@@ -160,62 +179,11 @@ module.exports.verifyOtp = async (req, res) => {
   }
 };
 
+// ========================================
+// LOGIN PAGE RENDER
+// ========================================
+
 // Render login page
 module.exports.renderLoginForm = (req, res) => {
   res.render("users/login.ejs");
-};
-
-// Login using email + password (Supabase table)
-module.exports.login = async (req, res) => {
-  try {
-    let { email, password } = req.body;
-
-    email = (email || "").trim().toLowerCase();
-
-    console.log("LOGIN ATTEMPT:", { email });
-
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("id, username, email, phone, password_hash")
-      .eq("email", email)
-      .single();
-
-    console.log("Supabase login data:", user);
-    console.log("Supabase login error:", error);
-
-    if (error || !user) {
-      req.flash("error", "Invalid email or password.");
-      return res.redirect("/login");
-    }
-
-    // Compare hashed password
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-
-    console.log("Password match:", isMatch);
-
-    if (!isMatch) {
-      req.flash("error", "Invalid email or password.");
-      return res.redirect("/login");
-    }
-
-    // store in session under supabaseUser
-    req.session.supabaseUser = user;
-
-    console.log("SESSION AFTER LOGIN:", req.session);
-
-    req.flash("success", "Welcome back!");
-    const redirectUrl = res.locals.redirectUrl || "/listings";
-    res.redirect(redirectUrl);
-  } catch (e) {
-    console.error("Login error:", e);
-    req.flash("error", "Login failed.");
-    res.redirect("/login");
-  }
-};
-
-// Logout
-module.exports.logout = (req, res) => {
-  req.session.supabaseUser = null;
-  req.flash("success", "You are logged out!");
-  res.redirect("/login");
 };
