@@ -623,4 +623,7 @@ router.post("/privacy-contact", async (req, res) => {
   }
 });
 
+router.get("/image-test", (req, res) => res.render("image-test"));
+router.get("/test-image", (req, res) => res.render("test-image"));
+
 module.exports = router;
