@@ -16,7 +16,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Stats Cards -->
     <div class="col-lg-3 col-md-6 mb-4">
       <div class="card stats-card bg-primary text-white">
@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-4">
       <div class="card stats-card bg-success text-white">
         <div class="card-body">
@@ -49,7 +49,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-4">
       <div class="card stats-card bg-warning text-white">
         <div class="card-body">
@@ -65,7 +65,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-4">
       <div class="card stats-card bg-info text-white">
         <div class="card-body">
@@ -81,7 +81,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Quick Actions -->
     <div class="col-12 mb-4">
       <div class="card">
@@ -130,7 +130,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Recent Listings -->
     <div class="col-lg-8 mb-4">
       <div class="card">
@@ -166,7 +166,7 @@
                         </div>
                       </td>
                       <td><%= listing.location %>, <%= listing.country %></td>
-                      <td>₹<%= listing.price.toLocaleString() %>/night</td>
+                      <td><%= listing.price ? '₹' + listing.price.toLocaleString() + '/night' : 'N/A' %></td>
                       <td>
                         <span class="badge bg-success">Active</span>
                       </td>
@@ -194,7 +194,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Recent Activity -->
     <div class="col-lg-4 mb-4">
       <div class="card">

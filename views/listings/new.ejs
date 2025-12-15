@@ -9,17 +9,16 @@
             <input name="listing[title]" placeholder="Add a catchy title" type="text" class="form-control" required>
             <div class="valid-feedback">Title looks good!</div>
         </div>
-        
+
         <div class="mb-3">
            <label for="description" class="form-label">Description</label>
            <textarea name="listing[description]" class="form-control" required></textarea>
            <div class="invalid-feedback">Please enter a short description</div>
        </div>
-       
+
        <div class="mb-3">
         <label for="image" class="form-label">Upload Listing Image</label>
-        <input name="listing[image][url]" type="file" class="form-control">
-        required
+        <input name="listing[image][url]" type="file" class="form-control" required>
        </div>
 
        <div class="row">
@@ -41,7 +40,7 @@
          <input name="listing[location]" placeholder="Jaipur, Rajasthan" type="text" class="form-control" required>
            <div class="invalid-feedback">Location should be valid</div>
        </div>
-       
+
       <button class="btn btn-dark add-btn mt-3">Add</button>
       <br><br>
     </form>

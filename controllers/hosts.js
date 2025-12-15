@@ -1,5 +1,7 @@
-// FILE: E:\homyhive2\controllers\hosts.js
-const Host = require("../models/host"); // Ensure filename matches your actual model file
+// controllers/hosts.js
+// ✅ Uses Supabase session ONLY - NO MongoDB User dependencies
+
+const Host = require("../models/host");
 const Listing = require("../models/listing.js");
 const multer = require("multer");
 const path = require("path");
@@ -69,7 +71,6 @@ module.exports.renderHostOnboarding = async (req, res) => {
   // ✅ Find host by Supabase user ID
   const userId = req.session.supabaseUser.id;
   console.log("renderHostOnboarding: Finding host for user:", userId);
-
   host = await Host.findOne({ supabaseUserId: userId });
   if (host) {
     listing = await Listing.findOne({ host: host._id });
@@ -405,7 +406,6 @@ module.exports.verifyGovernmentId = async (req, res) => {
   // If host doesn't exist, create one automatically
   if (!host) {
     console.log("Host not found, creating new host for user:", userId);
-
     // Get email from user object (either from session or token)
     const userEmail = req.user.email;
 
@@ -441,6 +441,7 @@ module.exports.verifyGovernmentId = async (req, res) => {
     };
     host.identification.idFront = req.files.idFront[0].filename;
   }
+
   if (req.files && req.files.idBack) {
     host.documents = host.documents || {};
     host.documents.idBack = {
@@ -450,14 +451,15 @@ module.exports.verifyGovernmentId = async (req, res) => {
     };
     host.identification.idBack = req.files.idBack[0].filename;
   }
+
   // Set verification status to pending
   host.idVerification = host.idVerification || {};
   host.idVerification.status = "pending";
   host.idVerification.submittedAt = new Date();
 
   await host.save();
-
   console.log("✓ ID verification submitted for host:", host._id);
+
   res.json({
     success: true,
     status: "pending",
@@ -468,6 +470,7 @@ module.exports.verifyGovernmentId = async (req, res) => {
 // ==========================================
 // BANK VERIFICATION
 // ==========================================
+
 module.exports.verifyBank = async (req, res) => {
   try {
     if (!req.user && !req.session?.supabaseUser) {
@@ -477,7 +480,8 @@ module.exports.verifyBank = async (req, res) => {
     }
 
     const userId = req.user?.id || req.session.supabaseUser.id;
-    const { accountHolder, accountNumber, ifscCode, bankName, branchName } = req.body;
+    const { accountHolder, accountNumber, ifscCode, bankName, branchName } =
+      req.body;
 
     if (!accountHolder || !accountNumber || !ifscCode) {
       return res
@@ -487,6 +491,7 @@ module.exports.verifyBank = async (req, res) => {
 
     // Find host
     let host = await Host.findOne({ supabaseUserId: userId });
+
     if (!host) {
       return res
         .status(404)
@@ -540,12 +545,14 @@ module.exports.updateApplicationStatus = async (req, res) => {
 
 // ==========================================
 // COMPLETE ONBOARDING
-// ✅ Uses Supabase session ONLY - NO MongoDB User
+// ✅ CRITICAL FIX: Creates BOTH Host AND Listing documents
 // ==========================================
 
 module.exports.completeOnboarding = async (req, res) => {
   try {
-    console.log("Entering completeOnboarding function");
+    console.log("=== ENTERING COMPLETE ONBOARDING ===");
+    console.log("Request body:", req.body);
+    console.log("Files:", req.files ? Object.keys(req.files) : "No files");
 
     const {
       hostFirstName,
@@ -559,47 +566,66 @@ module.exports.completeOnboarding = async (req, res) => {
       hostCity,
       hostState,
       hostPinCode,
+      // Property fields
+      title,
       propertyType,
       guests,
-      title,
       price,
       cancellation,
       amenities,
+      propertyLocationAddress,
       propertyLatitude,
       propertyLongitude,
-      propertyLocationAddress,
+      category,
+      country,
     } = req.body;
 
-    console.log("Request body:", req.body);
-
+    // ✅ Validate authentication
     if (!req.session?.supabaseUser) {
-      console.log("User not authenticated");
+      console.log("❌ User not authenticated");
       return res
         .status(401)
-        .json({ success: false, message: "You must be logged in to do that." });
+        .json({ success: false, message: "You must be logged in." });
+    }
+
+    // ✅ Validate required property fields
+    if (!title || !propertyType || !price || !guests) {
+      console.log("❌ Missing required fields");
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required property fields: title, propertyType, price, guests",
+        received: { title, propertyType, price, guests },
+      });
     }
 
     const userId = req.session.supabaseUser.id;
-    console.log("User ID:", userId);
+    const userEmail = req.session.supabaseUser.email;
+    console.log("✅ User authenticated:", userEmail);
 
+    // ✅ Find or create host
     let host = await Host.findOne({ supabaseUserId: userId });
-    console.log("Host found:", host);
-
     if (!host) {
-      console.log("Host not found, creating new host");
+      console.log("Creating new host for user:", userId);
       host = new Host({
         supabaseUserId: userId,
-        personalInfo: {},
-        address: {},
+        personalInfo: {
+          firstName: hostFirstName,
+          lastName: hostLastName,
+          email: hostEmail,
+          phone: hostPhone,
+        },
+        applicationStatus: "pending-verification",
         documents: {},
       });
     }
 
+    // Update host information
     host.personalInfo = {
-      firstName: hostFirstName,
-      lastName: hostLastName,
-      email: hostEmail,
-      phone: hostPhone,
+      firstName: hostFirstName || host.personalInfo.firstName,
+      lastName: hostLastName || host.personalInfo.lastName,
+      email: hostEmail || host.personalInfo.email,
+      phone: hostPhone || host.personalInfo.phone,
       bio: hostBio,
       dateOfBirth: hostDOB,
       gender: hostGender,
@@ -612,85 +638,140 @@ module.exports.completeOnboarding = async (req, res) => {
       pinCode: hostPinCode,
     };
 
-    host.propertyDetails = {
-      title,
-      description: hostBio,
-      price,
-      propertyType,
-      guests,
-      cancellation,
-      amenities,
-    };
-
-    host.location = {
-      address: propertyLocationAddress,
-      latitude: propertyLatitude && !isNaN(propertyLatitude) ? parseFloat(propertyLatitude) : null,
-      longitude: propertyLongitude && !isNaN(propertyLongitude) ? parseFloat(propertyLongitude) : null,
-      mapUrl: propertyLatitude && propertyLongitude ? `https://www.openstreetmap.org/?lat=${propertyLatitude}&lon=${propertyLongitude}&zoom=15` : null,
-    };
-
-    console.log("Property details:", host.propertyDetails);
-    console.log("Location data:", host.location);
-
-    if (req.files && req.files.hostProfilePhoto) {
+    // ✅ Handle file uploads
+    if (req.files) {
       host.documents = host.documents || {};
-      host.documents.profilePhoto = {
-        filename: req.files.hostProfilePhoto[0].filename,
-        path: req.files.hostProfilePhoto[0].path,
-        uploadedAt: new Date(),
-        verificationStatus: "pending",
-      };
+
+      if (req.files.hostProfilePhoto && req.files.hostProfilePhoto[0]) {
+        host.documents.profilePhoto = {
+          filename: req.files.hostProfilePhoto[0].filename,
+          path: req.files.hostProfilePhoto[0].path,
+          uploadedAt: new Date(),
+          verificationStatus: "pending",
+        };
+        console.log(
+          "✅ Profile photo uploaded:",
+          req.files.hostProfilePhoto[0].filename,
+        );
+      }
+
+      if (req.files.propertyImages && req.files.propertyImages.length > 0) {
+        host.documents.propertyImages = req.files.propertyImages.map((f) => ({
+          filename: f.filename,
+          path: f.path,
+          uploadedAt: new Date(),
+          verificationStatus: "pending",
+        }));
+        console.log(
+          `✅ ${req.files.propertyImages.length} property images uploaded`,
+        );
+      }
+
+      if (req.files.propertyVideo && req.files.propertyVideo[0]) {
+        host.documents.propertyVideo = {
+          filename: req.files.propertyVideo[0].filename,
+          path: req.files.propertyVideo[0].path,
+          uploadedAt: new Date(),
+          verificationStatus: "pending",
+        };
+        console.log("✅ Property video uploaded");
+      }
     }
-
-    console.log("Profile photo:", host.documents.profilePhoto);
-
-    if (req.files && req.files.propertyImages) {
-      host.documents.propertyImages = req.files.propertyImages.map((f) => ({
-        filename: f.filename,
-        path: f.path,
-        uploadedAt: new Date(),
-        verificationStatus: "pending",
-      }));
-    }
-
-    console.log("Property images:", host.documents.propertyImages);
-
-    if (req.files && req.files.propertyVideo) {
-      host.documents.propertyVideo = {
-        filename: req.files.propertyVideo[0].filename,
-        path: req.files.propertyVideo[0].path,
-        uploadedAt: new Date(),
-        verificationStatus: "pending",
-      };
-    }
-
-    console.log("Property video:", host.documents.propertyVideo);
 
     host.applicationStatus = "pending-approval";
-
-    console.log("Application status:", host.applicationStatus);
-
     await host.save();
+    console.log("✅ Host saved:", host._id);
 
-    console.log("Host saved successfully");
+    // ========================================
+    // ✅ CREATE LISTING DOCUMENT (CRITICAL!)
+    // ========================================
+
+    // Parse amenities
+    let parsedAmenities = [];
+    if (amenities) {
+      if (Array.isArray(amenities)) {
+        parsedAmenities = amenities;
+      } else if (typeof amenities === "string") {
+        parsedAmenities = amenities.split(",").map((a) => a.trim());
+      }
+    }
+
+    // Prepare listing images
+    const listingImages = req.files?.propertyImages
+      ? req.files.propertyImages.map((f) => ({
+          url: f.path,
+          filename: f.filename,
+        }))
+      : [];
+
+    // Create new listing
+    const newListing = new Listing({
+      title: title,
+      description: hostBio || "A wonderful property",
+      propertyType: propertyType,
+      guests: parseInt(guests) || 1,
+      price: parseFloat(price) || 0,
+      cancellation: cancellation || "flexible",
+      category: category || "rooms",
+      country: country || hostState || "India",
+      location: propertyLocationAddress || `${hostCity}, ${hostState}`,
+
+      // ✅ Store owner email (Supabase-based)
+      ownerEmail: userEmail,
+
+      // ✅ Link to host document
+      host: host._id,
+
+      // ✅ Images from uploaded files
+      images: listingImages,
+
+      // ✅ Geometry for map
+      geometry: {
+        type: "Point",
+        coordinates: [
+          propertyLongitude && !isNaN(propertyLongitude)
+            ? parseFloat(propertyLongitude)
+            : 77.5946, // Default to Bangalore
+          propertyLatitude && !isNaN(propertyLatitude)
+            ? parseFloat(propertyLatitude)
+            : 12.9716,
+        ],
+      },
+
+      // ✅ Amenities
+      amenities: parsedAmenities,
+    });
+
+    await newListing.save();
+    console.log("✅ LISTING CREATED:", newListing._id);
+    console.log("Listing details:", {
+      title: newListing.title,
+      price: newListing.price,
+      guests: newListing.guests,
+      images: newListing.images.length,
+    });
 
     res.json({
       success: true,
       message:
-        "Onboarding completed successfully! Your submission is pending approval.",
+        "Onboarding completed successfully! Your submission is pending admin approval.",
       hostId: host._id,
+      listingId: newListing._id, // ✅ Return listing ID
     });
   } catch (error) {
     console.error("💥 Onboarding Error:", error);
     res.status(500).json({
       success: false,
       message: "Onboarding failed: " + error.message,
+      error: error.stack,
     });
   }
 };
+
 // ==========================================
 // RENDER NEW LISTING FORM
 // ==========================================
+
 module.exports.renderNewListingForm = async (req, res) => {
   try {
     // Check if user is authenticated
@@ -722,6 +803,7 @@ module.exports.renderNewListingForm = async (req, res) => {
 // ==========================================
 // CREATE LISTING
 // ==========================================
+
 module.exports.createListing = async (req, res) => {
   try {
     // Check if user is authenticated
@@ -745,7 +827,7 @@ module.exports.createListing = async (req, res) => {
     const { listing } = req.body;
     const newListing = new Listing(listing);
     newListing.host = host._id;
-    newListing.owner = req.user._id;
+    newListing.ownerEmail = req.session.supabaseUser.email;
 
     if (req.files) {
       newListing.images = req.files.map((f) => ({
@@ -755,7 +837,6 @@ module.exports.createListing = async (req, res) => {
     }
 
     await newListing.save();
-
     req.flash("success", "Listing created successfully!");
     res.redirect(`/listings/${newListing._id}`);
   } catch (error) {
@@ -763,4 +844,16 @@ module.exports.createListing = async (req, res) => {
     req.flash("error", "Failed to create listing");
     res.redirect("/hosts/listings/new");
   }
+};
+
+// ==========================================
+// RAZORPAY ONBOARDING (Placeholder)
+// ==========================================
+
+module.exports.createOnboardingOrder = async (req, res) => {
+  res.json({ success: true, message: "Payment integration pending" });
+};
+
+module.exports.verifyOnboardingPayment = async (req, res) => {
+  res.json({ success: true, message: "Payment verification pending" });
 };

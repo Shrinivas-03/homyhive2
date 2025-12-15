@@ -952,7 +952,7 @@
                 </p>
                 <p class="card-text text-muted">
                   <i class="fa-solid fa-photo-film me-1"></i>
-                  <%= listing.images.length %> Photos
+                  <%= listing.images ? listing.images.length : 0 %> Photos
                 </p>
                 <% if(listing.amenities && listing.amenities.length > 0) { %>
                   <p class="card-text text-muted">
@@ -1030,7 +1030,7 @@
                 </p>
                 <p class="card-text text-muted">
                   <i class="fa-solid fa-photo-film me-1"></i>
-                  <%= listing.images.length %> Photos
+                  <%= listing.images ? listing.images.length : 0 %> Photos
                 </p>
                 <% if(listing.amenities && listing.amenities.length > 0) { %>
                   <p class="card-text text-muted">

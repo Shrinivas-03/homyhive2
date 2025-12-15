@@ -370,10 +370,10 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
     $('hostSave').addEventListener('click', e => {
       e.preventDefault();
       const draft = {
-        firstName: $('hostFirstName').value, 
-        lastName: $('hostLastName').value, 
-        email: $('hostEmail').value, 
-        phone: $('hostPhone').value, 
+        firstName: $('hostFirstName').value,
+        lastName: $('hostLastName').value,
+        email: $('hostEmail').value,
+        phone: $('hostPhone').value,
         bio: $('hostBio').value,
         dateOfBirth: $('hostDOB').value,
         gender: $('hostGender').value,
@@ -389,10 +389,10 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
     $('toProperty').addEventListener('click', () => {
       if (!$('hostFirstName').value.trim() || !$('hostEmail').value.trim() || !$('hostPhone').value.trim() || !$('hostDOB').value || !$('hostAddress').value.trim() || !$('hostCity').value.trim() || !$('hostState').value.trim() || !$('hostPinCode').value.trim()) { showToast('Fill all required fields'); return; }
       const draft = {
-        firstName: $('hostFirstName').value, 
-        lastName: $('hostLastName').value, 
-        email: $('hostEmail').value, 
-        phone: $('hostPhone').value, 
+        firstName: $('hostFirstName').value,
+        lastName: $('hostLastName').value,
+        email: $('hostEmail').value,
+        phone: $('hostPhone').value,
         bio: $('hostBio').value,
         dateOfBirth: $('hostDOB').value,
         gender: $('hostGender').value,
@@ -455,10 +455,10 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
           const results = await res.json();
-          
+
           suggestionsBox.innerHTML = '';
           if (results.length === 0) { suggestionsBox.style.display = 'none'; return; }
-          
+
           results.forEach(r => {
             const item = document.createElement('div');
             item.className = 'location-suggestion-item';
@@ -476,7 +476,7 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
       const lon = parseFloat(result.lon);
       locationInput.value = result.display_name;
       propertyCoordinates = {latitude: lat, longitude: lon, address: result.display_name};
-      
+
       $('coordsDisplay').textContent = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
       suggestionsBox.style.display = 'none';
 
@@ -617,7 +617,7 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         price.value = data.price || '';
         $('cancellation').value = data.cancellation || 'flexible';
         if (Array.isArray(data.amenities)) { amenities = data.amenities; renderAmenities(); }
-        
+
         // Restore location and map
         if (data.location) {
           propertyCoordinates = data.location;
@@ -628,12 +628,19 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
           if (marker) map.removeLayer(marker);
           marker = L.marker([data.location.latitude, data.location.longitude]).addTo(map).bindPopup(data.location.address);
         }
-        
+
         updateMeta();
       }
     } catch(e) {}
 
-    window._propertyData = {imgs, vid, amenities: () => amenities};
+    // ✅ FIX 1: Store location in window._propertyData
+    window._propertyData = {
+      imgs,
+      vid,
+      amenities: () => amenities,
+      location: propertyCoordinates,  // ✅ CRITICAL FIX
+      getLocation: () => propertyCoordinates  // ✅ Helper function
+    };
   })();
 
   // VERIFICATION PAGE
@@ -729,7 +736,7 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
       const acct = $('v_bankAccount').value.trim(), ifsc = $('v_ifsc').value.trim(), holder = $('v_acctHolder').value.trim();
       const bankName = $('v_bankName').textContent.trim() === '—' ? 'Verified' : $('v_bankName').textContent.trim();
       const branchName = $('v_branchName').textContent.trim() === '—' ? 'Verified' : $('v_branchName').textContent.trim();
-      
+
       if (!acct || !ifsc || !holder) { showToast('Fill all fields'); return; }
 
       const btn = $('v_verifyBank');
@@ -747,6 +754,7 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
 
     $('v_backToProperty').addEventListener('click', () => showPage('property'));
 
+    // ✅ FIX 2: Read DIRECTLY from form fields instead of localStorage
     $('v_done').addEventListener('click', async e => {
       e.preventDefault();
       const btn = $('v_done');
@@ -755,11 +763,11 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
 
       try {
         const hostDraft = JSON.parse(localStorage.getItem('hostDraft') || '{}');
-        const propertyDraft = JSON.parse(localStorage.getItem('propertyDraft') || '{}');
-        console.log('hostDraft:', hostDraft);
-        console.log('propertyDraft:', propertyDraft);
 
+        // ✅ CRITICAL FIX: Read directly from form fields
         const fd = new FormData();
+
+        // Host details from localStorage (already saved)
         fd.append('hostFirstName', hostDraft.firstName || '');
         fd.append('hostLastName', hostDraft.lastName || '');
         fd.append('hostEmail', hostDraft.email || '');
@@ -771,41 +779,92 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         fd.append('hostCity', hostDraft.city || '');
         fd.append('hostState', hostDraft.state || '');
         fd.append('hostPinCode', hostDraft.pinCode || '');
-        
+
         if ($('avatarDrop')._file) fd.append('hostProfilePhoto', $('avatarDrop')._file);
 
-        fd.append('title', propertyDraft.title || '');
-        fd.append('propertyType', propertyDraft.propertyType || '');
-        fd.append('guests', propertyDraft.guests || '1');
-        fd.append('price', propertyDraft.price || '');
-        fd.append('cancellation', propertyDraft.cancellation || 'flexible');
-        
-        // Add location data
-        if (propertyDraft.location) {
-          fd.append('propertyLatitude', propertyDraft.location.latitude);
-          fd.append('propertyLongitude', propertyDraft.location.longitude);
-          fd.append('propertyLocationAddress', propertyDraft.location.address);
-        }
-        
-        if (propertyDraft.amenities) propertyDraft.amenities.forEach(a => fd.append('amenities[]', a));
+        // ✅ Property details - Read from FORM INPUTS not localStorage!
+        const titleValue = $('title').value.trim();
+        const propertyTypeValue = $('propertyType').value.trim();
+        const guestsValue = $('guests').value.trim();
+        const priceValue = $('price').value.trim();
+        const cancellationValue = $('cancellation').value.trim();
 
+        console.log('📋 Reading form values:', {
+          title: titleValue,
+          propertyType: propertyTypeValue,
+          guests: guestsValue,
+          price: priceValue
+        });
+
+        fd.append('title', titleValue);
+        fd.append('propertyType', propertyTypeValue);
+        fd.append('guests', guestsValue || '1');
+        fd.append('price', priceValue);
+        fd.append('cancellation', cancellationValue || 'flexible');
+
+        // ✅ Location data
+        const locData = window._propertyData?.getLocation ? window._propertyData.getLocation() : window._propertyData?.location;
+        if (locData) {
+          fd.append('propertyLatitude', locData.latitude);
+          fd.append('propertyLongitude', locData.longitude);
+          fd.append('propertyLocationAddress', locData.address);
+          console.log('📍 Location:', locData);
+        }
+
+        // ✅ Amenities
+        if (window._propertyData && window._propertyData.amenities) {
+          const amen = window._propertyData.amenities();
+          amen.forEach(a => fd.append('amenities', a));
+          console.log('🏷️ Amenities:', amen);
+        }
+
+        // ✅ Images
         if (window._propertyData && window._propertyData.imgs) {
           const imgs = window._propertyData.imgs.getFiles();
           imgs.forEach(f => fd.append('propertyImages', f));
+          console.log('🖼️ Images:', imgs.length);
         }
+
+        // ✅ Video
         if (window._propertyData && window._propertyData.vid) {
           const vf = window._propertyData.vid.getFile();
-          if (vf) fd.append('propertyVideo', vf);
+          if (vf) {
+            fd.append('propertyVideo', vf);
+            console.log('🎥 Video:', vf.name);
+          }
         }
 
-        const res = await fetch('/host/onboarding-complete', {method: 'POST', body: fd, credentials: 'include'});
-        const result = await res.json().catch(() => ({}));
+        console.log('📤 Submitting to /host/onboarding-complete');
+        const res = await fetch('/host/onboarding-complete', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
 
-        if (res.status === 401) { window.location.href = '/users/login'; return; }
-        if (res.ok && result.success) { showToast('Success!'); localStorage.removeItem('hostDraft'); localStorage.removeItem('propertyDraft'); setTimeout(() => window.location.href = '/users/dashboard', 2000); }
-        else showToast(result.message || 'Failed');
-      } catch(err) { showToast('Error: ' + err.message); }
-      finally { btn.disabled = false; btn.textContent = 'Complete'; }
+        const result = await res.json().catch(() => ({}));
+        console.log('📥 Server response:', result);
+
+        if (res.status === 401) {
+          window.location.href = '/users/login';
+          return;
+        }
+
+        if (res.ok && result.success) {
+          showToast('Success! Redirecting...');
+          localStorage.removeItem('hostDraft');
+          localStorage.removeItem('propertyDraft');
+          setTimeout(() => window.location.href = '/users/dashboard', 2000);
+        } else {
+          showToast(result.message || 'Failed');
+          console.error('❌ Submission failed:', result);
+        }
+      } catch(err) {
+        console.error('💥 Error:', err);
+        showToast('Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Complete';
+      }
     });
   })();
 

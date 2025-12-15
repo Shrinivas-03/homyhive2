@@ -64,36 +64,54 @@ function injectChatbot(options = {}) {
 // ✅ NO MongoDB User - Supabase session ONLY
 // ==========================================
 
+const User = require("./models/user");
+
+// ...
+
 async function attachSupabaseUser(req, res, next) {
+  req.user = null;
+  res.locals.currUser = null;
+  res.locals.userRole = null;
+  res.locals.supabaseUser = null;
   try {
     if (req.session?.supabaseUser) {
       const sbUser = req.session.supabaseUser;
-
-      // ✅ Expose Supabase user data directly (no MongoDB lookup)
-      res.locals.currUser = {
-        id: sbUser.id,
-        email: sbUser.email,
-        username: sbUser.username || sbUser.email.split("@")[0],
-        phone: sbUser.phone || null,
-      };
-
-      res.locals.userRole = req.session.role || "user";
+      console.log("Supabase user from session:", sbUser);
       res.locals.supabaseUser = sbUser;
-    } else {
-      res.locals.currUser = null;
-      res.locals.userRole = null;
-      res.locals.supabaseUser = null;
+      res.locals.userRole = req.session.role || "user";
+
+      let mongoUser = await User.findOne({ supabaseId: sbUser.id });
+
+      if (!mongoUser) {
+        console.log("Mongo user not found by supabaseId, trying email...");
+        mongoUser = await User.findOne({ email: sbUser.email });
+        if (mongoUser) {
+          console.log("Found user by email, updating supabaseId...");
+          mongoUser.supabaseId = sbUser.id;
+          await mongoUser.save();
+        }
+      }
+
+      console.log("Mongo user found:", mongoUser);
+
+      if (mongoUser) {
+        req.user = mongoUser;
+        res.locals.currUser = mongoUser;
+      } else {
+        console.log("Mongo user not found for supabaseId:", sbUser.id);
+        res.locals.currUser = {
+          id: sbUser.id,
+          email: sbUser.email,
+          username: sbUser.username || sbUser.email.split("@")[0],
+          phone: sbUser.phone || null,
+        };
+      }
     }
   } catch (e) {
     console.warn("attachSupabaseUser error:", e?.message || e);
-    res.locals.currUser = null;
-    res.locals.userRole = null;
-    res.locals.supabaseUser = null;
   }
   next();
-}
-
-// ==========================================
+} // ==========================================
 // AUTHENTICATION MIDDLEWARE
 // ==========================================
 

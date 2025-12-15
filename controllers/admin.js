@@ -1,3 +1,6 @@
+// controllers/admin.js
+// ✅ Complete admin controller with property approval
+
 const Host = require("../models/host");
 const Listing = require("../models/listing");
 
@@ -16,15 +19,13 @@ module.exports.viewHostRequests = async (req, res) => {
     }
 
     const totalRequests = await Host.countDocuments(query);
-
     const requestsData = await Host.find(query)
-      .sort({ submittedAt: -1 })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit)
       .lean();
 
     const requests = requestsData.map((requestData) => new Host(requestData));
-
     const totalPages = Math.ceil(totalRequests / limit);
 
     res.render("admin/host-requests", {
@@ -47,14 +48,19 @@ module.exports.viewHostRequests = async (req, res) => {
 module.exports.viewHostDetails = async (req, res) => {
   try {
     const { id } = req.params;
-
     const hostData = await Host.findById(id).lean();
+
     if (!hostData) {
       req.flash("error", "Host application not found");
       return res.redirect("/admin/host-requests");
     }
+
     const host = new Host(hostData);
-    res.render("admin/host-detail", { host });
+
+    // ✅ Find associated listing
+    const listing = await Listing.findOne({ host: id });
+
+    res.render("admin/host-detail", { host, listing });
   } catch (error) {
     console.error("Error fetching host details:", error);
     req.flash("error", "Failed to fetch host details");
@@ -64,6 +70,7 @@ module.exports.viewHostDetails = async (req, res) => {
 
 // -------------------------------
 // Update host application status
+// ✅ CRITICAL: Enable property viewing when approved
 // -------------------------------
 module.exports.updateHostStatus = async (req, res) => {
   try {
@@ -71,6 +78,7 @@ module.exports.updateHostStatus = async (req, res) => {
     const { status, adminNote } = req.body;
 
     const host = await Host.findById(id);
+
     if (!host) {
       req.flash("error", "Host not found");
       return res.redirect("/admin/host-requests");
@@ -78,12 +86,16 @@ module.exports.updateHostStatus = async (req, res) => {
 
     host.applicationStatus = status;
 
+    // ✅ CRITICAL: Enable property creation when approved
     if (status === "approved") {
       host.approvedAt = new Date();
+      host.canCreateProperty = true; // ✅ Allow host to create more properties
+      console.log("✅ Host approved - canCreateProperty set to true");
     }
 
     if (status === "rejected") {
       host.rejectedAt = new Date();
+      host.canCreateProperty = false;
     }
 
     if (adminNote) {
@@ -101,48 +113,76 @@ module.exports.updateHostStatus = async (req, res) => {
   }
 };
 
-const sendMail = require("../utils/sendMail");
-
+// -------------------------------
+// Approve property and make it live
+// ✅ Creates listing if not exists
+// -------------------------------
 module.exports.approveProperty = async (req, res) => {
   try {
     const { id } = req.params;
     const host = await Host.findById(id);
+
     if (!host) {
       req.flash("error", "Host not found");
       return res.redirect("/admin/pending-approvals");
     }
 
-    const newListing = new Listing({
-      ...host.propertyDetails,
-      owner: host.user,
-      host: host._id,
-      images: host.documents.propertyImages,
-      location: host.location,
-      geometry: {
-        type: "Point",
-        coordinates: [host.location?.longitude || 0, host.location?.latitude || 0],
-      },
-    });
+    // Check if listing already exists
+    let listing = await Listing.findOne({ host: host._id });
 
-    await newListing.save();
+    if (!listing) {
+      // Create listing from host property details if it doesn't exist
+      listing = new Listing({
+        title: host.propertyDetails?.title || "Property",
+        description: host.personalInfo?.bio || "",
+        propertyType: host.propertyDetails?.propertyType || "apartment",
+        guests: host.propertyDetails?.guests || 1,
+        price: host.propertyDetails?.price || 0,
+        cancellation: host.propertyDetails?.cancellation || "flexible",
+        category: host.propertyDetails?.category || "rooms",
+        country: host.address?.state || "India",
+        location: `${host.address?.city}, ${host.address?.state}`,
+        ownerEmail: host.personalInfo.email,
+        host: host._id,
+        images: host.documents?.propertyImages || [],
+        geometry: {
+          type: "Point",
+          coordinates: [77.5946, 12.9716], // Default coordinates
+        },
+        amenities: host.propertyDetails?.amenities || [],
+      });
+
+      await listing.save();
+      console.log("✅ Listing created during approval:", listing._id);
+    }
 
     host.applicationStatus = "approved";
     host.canCreateProperty = true;
+    host.approvedAt = new Date();
     await host.save();
 
-    const subject = "Your Property has been Approved!";
-    const message = `
-      <p>Dear ${host.personalInfo.firstName},</p>
-      <p>Congratulations! Your property "${newListing.title}" has been approved and is now live on HomyHive.</p>
-      <p>You can view your listing here: <a href="/listings/${newListing._id}">${newListing.title}</a></p>
-      <p>Thank you for being a part of the HomyHive community!</p>
-    `;
-    await sendMail(
-      host.personalInfo.firstName,
-      host.personalInfo.email,
-      message,
-      subject,
-    );
+    // Send email notification (if sendMail is configured)
+    try {
+      const sendMail = require("../utils/sendMail");
+      const subject = "Your Property has been Approved!";
+      const message = `
+Dear ${host.personalInfo.firstName},
+
+Congratulations! Your property "${listing.title}" has been approved and is now live on HomyHive.
+
+You can now start receiving bookings!
+
+Thank you for being a part of the HomyHive community!`;
+
+      await sendMail(
+        host.personalInfo.firstName,
+        host.personalInfo.email,
+        message,
+        subject,
+      );
+    } catch (emailError) {
+      console.log("Email notification failed:", emailError.message);
+    }
 
     req.flash("success", "Property approved successfully");
     res.redirect("/admin/pending-approvals");
@@ -153,31 +193,45 @@ module.exports.approveProperty = async (req, res) => {
   }
 };
 
+// -------------------------------
+// Reject property
+// -------------------------------
 module.exports.rejectProperty = async (req, res) => {
   try {
     const { id } = req.params;
     const host = await Host.findById(id);
+
     if (!host) {
       req.flash("error", "Host not found");
       return res.redirect("/admin/pending-approvals");
     }
 
     host.applicationStatus = "rejected";
+    host.rejectedAt = new Date();
     await host.save();
 
-    const subject = "Your Property has been Rejected";
-    const message = `
-      <p>Dear ${host.personalInfo.firstName},</p>
-      <p>We regret to inform you that your property submission has been rejected.</p>
-      <p>If you have any questions, please contact our support team.</p>
-      <p>Thank you for your interest in HomyHive.</p>
-    `;
-    await sendMail(
-      host.personalInfo.firstName,
-      host.personalInfo.email,
-      message,
-      subject,
-    );
+    // Send email notification (if configured)
+    try {
+      const sendMail = require("../utils/sendMail");
+      const subject = "Your Property has been Rejected";
+      const message = `
+Dear ${host.personalInfo.firstName},
+
+We regret to inform you that your property submission has been rejected.
+
+If you have any questions, please contact our support team.
+
+Thank you for your interest in HomyHive.`;
+
+      await sendMail(
+        host.personalInfo.firstName,
+        host.personalInfo.email,
+        message,
+        subject,
+      );
+    } catch (emailError) {
+      console.log("Email notification failed:", emailError.message);
+    }
 
     req.flash("success", "Property rejected successfully");
     res.redirect("/admin/pending-approvals");
@@ -195,28 +249,39 @@ module.exports.approveHost = async (req, res) => {
   try {
     const { id } = req.params;
     const host = await Host.findById(id);
+
     if (!host) {
       req.flash("error", "Host not found");
       return res.redirect("/admin/host-requests");
     }
+
     host.applicationStatus = "approved";
     host.approvedAt = new Date();
+    host.canCreateProperty = true; // ✅ Enable property creation
     await host.save();
 
-    // Send email to host
-    const subject = "Your HomyHive Host Application has been Approved!";
-    const message = `
-      <p>Dear ${host.personalInfo.firstName},</p>
-      <p>Congratulations! Your host application for HomyHive has been approved.</p>
-      <p>You can now create listings and start hosting guests.</p>
-      <p>Thank you for joining the HomyHive community!</p>
-    `;
-    await sendMail(
-      host.personalInfo.firstName,
-      host.personalInfo.email,
-      message,
-      subject,
-    );
+    // Send email notification
+    try {
+      const sendMail = require("../utils/sendMail");
+      const subject = "Your HomyHive Host Application has been Approved!";
+      const message = `
+Dear ${host.personalInfo.firstName},
+
+Congratulations! Your host application for HomyHive has been approved.
+
+You can now create listings and start hosting guests.
+
+Thank you for joining the HomyHive community!`;
+
+      await sendMail(
+        host.personalInfo.firstName,
+        host.personalInfo.email,
+        message,
+        subject,
+      );
+    } catch (emailError) {
+      console.log("Email notification failed:", emailError.message);
+    }
 
     req.flash("success", "Host application approved successfully");
     res.redirect(req.headers.referer || "/admin/host-requests");
@@ -234,13 +299,17 @@ module.exports.rejectHost = async (req, res) => {
   try {
     const { id } = req.params;
     const host = await Host.findById(id);
+
     if (!host) {
       req.flash("error", "Host not found");
       return res.redirect("/admin/host-requests");
     }
+
     host.applicationStatus = "rejected";
     host.rejectedAt = new Date();
+    host.canCreateProperty = false;
     await host.save();
+
     req.flash("success", "Host application rejected successfully");
     res.redirect(req.headers.referer || "/admin/host-requests");
   } catch (error) {
@@ -257,12 +326,15 @@ module.exports.enablePropertyCreation = async (req, res) => {
   try {
     const { id } = req.params;
     const host = await Host.findById(id);
+
     if (!host) {
       req.flash("error", "Host not found");
       return res.redirect("/admin/host-requests");
     }
+
     host.canCreateProperty = true;
     await host.save();
+
     req.flash("success", "Host can now create properties");
     res.redirect(req.headers.referer || "/admin/host-requests");
   } catch (error) {
@@ -291,7 +363,7 @@ module.exports.adminDashboard = async (req, res) => {
       applicationStatus: "rejected",
     });
 
-    const recentRequests = await Host.find().sort({ submittedAt: -1 }).limit(5);
+    const recentRequests = await Host.find().sort({ createdAt: -1 }).limit(5);
 
     res.render("admin/dashboard", {
       stats: {
@@ -304,13 +376,20 @@ module.exports.adminDashboard = async (req, res) => {
       recentRequests,
     });
   } catch (error) {
+    console.error("Error loading admin dashboard:", error);
     res.redirect("/");
   }
 };
 
+// -------------------------------
+// View pending approvals
+// -------------------------------
 module.exports.viewPendingApprovals = async (req, res) => {
   try {
-    const hosts = await Host.find({ applicationStatus: "pending-approval" });
+    const hosts = await Host.find({
+      applicationStatus: "pending-approval",
+    }).sort({ createdAt: -1 });
+
     res.render("admin/pending-approvals", { hosts });
   } catch (error) {
     console.error("Error fetching pending approvals:", error);
