@@ -22,7 +22,12 @@ const listingSchema = new Schema({
   guests: String,
   cancellation: String,
   amenities: [String],
-  location: String,
+  location: {
+    address: String,
+    latitude: Number,
+    longitude: Number,
+    mapUrl: String,
+  },
   country: String,
   reviews: [
     {

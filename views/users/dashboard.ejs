@@ -55,7 +55,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between">
             <div>
-              <h4>0</h4>
+              <h4><%= activeBookings || 0 %></h4>
               <p class="mb-0">Active Bookings</p>
             </div>
             <div class="stats-icon">
@@ -71,7 +71,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between">
             <div>
-              <h4>₹0</h4>
+              <h4>₹<%= totalEarnings || 0 %></h4>
               <p class="mb-0">Total Earnings</p>
             </div>
             <div class="stats-icon">

@@ -83,7 +83,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>ID Type:</strong> <%= host.idVerification && host.idVerification.idType ? host.idVerification.idType : 'N/A' %></p>
+                                <p><strong>ID Type:</strong> <%= host.identification && host.identification.idType ? host.identification.idType : 'N/A' %></p>
                                 <p><strong>Verification Status:</strong>
                                     <% if (host.idVerification && host.idVerification.status === 'verified') { %>
                                         <span class="badge bg-success">Verified</span>
@@ -95,9 +95,9 @@
                                 </p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>ID Number:</strong> <%= host.idVerification && host.idVerification.idNumber ? host.idVerification.idNumber : 'N/A' %></p>
-                                <% if (host.idVerification && host.idVerification.verificationNotes) { %>
-                                    <p><strong>Notes:</strong> <%= host.idVerification.verificationNotes %></p>
+                                <p><strong>ID Number:</strong> <%= host.identification && host.identification.idNumber ? host.identification.idNumber : 'N/A' %></p>
+                                <% if (host.idVerification && host.idVerification.reason) { %>
+                                    <p><strong>Notes:</strong> <%= host.idVerification.reason %></p>
                                 <% } %>
                             </div>
                         </div>
@@ -116,12 +116,12 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>Bank Account:</strong> <%= host.bankDetails && host.bankDetails.bankAccount ? host.bankDetails.bankAccount : 'N/A' %></p>
+                                <p><strong>Bank Account:</strong> <%= host.bankDetails && host.bankDetails.accountNumber ? host.bankDetails.accountNumber : 'N/A' %></p>
                                 <p><strong>Bank Name:</strong> <%= host.bankDetails && host.bankDetails.bankName ? host.bankDetails.bankName : 'N/A' %></p>
                                 <p><strong>Verification Status:</strong>
-                                    <% if (host.bankDetails && host.bankDetails.verificationStatus === 'verified') { %>
+                                    <% if (host.bankVerification && host.bankVerification.status === 'verified') { %>
                                         <span class="badge bg-success">Verified</span>
-                                    <% } else if (host.bankDetails && host.bankDetails.verificationStatus === 'rejected') { %>
+                                    <% } else if (host.bankVerification && host.bankVerification.status === 'rejected') { %>
                                         <span class="badge bg-danger">Rejected</span>
                                     <% } else { %>
                                         <span class="badge bg-warning">Pending</span>

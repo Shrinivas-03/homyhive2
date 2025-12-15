@@ -393,6 +393,9 @@ module.exports.verifyGovernmentId = async (req, res) => {
       .json({ success: false, message: "You must be logged in to do that." });
   }
 
+  // Get ID details from request body
+  const { idType, idNumber } = req.body;
+
   // Use ID from req.user (which could be from session or token)
   const userId = req.user.id;
   console.log("Looking for host with supabaseUserId:", userId);
@@ -423,6 +426,11 @@ module.exports.verifyGovernmentId = async (req, res) => {
 
   console.log("Host ready:", host._id);
 
+  // Save ID details
+  host.identification = host.identification || {};
+  host.identification.idType = idType;
+  host.identification.idNumber = idNumber;
+
   // Save files to host.documents
   if (req.files && req.files.idFront) {
     host.documents = host.documents || {};
@@ -431,6 +439,7 @@ module.exports.verifyGovernmentId = async (req, res) => {
       filename: req.files.idFront[0].filename,
       uploadedAt: new Date(),
     };
+    host.identification.idFront = req.files.idFront[0].filename;
   }
   if (req.files && req.files.idBack) {
     host.documents = host.documents || {};
@@ -439,6 +448,7 @@ module.exports.verifyGovernmentId = async (req, res) => {
       filename: req.files.idBack[0].filename,
       uploadedAt: new Date(),
     };
+    host.identification.idBack = req.files.idBack[0].filename;
   }
   // Set verification status to pending
   host.idVerification = host.idVerification || {};
@@ -467,7 +477,7 @@ module.exports.verifyBank = async (req, res) => {
     }
 
     const userId = req.user?.id || req.session.supabaseUser.id;
-    const { accountHolder, accountNumber, ifscCode } = req.body;
+    const { accountHolder, accountNumber, ifscCode, bankName, branchName } = req.body;
 
     if (!accountHolder || !accountNumber || !ifscCode) {
       return res
@@ -488,6 +498,8 @@ module.exports.verifyBank = async (req, res) => {
       accountHolder,
       accountNumber,
       ifscCode,
+      bankName: bankName || "Verified",
+      branchName: branchName || "Verified",
     };
 
     host.bankVerification = host.bankVerification || {};
@@ -537,100 +549,95 @@ module.exports.completeOnboarding = async (req, res) => {
 
     const {
       hostFirstName,
-
       hostLastName,
-
       hostEmail,
-
       hostPhone,
-
       hostBio,
-
+      hostDOB,
+      hostGender,
+      hostAddress,
+      hostCity,
+      hostState,
+      hostPinCode,
       propertyType,
-
       guests,
-
       title,
-
       price,
-
       cancellation,
-
       amenities,
+      propertyLatitude,
+      propertyLongitude,
+      propertyLocationAddress,
     } = req.body;
 
     console.log("Request body:", req.body);
 
     if (!req.session?.supabaseUser) {
       console.log("User not authenticated");
-
       return res
-
         .status(401)
-
         .json({ success: false, message: "You must be logged in to do that." });
     }
 
     const userId = req.session.supabaseUser.id;
-
     console.log("User ID:", userId);
 
     let host = await Host.findOne({ supabaseUserId: userId });
-
     console.log("Host found:", host);
 
     if (!host) {
       console.log("Host not found, creating new host");
-
       host = new Host({
         supabaseUserId: userId,
-
         personalInfo: {},
-
+        address: {},
         documents: {},
       });
     }
 
     host.personalInfo = {
       firstName: hostFirstName,
-
       lastName: hostLastName,
-
       email: hostEmail,
-
       phone: hostPhone,
-
       bio: hostBio,
+      dateOfBirth: hostDOB,
+      gender: hostGender,
+    };
+
+    host.address = {
+      address: hostAddress,
+      city: hostCity,
+      state: hostState,
+      pinCode: hostPinCode,
     };
 
     host.propertyDetails = {
       title,
-
       description: hostBio,
-
       price,
-
       propertyType,
-
       guests,
-
       cancellation,
-
       amenities,
     };
 
+    host.location = {
+      address: propertyLocationAddress,
+      latitude: propertyLatitude && !isNaN(propertyLatitude) ? parseFloat(propertyLatitude) : null,
+      longitude: propertyLongitude && !isNaN(propertyLongitude) ? parseFloat(propertyLongitude) : null,
+      mapUrl: propertyLatitude && propertyLongitude ? `https://www.openstreetmap.org/?lat=${propertyLatitude}&lon=${propertyLongitude}&zoom=15` : null,
+    };
+
     console.log("Property details:", host.propertyDetails);
+    console.log("Location data:", host.location);
 
     if (req.files && req.files.hostProfilePhoto) {
       host.documents = host.documents || {};
-
       host.documents.profilePhoto = {
         filename: req.files.hostProfilePhoto[0].filename,
-
         path: req.files.hostProfilePhoto[0].path,
-
         uploadedAt: new Date(),
-
         verificationStatus: "pending",
       };
     }
@@ -640,11 +647,8 @@ module.exports.completeOnboarding = async (req, res) => {
     if (req.files && req.files.propertyImages) {
       host.documents.propertyImages = req.files.propertyImages.map((f) => ({
         filename: f.filename,
-
         path: f.path,
-
         uploadedAt: new Date(),
-
         verificationStatus: "pending",
       }));
     }
@@ -654,11 +658,8 @@ module.exports.completeOnboarding = async (req, res) => {
     if (req.files && req.files.propertyVideo) {
       host.documents.propertyVideo = {
         filename: req.files.propertyVideo[0].filename,
-
         path: req.files.propertyVideo[0].path,
-
         uploadedAt: new Date(),
-
         verificationStatus: "pending",
       };
     }
@@ -675,18 +676,14 @@ module.exports.completeOnboarding = async (req, res) => {
 
     res.json({
       success: true,
-
       message:
         "Onboarding completed successfully! Your submission is pending approval.",
-
       hostId: host._id,
     });
   } catch (error) {
     console.error("💥 Onboarding Error:", error);
-
     res.status(500).json({
       success: false,
-
       message: "Onboarding failed: " + error.message,
     });
   }

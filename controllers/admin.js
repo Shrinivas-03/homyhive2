@@ -117,9 +117,10 @@ module.exports.approveProperty = async (req, res) => {
       owner: host.user,
       host: host._id,
       images: host.documents.propertyImages,
+      location: host.location,
       geometry: {
         type: "Point",
-        coordinates: [0, 0], // Add a default value for coordinates
+        coordinates: [host.location?.longitude || 0, host.location?.latitude || 0],
       },
     });
 

@@ -64,7 +64,26 @@ module.exports.renderDashboard = async (req, res) => {
     const userListings = await Listing.find({ owner: user._id });
     const totalListings = userListings.length;
     
-    res.render("users/dashboard.ejs", { user, userListings, totalListings });
+    // Calculate total views (sum of views from all listings)
+    let totalViews = 0;
+    userListings.forEach(listing => {
+      totalViews += listing.views || 0;
+    });
+    
+    // Calculate active bookings
+    const activeBookings = 0; // TODO: Count active bookings from Booking model
+    
+    // Calculate total earnings
+    const totalEarnings = 0; // TODO: Sum completed bookings revenue
+    
+    res.render("users/dashboard.ejs", { 
+      user, 
+      userListings, 
+      totalListings,
+      totalViews,
+      activeBookings,
+      totalEarnings
+    });
   } catch (err) {
     console.error("Dashboard render error:", err);
     req.flash("error", "Could not load dashboard.");

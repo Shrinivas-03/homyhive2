@@ -10,7 +10,11 @@ const hostSchema = new Schema(
     personalInfo: {
       firstName: String,
       lastName: String,
-      email: String,
+      email: {
+        type: String,
+        sparse: true,
+        default: null,
+      },
       phone: {
         type: String,
         sparse: true, // Allow multiple null values
@@ -19,6 +23,25 @@ const hostSchema = new Schema(
       dateOfBirth: String,
       gender: String,
       bio: String,
+    },
+    address: {
+      address: String,
+      city: String,
+      state: String,
+      pinCode: String,
+    },
+    identification: {
+      idType: String,
+      idNumber: String,
+      idFront: String,
+      idBack: String,
+    },
+    bankDetails: {
+      accountHolder: String,
+      accountNumber: String,
+      ifscCode: String,
+      bankName: String,
+      branchName: String,
     },
     // ... add the rest of your schema fields here
     user: {
@@ -66,6 +89,33 @@ const hostSchema = new Schema(
       price: Number,
       cancellation: String,
       amenities: [String],
+    },
+    location: {
+      address: String,
+      latitude: {
+        type: Number,
+        default: null,
+      },
+      longitude: {
+        type: Number,
+        default: null,
+      },
+      mapUrl: String,
+    },
+    identification: {
+      idType: String,
+      idNumber: String,
+      idFrontFile: String,
+      idBackFile: String,
+      submittedAt: Date,
+    },
+    bankDetails: {
+      accountHolder: String,
+      accountNumber: String,
+      ifscCode: String,
+      bankName: String,
+      branchName: String,
+      verifiedAt: Date,
     },
   },
   { timestamps: true },

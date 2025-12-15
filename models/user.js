@@ -19,23 +19,30 @@ const userSchema = new Schema({
     url: String,
     filename: String
   },
-  wishlist: [{ type: Schema.Types.ObjectId, ref: "Listing" }],
-
+  wishlist: [{ type: Schema.Types.ObjectId, ref: 'Listing' }],
   isHost: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },
-
-  status: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending"
-  },
-
   joinedDate: { type: Date, default: Date.now },
-  lastActive: { type: Date, default: Date.now }
-}, { timestamps: true });
+  lastActive: { type: Date, default: Date.now },
+  notifications: [{
+    message: String,
+    type: {
+      type: String,
+      enum: ['info', 'success', 'warning', 'error'],
+      default: 'info'
+    },
+    read: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+  }]
+}, {
+  timestamps: true,
+  autoIndex: false  // Prevent automatic index creation issues
+});
 
+// single unique index on email (one place only)
 userSchema.index({ email: 1 }, { unique: true, sparse: true });
 
+// Update lastActive on save (optional)
 userSchema.pre("save", function (next) {
   this.lastActive = new Date();
   next();

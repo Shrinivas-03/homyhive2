@@ -4,6 +4,8 @@
   <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/dist/umd/i18next.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/i18next-browser-languagedetector@7.2.0/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@4.5.0/dist/umd/i18nextHttpBackend.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Host onboarding</title>
@@ -56,6 +58,11 @@ body{margin:0;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialia
 .amenity-tag button{background:transparent;border:none;cursor:pointer;color:var(--muted);padding:0;font-size:16px;line-height:1}
 .amenity-tag button:hover{color:#111}
 @media(max-width:980px){.columns{grid-template-columns:1fr}.preview-thumb{width:96px;height:72px}}
+#propertyMap{width:100%;height:400px;border-radius:10px;margin-top:6px;border:1px solid rgba(15,23,42,0.06);background:#f3f4f6}
+.location-suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #eef2f7;border-radius:10px;max-height:200px;overflow-y:auto;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1)}
+.location-suggestion-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f3f4f6}
+.location-suggestion-item:hover{background:#f9fafb}
+
 </style>
 </head>
 <body>
@@ -121,6 +128,8 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
             <label>Last name <input id="hostLastName" class="input" required></label>
             <label>Email <input id="hostEmail" class="input" type="email" required></label>
             <label>Phone <input id="hostPhone" class="input" type="tel" required></label>
+            <label>Date of Birth <input id="hostDOB" class="input" type="date" required></label>
+            <label>Gender <select id="hostGender" class="input"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer-not-to-say">Prefer not to say</option></select></label>
           </div>
           <div>
             <label>Profile photo</label>
@@ -130,6 +139,17 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
           </div>
         </div>
         <label style="margin-top:12px">Short bio <textarea id="hostBio" class="input" placeholder="Introduce yourself"></textarea></label>
+        <div style="margin-top:12px;padding:12px;border-radius:10px;background:#f9fafb;border:1px solid #e5e7eb">
+          <h4 style="margin:0 0 12px">Address Information</h4>
+          <label>Full Address <input id="hostAddress" class="input" placeholder="Street address" required></label>
+          <div class="grid-2" style="margin-top:10px">
+            <label>City <input id="hostCity" class="input" required></label>
+            <label>State <input id="hostState" class="input" required></label>
+          </div>
+          <div class="grid-2" style="margin-top:10px">
+            <label>PIN Code <input id="hostPinCode" class="input" required></label>
+          </div>
+        </div>
         <div class="action-row">
           <button id="hostSave" type="button" class="btn ghost">Save draft</button>
           <button id="toProperty" type="button" class="btn primary">Next: Property</button>
@@ -160,6 +180,12 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         <div class="grid-2" style="margin-top:10px">
           <label>Price (INR) <input id="price" type="number" class="input" placeholder="1200"></label>
           <label>Cancellation <select id="cancellation" class="input"><option value="flexible">Flexible</option><option value="moderate">Moderate</option><option value="strict">Strict</option></select></label>
+        </div>
+        <div style="margin-top:12px;position:relative">
+          <label>Property Location <input id="propertyLocation" class="input" placeholder="Enter your property address" required></label>
+          <div id="locationSuggestions" class="location-suggestions" style="display:none"></div>
+          <div id="propertyMap"></div>
+          <div id="locationCoords" style="margin-top:6px;font-size:13px;color:var(--muted)">Coordinates: <span id="coordsDisplay">Not set</span></div>
         </div>
         <div style="margin-top:12px">
           <label class="small">Amenities</label>
@@ -333,7 +359,7 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
       showToast('Photo uploaded');
     });
 
-    ['hostFirstName', 'hostLastName', 'hostBio'].forEach(id => {
+    ['hostFirstName', 'hostLastName', 'hostBio', 'hostAddress', 'hostCity', 'hostState', 'hostPinCode', 'hostDOB', 'hostGender'].forEach(id => {
       const el = $(id);
       if (el) el.addEventListener('input', () => {
         $('previewHostName').textContent = ($('hostFirstName').value || '') + ($('hostLastName').value ? ' ' + $('hostLastName').value : '') || 'Your name';
@@ -343,14 +369,38 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
 
     $('hostSave').addEventListener('click', e => {
       e.preventDefault();
-      const draft = {firstName: $('hostFirstName').value, lastName: $('hostLastName').value, email: $('hostEmail').value, phone: $('hostPhone').value, bio: $('hostBio').value};
+      const draft = {
+        firstName: $('hostFirstName').value, 
+        lastName: $('hostLastName').value, 
+        email: $('hostEmail').value, 
+        phone: $('hostPhone').value, 
+        bio: $('hostBio').value,
+        dateOfBirth: $('hostDOB').value,
+        gender: $('hostGender').value,
+        address: $('hostAddress').value,
+        city: $('hostCity').value,
+        state: $('hostState').value,
+        pinCode: $('hostPinCode').value
+      };
       localStorage.setItem('hostDraft', JSON.stringify(draft));
       showToast('Draft saved');
     });
 
     $('toProperty').addEventListener('click', () => {
-      if (!$('hostFirstName').value.trim() || !$('hostEmail').value.trim()) { showToast('Fill required fields'); return; }
-      const draft = {firstName: $('hostFirstName').value, lastName: $('hostLastName').value, email: $('hostEmail').value, phone: $('hostPhone').value, bio: $('hostBio').value};
+      if (!$('hostFirstName').value.trim() || !$('hostEmail').value.trim() || !$('hostPhone').value.trim() || !$('hostDOB').value || !$('hostAddress').value.trim() || !$('hostCity').value.trim() || !$('hostState').value.trim() || !$('hostPinCode').value.trim()) { showToast('Fill all required fields'); return; }
+      const draft = {
+        firstName: $('hostFirstName').value, 
+        lastName: $('hostLastName').value, 
+        email: $('hostEmail').value, 
+        phone: $('hostPhone').value, 
+        bio: $('hostBio').value,
+        dateOfBirth: $('hostDOB').value,
+        gender: $('hostGender').value,
+        address: $('hostAddress').value,
+        city: $('hostCity').value,
+        state: $('hostState').value,
+        pinCode: $('hostPinCode').value
+      };
       try { localStorage.setItem('hostDraft', JSON.stringify(draft)); } catch(e) {}
       showPage('property');
     });
@@ -364,6 +414,12 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         $('hostEmail').value = data.email || '';
         $('hostPhone').value = data.phone || '';
         $('hostBio').value = data.bio || '';
+        $('hostDOB').value = data.dateOfBirth || '';
+        $('hostGender').value = data.gender || '';
+        $('hostAddress').value = data.address || '';
+        $('hostCity').value = data.city || '';
+        $('hostState').value = data.state || '';
+        $('hostPinCode').value = data.pinCode || '';
         $('previewHostName').textContent = (data.firstName || '') + (data.lastName ? ' ' + data.lastName : '') || 'Your name';
         $('previewHostBio').textContent = data.bio || 'Bio here';
       }
@@ -372,6 +428,70 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
 
   // PROPERTY PAGE
   (function(){
+    let map, marker, propertyCoordinates = null;
+
+    // Initialize map
+    function initMap(){
+      if (!map) {
+        map = L.map('propertyMap').setView([20.5937, 78.9629], 4); // Center on India
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+      }
+    }
+
+    // Geocode location using Nominatim
+    const locationInput = $('propertyLocation');
+    const suggestionsBox = $('locationSuggestions');
+    let suggestionsTimeout;
+
+    locationInput.addEventListener('input', async e => {
+      const query = e.target.value.trim();
+      if (query.length < 3) { suggestionsBox.style.display = 'none'; return; }
+
+      clearTimeout(suggestionsTimeout);
+      suggestionsTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
+          const results = await res.json();
+          
+          suggestionsBox.innerHTML = '';
+          if (results.length === 0) { suggestionsBox.style.display = 'none'; return; }
+          
+          results.forEach(r => {
+            const item = document.createElement('div');
+            item.className = 'location-suggestion-item';
+            item.textContent = r.display_name;
+            item.onclick = () => selectLocation(r);
+            suggestionsBox.appendChild(item);
+          });
+          suggestionsBox.style.display = 'block';
+        } catch(err) { console.error('Geocoding error:', err); }
+      }, 300);
+    });
+
+    function selectLocation(result){
+      const lat = parseFloat(result.lat);
+      const lon = parseFloat(result.lon);
+      locationInput.value = result.display_name;
+      propertyCoordinates = {latitude: lat, longitude: lon, address: result.display_name};
+      
+      $('coordsDisplay').textContent = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+      suggestionsBox.style.display = 'none';
+
+      // Update map
+      initMap();
+      map.setView([lat, lon], 13);
+      if (marker) map.removeLayer(marker);
+      marker = L.marker([lat, lon]).addTo(map).bindPopup(result.display_name);
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', e => {
+      if (e.target !== locationInput) suggestionsBox.style.display = 'none';
+    });
+
     function wireDrop(dropId, inputId, previewId, isMultiple, maxSize){
       const drop = $(dropId), input = $(inputId), preview = $(previewId);
       let files = [];
@@ -477,12 +597,15 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
 
     $('savePropertyDraft').addEventListener('click', e => {
       e.preventDefault();
-      const draft = {title: title.value, propertyType: pType.value, guests: guests.value, price: price.value, cancellation: $('cancellation').value, amenities: amenities};
+      const draft = {title: title.value, propertyType: pType.value, guests: guests.value, price: price.value, cancellation: $('cancellation').value, amenities: amenities, location: propertyCoordinates};
       localStorage.setItem('propertyDraft', JSON.stringify(draft));
       showToast('Draft saved');
     });
 
-    $('goVerify').addEventListener('click', () => showPage('verify'));
+    $('goVerify').addEventListener('click', () => {
+      if (!propertyCoordinates) { showToast('Please select a property location on the map'); return; }
+      showPage('verify');
+    });
 
     try {
       const saved = localStorage.getItem('propertyDraft');
@@ -494,6 +617,18 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         price.value = data.price || '';
         $('cancellation').value = data.cancellation || 'flexible';
         if (Array.isArray(data.amenities)) { amenities = data.amenities; renderAmenities(); }
+        
+        // Restore location and map
+        if (data.location) {
+          propertyCoordinates = data.location;
+          locationInput.value = data.location.address || '';
+          $('coordsDisplay').textContent = `${data.location.latitude.toFixed(4)}, ${data.location.longitude.toFixed(4)}`;
+          initMap();
+          map.setView([data.location.latitude, data.location.longitude], 13);
+          if (marker) map.removeLayer(marker);
+          marker = L.marker([data.location.latitude, data.location.longitude]).addTo(map).bindPopup(data.location.address);
+        }
+        
         updateMeta();
       }
     } catch(e) {}
@@ -592,6 +727,9 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
     $('v_verifyBank').addEventListener('click', async e => {
       e.preventDefault();
       const acct = $('v_bankAccount').value.trim(), ifsc = $('v_ifsc').value.trim(), holder = $('v_acctHolder').value.trim();
+      const bankName = $('v_bankName').textContent.trim() === '—' ? 'Verified' : $('v_bankName').textContent.trim();
+      const branchName = $('v_branchName').textContent.trim() === '—' ? 'Verified' : $('v_branchName').textContent.trim();
+      
       if (!acct || !ifsc || !holder) { showToast('Fill all fields'); return; }
 
       const btn = $('v_verifyBank');
@@ -599,7 +737,7 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
       btn.textContent = 'Verifying...';
 
       try {
-        const res = await fetch('/host/verify-bank', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include', body: JSON.stringify({accountHolder: holder, accountNumber: acct, ifscCode: ifsc})});
+        const res = await fetch('/host/verify-bank', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include', body: JSON.stringify({accountHolder: holder, accountNumber: acct, ifscCode: ifsc, bankName, branchName})});
         const data = await res.json().catch(() => ({}));
         if (res.ok) { showToast('Bank verified'); $('v_bankStatus').textContent = 'Verified ✓'; $('v_bankStatus').className = 'small status-verified'; logActivity('verificationActivity', 'Bank verified'); }
         else showToast(data.message || 'Failed');
@@ -627,6 +765,13 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         fd.append('hostEmail', hostDraft.email || '');
         fd.append('hostPhone', hostDraft.phone || '');
         fd.append('hostBio', hostDraft.bio || '');
+        fd.append('hostDOB', hostDraft.dateOfBirth || '');
+        fd.append('hostGender', hostDraft.gender || '');
+        fd.append('hostAddress', hostDraft.address || '');
+        fd.append('hostCity', hostDraft.city || '');
+        fd.append('hostState', hostDraft.state || '');
+        fd.append('hostPinCode', hostDraft.pinCode || '');
+        
         if ($('avatarDrop')._file) fd.append('hostProfilePhoto', $('avatarDrop')._file);
 
         fd.append('title', propertyDraft.title || '');
@@ -634,6 +779,14 @@ i18next.use(i18nextHttpBackend).use(i18nextBrowserLanguageDetector).init({
         fd.append('guests', propertyDraft.guests || '1');
         fd.append('price', propertyDraft.price || '');
         fd.append('cancellation', propertyDraft.cancellation || 'flexible');
+        
+        // Add location data
+        if (propertyDraft.location) {
+          fd.append('propertyLatitude', propertyDraft.location.latitude);
+          fd.append('propertyLongitude', propertyDraft.location.longitude);
+          fd.append('propertyLocationAddress', propertyDraft.location.address);
+        }
+        
         if (propertyDraft.amenities) propertyDraft.amenities.forEach(a => fd.append('amenities[]', a));
 
         if (window._propertyData && window._propertyData.imgs) {
