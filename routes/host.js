@@ -5,7 +5,7 @@ const hostsController = require("../controllers/hosts");
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
 const upload = multer({ storage });
-const supabase = require('../utils/supabase');
+const supabase = require("../utils/supabase");
 
 // Helper wrapper to catch async errors automatically
 const catchAsync = (fn) => (req, res, next) => {
@@ -46,16 +46,38 @@ router.post(
   catchAsync(hostsController.verifyGovernmentId),
 );
 
-router.get("/verify/status", supabase.supabaseAuthMiddleware, async (req, res) => {
-  if (!req.user) return res.json({ id: "not_submitted", bank: "not_verified", events: [] });
-  const host = await require("../models/host").findOne({ supabaseUserId: req.user.id });
-  if (!host) return res.json({ id: "not_submitted", bank: "not_verified", events: [] });
-  res.json({
-    id: host.idVerification?.status || "not_submitted",
-    bank: host.bankVerification?.status || "not_verified",
-    events: [] // Optionally, add a log of status changes
-  });
-});
+router.post(
+  "/verify-bank",
+  supabase.supabaseAuthMiddleware,
+  catchAsync(hostsController.verifyBank),
+);
+
+router.get(
+  "/verify/status",
+  supabase.supabaseAuthMiddleware,
+  async (req, res) => {
+    if (!req.user)
+      return res.json({
+        id: "not_submitted",
+        bank: "not_verified",
+        events: [],
+      });
+    const host = await require("../models/host").findOne({
+      supabaseUserId: req.user.id,
+    });
+    if (!host)
+      return res.json({
+        id: "not_submitted",
+        bank: "not_verified",
+        events: [],
+      });
+    res.json({
+      id: host.idVerification?.status || "not_submitted",
+      bank: host.bankVerification?.status || "not_verified",
+      events: [], // Optionally, add a log of status changes
+    });
+  },
+);
 
 // Admin routes
 router.get("/all", catchAsync(hostsController.getAllHostApplications));
@@ -74,11 +96,24 @@ router.post(
   catchAsync(hostsController.completeOnboarding),
 );
 
-
 // Razorpay onboarding payment order
-router.post('/create-onboarding-order', catchAsync(hostsController.createOnboardingOrder));
+router.post(
+  "/create-onboarding-order",
+  catchAsync(hostsController.createOnboardingOrder),
+);
 
 // Razorpay onboarding payment verification
-router.post('/verify-onboarding-payment', catchAsync(hostsController.verifyOnboardingPayment));
+router.post(
+  "/verify-onboarding-payment",
+  catchAsync(hostsController.verifyOnboardingPayment),
+);
+
+// Listing creation
+router.get("/listings/new", catchAsync(hostsController.renderNewListingForm));
+router.post(
+  "/listings",
+  upload.array("listing[image]"),
+  catchAsync(hostsController.createListing),
+);
 
 module.exports = router;

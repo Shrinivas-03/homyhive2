@@ -615,6 +615,52 @@
     padding: 0.25rem 0.5rem;
   }
 
+  /* Language Selector */
+  .language-selector-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .language-selector {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .language-selector:hover {
+    border-color: #fe424d;
+    box-shadow: 0 4px 12px rgba(254, 66, 77, 0.15);
+    background: #fff;
+  }
+
+  .language-selector:focus {
+    outline: none;
+    border-color: #fe424d;
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, 0.1);
+  }
+
+  .language-selector option {
+    padding: 0.5rem;
+    background: white;
+    color: #333;
+  }
+
+  @media (max-width: 992px) {
+    .language-selector {
+      min-width: 120px;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.6rem;
+    }
+  }
+
 </style>
 
 <nav class="navbar navbar-expand-lg homyhive-navbar">
@@ -636,19 +682,19 @@
         <li class="nav-item">
           <a class="nav-link" href="/listings">
             <i class="fa-solid fa-compass"></i>
-            Explore
+            <span id="navExplore">Explore</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/about">
             <i class="fa-solid fa-info-circle"></i>
-            About
+            <span id="navAbout">About</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/help">
             <i class="fa-solid fa-headset"></i>
-            Help
+            <span id="navHelp">Help</span>
           </a>
         </li>
       </ul>
@@ -712,6 +758,15 @@
           </div>
         </div>
         <% } %>
+        
+        <!-- Language Selector -->
+        <div class="language-selector-container me-3">
+          <select id="languageSelector" class="language-selector">
+            <option value="en">🇬🇧 English</option>
+            <option value="hi">🇮🇳 हिंदी</option>
+            <option value="kn">ಕನ್ನಡ</option>
+          </select>
+        </div>
         
         <!-- Host Dropdown Menu -->
         <div class="host-dropdown-container">
@@ -1093,6 +1148,138 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 200);
     });
   });
+});
+
+// Language Selector & Navbar Translation Functionality
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Setting up language selector...');
+  
+  // Create update function for navbar translations
+  window.updateNavbarLanguage = function() {
+    if (typeof i18next === 'undefined') {
+      console.warn('i18next not available yet');
+      return;
+    }
+    
+    console.log('Updating navbar language. Current lang:', i18next.language);
+    
+    try {
+      // Update navbar links
+      const navExplore = document.getElementById('navExplore');
+      if (navExplore) {
+        const text = i18next.t('explore', 'Explore');
+        console.log('navExplore translation:', text);
+        navExplore.textContent = text;
+      }
+      
+      const navAbout = document.getElementById('navAbout');
+      if (navAbout) {
+        const text = i18next.t('about', 'About');
+        console.log('navAbout translation:', text);
+        navAbout.textContent = text;
+      }
+      
+      const navHelp = document.getElementById('navHelp');
+      if (navHelp) {
+        const text = i18next.t('help', 'Help');
+        console.log('navHelp translation:', text);
+        navHelp.textContent = text;
+      }
+      
+      // Update search input placeholder
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        const placeholder = i18next.t('where_go', 'Where do you want to go?');
+        console.log('Search placeholder:', placeholder);
+        searchInput.placeholder = placeholder;
+      }
+      
+      // Update search button
+      const searchBtns = document.querySelectorAll('.search-btn');
+      searchBtns.forEach(btn => {
+        const text = i18next.t('search_btn', 'Search');
+        if (btn.innerHTML.includes('fa-search')) {
+          btn.innerHTML = '<i class="fa-solid fa-search"></i><span>' + text + '</span>';
+        }
+      });
+      
+      console.log('✓ Navbar translations updated');
+    } catch (e) {
+      console.error('Error updating navbar language:', e);
+    }
+  };
+  
+  // Setup language selector listener
+  const setupLanguageSelector = function() {
+    console.log('📍 setupLanguageSelector');
+    
+    const selector = document.getElementById('languageSelector');
+    if (!selector) {
+      console.log('⚠ Selector not found, retry');
+      setTimeout(setupLanguageSelector, 200);
+      return;
+    }
+    
+    console.log('✓ Selector found');
+    
+    // Set initial value
+    const saved = localStorage.getItem('preferredLanguage') || 'en';
+    selector.value = saved;
+    console.log('Initial value set to:', saved);
+    
+    // Handle changes
+    selector.addEventListener('change', function(e) {
+      const newLang = e.target.value;
+      console.log('\n>>> LANGUAGE CHANGED TO:', newLang, '<<<\n');
+      
+      if (typeof i18next === 'undefined' || !i18next.isInitialized) {
+        console.error('✗ i18next not ready');
+        return;
+      }
+      
+      localStorage.setItem('preferredLanguage', newLang);
+      
+      // Change language
+      i18next.changeLanguage(newLang, function(err, t) {
+        if (err) {
+          console.error('✗ Error:', err);
+          return;
+        }
+        
+        console.log('✓ Language changed to:', i18next.language);
+        console.log('Testing translations:');
+        console.log('  explore:', i18next.t('explore'));
+        console.log('  about:', i18next.t('about'));
+        console.log('  help:', i18next.t('help'));
+        
+        // Force UI update
+        setTimeout(function() {
+          console.log('Updating UI...');
+          if (typeof window.updateNavbarLanguage === 'function') {
+            window.updateNavbarLanguage();
+          }
+          if (typeof window.updatePageLanguage === 'function') {
+            window.updatePageLanguage();
+          }
+        }, 100);
+      });
+    });
+  };
+  
+  // Wait for i18next
+  const waitForReady = function() {
+    if (window.i18nextReady && typeof i18next !== 'undefined' && i18next.isInitialized) {
+      console.log('✓ i18next ready');
+      setupLanguageSelector();
+      return;
+    }
+    
+    console.log('⏳ Waiting...');
+    setTimeout(waitForReady, 100);
+  };
+  
+  console.log('🚀 Starting language selector setup');
+  waitForReady();
 });
 
 // Keyboard navigation for dropdowns

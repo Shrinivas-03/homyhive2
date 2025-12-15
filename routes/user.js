@@ -22,6 +22,8 @@ router
 const { isLoggedIn } = require("../middleware");
 // User profile
 router.get("/user/profile", isLoggedIn, userController.renderProfile);
+// User dashboard
+router.get("/users/dashboard", isLoggedIn, userController.renderDashboard);
 // User bookings
 router.get("/user/bookings", isLoggedIn, userController.renderBookings);
 // User wishlist

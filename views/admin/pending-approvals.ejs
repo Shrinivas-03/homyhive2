@@ -1,0 +1,64 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Pending Host Approvals</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/admin/dashboard" class="btn btn-outline-primary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <% if (hosts.length === 0) { %>
+        <div class="alert alert-info text-center">
+            <p>No pending approvals found.</p>
+        </div>
+    <% } else { %>
+        <% hosts.forEach(host => { %>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><%= host.personalInfo.firstName %> <%= host.personalInfo.lastName %></h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Personal Information</h6>
+                            <p><strong>Email:</strong> <%= host.personalInfo.email %></p>
+                            <p><strong>Phone:</strong> <%= host.personalInfo.phone %></p>
+                            <p><strong>Bio:</strong> <%= host.personalInfo.bio %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Property Details</h6>
+                            <p><strong>Title:</strong> <%= host.propertyDetails.title %></p>
+                            <p><strong>Description:</strong> <%= host.propertyDetails.description %></p>
+                            <p><strong>Property Type:</strong> <%= host.propertyDetails.propertyType %></p>
+                            <p><strong>Guests:</strong> <%= host.propertyDetails.guests %></p>
+                            <p><strong>Price:</strong> <%= host.propertyDetails.price %></p>
+                            <p><strong>Cancellation Policy:</strong> <%= host.propertyDetails.cancellation %></p>
+                            <p><strong>Amenities:</strong> <%= host.propertyDetails.amenities.join(', ') %></p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6>Documents</h6>
+                            <ul>
+                                <% for (const doc in host.documents) { %>
+                                    <li><a href="/<%= host.documents[doc].path.replace('public/', '') %>" target="_blank"><%= doc %></a></li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form action="/admin/approve-property/<%= host._id %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-success">Approve</button>
+                    </form>
+                    <form action="/admin/reject-property/<%= host._id %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Reject</button>
+                    </form>
+                </div>
+            </div>
+        <% }); %>
+    <% } %>
+</div>

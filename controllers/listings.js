@@ -5,6 +5,7 @@ const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 module.exports.index = async (req, res) => {
   try {
+    console.log("Entering index function");
     let { search, category, minPrice, maxPrice, guests, sortBy } = req.query;
     let filter = {};
 
@@ -15,7 +16,6 @@ module.exports.index = async (req, res) => {
         { description: searchRegex },
         { location: searchRegex },
         { country: searchRegex },
-        { "owner.username": searchRegex },
       ];
     }
     const validCategories = [
@@ -79,26 +79,41 @@ module.exports.index = async (req, res) => {
         sortOptions = { createdAt: -1 };
     }
 
-    const now = new Date();
-    const promotedFilter = { ...filter, promotionExpiresAt: { $gt: now } };
-    const regularFilter = {
-      ...filter,
-      $or: [
-        { promotionExpiresAt: { $lte: now } },
-        { promotionExpiresAt: { $exists: false } },
-      ],
-    };
+    const allListings = await Listing.aggregate([
+      {
+        $lookup: {
+          from: "hosts",
+          localField: "host",
+          foreignField: "_id",
+          as: "hostDetails",
+        },
+      },
+      {
+        $unwind: "$hostDetails",
+      },
+      {
+        $match: {
+          ...filter,
+          "hostDetails.applicationStatus": "approved",
+        },
+      },
+      {
+        $sort: sortOptions,
+      },
+    ]);
+    console.log("allListings from aggregation:", allListings);
 
-    const promotedListings = await Listing.find(promotedFilter)
-      .populate("owner")
-      .populate("reviews")
-      .sort(sortOptions);
-    const regularListings = await Listing.find(regularFilter)
-      .populate("owner")
-      .populate("reviews")
-      .sort(sortOptions);
+    await Listing.populate(allListings, { path: "owner reviews" });
+    console.log("allListings after populate:", allListings);
 
-    const allListings = [...promotedListings, ...regularListings];
+    const promotedListings = allListings.filter(
+      (listing) =>
+        listing.promotionExpiresAt && listing.promotionExpiresAt > new Date(),
+    );
+    const regularListings = allListings.filter(
+      (listing) =>
+        !listing.promotionExpiresAt || listing.promotionExpiresAt <= new Date(),
+    );
 
     const categoryCounts = await Listing.aggregate([
       { $group: { _id: "$category", count: { $sum: 1 } } },

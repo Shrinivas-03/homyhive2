@@ -51,6 +51,27 @@ module.exports.renderNotifications = (req, res) => {
   res.render("users/notifications.ejs", { user });
 };
 
+// Render dashboard page
+module.exports.renderDashboard = async (req, res) => {
+  try {
+    const user = res.locals.currUser;
+    if (!user) {
+      req.flash("error", "User not found. Please log in again.");
+      return res.redirect("/login");
+    }
+
+    // Get user's listings
+    const userListings = await Listing.find({ owner: user._id });
+    const totalListings = userListings.length;
+    
+    res.render("users/dashboard.ejs", { user, userListings, totalListings });
+  } catch (err) {
+    console.error("Dashboard render error:", err);
+    req.flash("error", "Could not load dashboard.");
+    res.redirect("/listings");
+  }
+};
+
 // ========================================
 // SIGNUP FLOW
 // ========================================

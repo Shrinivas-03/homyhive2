@@ -62,25 +62,25 @@ module.exports.renderHostOnboarding = async (req, res) => {
 
   // Check if user is authenticated
   if (!req.session?.supabaseUser) {
-    console.log('User not authenticated, redirecting to login');
-    return res.redirect('/users/login');
+    console.log("User not authenticated, redirecting to login");
+    return res.redirect("/users/login");
   }
 
   // ✅ Find host by Supabase user ID
   const userId = req.session.supabaseUser.id;
-  console.log('renderHostOnboarding: Finding host for user:', userId);
-  
+  console.log("renderHostOnboarding: Finding host for user:", userId);
+
   host = await Host.findOne({ supabaseUserId: userId });
   if (host) {
     listing = await Listing.findOne({ host: host._id });
   }
 
   // ✅ Pass session user to template
-  res.render("static/host", { 
-    host, 
-    listing, 
+  res.render("static/host", {
+    host,
+    listing,
     session: req.session,
-    isAuthenticated: !!req.session.supabaseUser 
+    isAuthenticated: !!req.session.supabaseUser,
   });
 };
 
@@ -372,29 +372,40 @@ module.exports.pincodeVerify = async (req, res) => {
 // ==========================================
 
 module.exports.verifyGovernmentId = async (req, res) => {
-  console.log('verifyGovernmentId called');
-  console.log('req.user:', req.user ? { id: req.user.id, email: req.user.email } : 'undefined');
-  console.log('req.session.supabaseUser:', req.session?.supabaseUser ? { id: req.session.supabaseUser.id, email: req.session.supabaseUser.email } : 'undefined');
-  
+  console.log("verifyGovernmentId called");
+  console.log(
+    "req.user:",
+    req.user ? { id: req.user.id, email: req.user.email } : "undefined",
+  );
+  console.log(
+    "req.session.supabaseUser:",
+    req.session?.supabaseUser
+      ? {
+          id: req.session.supabaseUser.id,
+          email: req.session.supabaseUser.email,
+        }
+      : "undefined",
+  );
+
   if (!req.user) {
     return res
       .status(401)
       .json({ success: false, message: "You must be logged in to do that." });
   }
-  
+
   // Use ID from req.user (which could be from session or token)
   const userId = req.user.id;
-  console.log('Looking for host with supabaseUserId:', userId);
-  
+  console.log("Looking for host with supabaseUserId:", userId);
+
   let host = await Host.findOne({ supabaseUserId: userId });
-  
+
   // If host doesn't exist, create one automatically
   if (!host) {
-    console.log('Host not found, creating new host for user:', userId);
-    
+    console.log("Host not found, creating new host for user:", userId);
+
     // Get email from user object (either from session or token)
     const userEmail = req.user.email;
-    
+
     host = new Host({
       supabaseUserId: userId,
       personalInfo: {
@@ -403,22 +414,22 @@ module.exports.verifyGovernmentId = async (req, res) => {
         lastName: req.user.username?.split(" ")[1] || "",
       },
       applicationStatus: "pending-verification",
-      documents: {}
+      documents: {},
     });
-    
+
     await host.save();
-    console.log('✓ New host created:', host._id);
+    console.log("✓ New host created:", host._id);
   }
-  
-  console.log('Host ready:', host._id);
-  
+
+  console.log("Host ready:", host._id);
+
   // Save files to host.documents
   if (req.files && req.files.idFront) {
     host.documents = host.documents || {};
     host.documents.idFront = {
       path: req.files.idFront[0].path,
       filename: req.files.idFront[0].filename,
-      uploadedAt: new Date()
+      uploadedAt: new Date(),
     };
   }
   if (req.files && req.files.idBack) {
@@ -426,18 +437,73 @@ module.exports.verifyGovernmentId = async (req, res) => {
     host.documents.idBack = {
       path: req.files.idBack[0].path,
       filename: req.files.idBack[0].filename,
-      uploadedAt: new Date()
+      uploadedAt: new Date(),
     };
   }
   // Set verification status to pending
   host.idVerification = host.idVerification || {};
   host.idVerification.status = "pending";
   host.idVerification.submittedAt = new Date();
-  
+
   await host.save();
-  
-  console.log('✓ ID verification submitted for host:', host._id);
-  res.json({ success: true, status: "pending", message: "ID submitted for verification" });
+
+  console.log("✓ ID verification submitted for host:", host._id);
+  res.json({
+    success: true,
+    status: "pending",
+    message: "ID submitted for verification",
+  });
+};
+
+// ==========================================
+// BANK VERIFICATION
+// ==========================================
+module.exports.verifyBank = async (req, res) => {
+  try {
+    if (!req.user && !req.session?.supabaseUser) {
+      return res
+        .status(401)
+        .json({ success: false, message: "You must be logged in" });
+    }
+
+    const userId = req.user?.id || req.session.supabaseUser.id;
+    const { accountHolder, accountNumber, ifscCode } = req.body;
+
+    if (!accountHolder || !accountNumber || !ifscCode) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
+    }
+
+    // Find host
+    let host = await Host.findOne({ supabaseUserId: userId });
+    if (!host) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Host not found" });
+    }
+
+    // Store bank details
+    host.bankDetails = {
+      accountHolder,
+      accountNumber,
+      ifscCode,
+    };
+
+    host.bankVerification = host.bankVerification || {};
+    host.bankVerification.status = "verified";
+    host.bankVerification.verifiedAt = new Date();
+
+    await host.save();
+
+    res.json({ success: true, message: "Bank verified successfully" });
+  } catch (error) {
+    console.error("Bank verification error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Verification failed: " + error.message,
+    });
+  }
 };
 
 // ==========================================
@@ -467,116 +533,237 @@ module.exports.updateApplicationStatus = async (req, res) => {
 
 module.exports.completeOnboarding = async (req, res) => {
   try {
+    console.log("Entering completeOnboarding function");
+
     const {
       hostFirstName,
+
       hostLastName,
+
       hostEmail,
+
       hostPhone,
+
       hostBio,
+
       propertyType,
+
       guests,
+
       title,
+
       price,
+
       cancellation,
+
       amenities,
     } = req.body;
 
-    // ✅ Check Supabase session (not req.user)
+    console.log("Request body:", req.body);
+
     if (!req.session?.supabaseUser) {
+      console.log("User not authenticated");
+
       return res
+
         .status(401)
+
         .json({ success: false, message: "You must be logged in to do that." });
     }
 
-    const userEmail = req.session.supabaseUser.email;
     const userId = req.session.supabaseUser.id;
 
-    // ✅ Create Host record
-    const newHost = new Host({
-      personalInfo: {
-        firstName: hostFirstName,
-        lastName: hostLastName,
-        email: hostEmail,
-        phone: hostPhone,
-        bio: hostBio,
-      },
-      supabaseUserId: userId, // ✅ Store Supabase user ID (not MongoDB ObjectId)
-      applicationStatus: "pending-approval",
-      documents: {},
-    });
+    console.log("User ID:", userId);
 
-    // Add profile photo
+    let host = await Host.findOne({ supabaseUserId: userId });
+
+    console.log("Host found:", host);
+
+    if (!host) {
+      console.log("Host not found, creating new host");
+
+      host = new Host({
+        supabaseUserId: userId,
+
+        personalInfo: {},
+
+        documents: {},
+      });
+    }
+
+    host.personalInfo = {
+      firstName: hostFirstName,
+
+      lastName: hostLastName,
+
+      email: hostEmail,
+
+      phone: hostPhone,
+
+      bio: hostBio,
+    };
+
+    host.propertyDetails = {
+      title,
+
+      description: hostBio,
+
+      price,
+
+      propertyType,
+
+      guests,
+
+      cancellation,
+
+      amenities,
+    };
+
+    console.log("Property details:", host.propertyDetails);
+
     if (req.files && req.files.hostProfilePhoto) {
-      newHost.documents.profilePhoto = {
+      host.documents = host.documents || {};
+
+      host.documents.profilePhoto = {
         filename: req.files.hostProfilePhoto[0].filename,
+
         path: req.files.hostProfilePhoto[0].path,
+
         uploadedAt: new Date(),
+
         verificationStatus: "pending",
       };
     }
 
-    // Add government ID documents from session
-    if (req.session.uploadedIdFiles) {
-      if (req.session.uploadedIdFiles.idFront) {
-        newHost.documents.governmentIdFront = {
-          filename: req.session.uploadedIdFiles.idFront.filename,
-          path: req.session.uploadedIdFiles.idFront.path,
-          uploadedAt: new Date(),
-          verificationStatus: "pending",
-        };
-      }
+    console.log("Profile photo:", host.documents.profilePhoto);
 
-      if (req.session.uploadedIdFiles.idBack) {
-        newHost.documents.governmentIdBack = {
-          filename: req.session.uploadedIdFiles.idBack.filename,
-          path: req.session.uploadedIdFiles.idBack.path,
-          uploadedAt: new Date(),
-          verificationStatus: "pending",
-        };
-      }
+    if (req.files && req.files.propertyImages) {
+      host.documents.propertyImages = req.files.propertyImages.map((f) => ({
+        filename: f.filename,
+
+        path: f.path,
+
+        uploadedAt: new Date(),
+
+        verificationStatus: "pending",
+      }));
     }
 
-    await newHost.save();
-    console.log("✅ Host created:", newHost._id);
+    console.log("Property images:", host.documents.propertyImages);
 
-    // ✅ Create Listing (store owner email instead of MongoDB User ID)
-    const newListing = new Listing({
-      title,
-      description: hostBio,
-      price,
-      propertyType,
-      guests,
-      cancellation,
-      amenities,
-      ownerEmail: userEmail, // ✅ Store email (not ObjectId)
-      host: newHost._id,
+    if (req.files && req.files.propertyVideo) {
+      host.documents.propertyVideo = {
+        filename: req.files.propertyVideo[0].filename,
+
+        path: req.files.propertyVideo[0].path,
+
+        uploadedAt: new Date(),
+
+        verificationStatus: "pending",
+      };
+    }
+
+    console.log("Property video:", host.documents.propertyVideo);
+
+    host.applicationStatus = "pending-approval";
+
+    console.log("Application status:", host.applicationStatus);
+
+    await host.save();
+
+    console.log("Host saved successfully");
+
+    res.json({
+      success: true,
+
+      message:
+        "Onboarding completed successfully! Your submission is pending approval.",
+
+      hostId: host._id,
     });
+  } catch (error) {
+    console.error("💥 Onboarding Error:", error);
 
-    // Add property images
-    if (req.files && req.files.propertyImages) {
-      newListing.images = req.files.propertyImages.map((f) => ({
+    res.status(500).json({
+      success: false,
+
+      message: "Onboarding failed: " + error.message,
+    });
+  }
+};
+// ==========================================
+// RENDER NEW LISTING FORM
+// ==========================================
+module.exports.renderNewListingForm = async (req, res) => {
+  try {
+    // Check if user is authenticated
+    if (!req.session?.supabaseUser) {
+      return res.redirect("/users/login");
+    }
+
+    const userId = req.session.supabaseUser.id;
+    const host = await Host.findOne({ supabaseUserId: userId });
+
+    if (!host) {
+      req.flash("error", "You must be a host to create a listing.");
+      return res.redirect("/");
+    }
+
+    if (!host.canCreateProperty) {
+      req.flash("error", "You are not enabled to create a listing.");
+      return res.redirect("/");
+    }
+
+    res.render("hosts/new-listing", { host });
+  } catch (error) {
+    console.error("Error rendering new listing form:", error);
+    req.flash("error", "Failed to render new listing form");
+    res.redirect("/");
+  }
+};
+
+// ==========================================
+// CREATE LISTING
+// ==========================================
+module.exports.createListing = async (req, res) => {
+  try {
+    // Check if user is authenticated
+    if (!req.session?.supabaseUser) {
+      return res.redirect("/users/login");
+    }
+
+    const userId = req.session.supabaseUser.id;
+    const host = await Host.findOne({ supabaseUserId: userId });
+
+    if (!host) {
+      req.flash("error", "You must be a host to create a listing.");
+      return res.redirect("/");
+    }
+
+    if (!host.canCreateProperty) {
+      req.flash("error", "You are not enabled to create a listing.");
+      return res.redirect("/");
+    }
+
+    const { listing } = req.body;
+    const newListing = new Listing(listing);
+    newListing.host = host._id;
+    newListing.owner = req.user._id;
+
+    if (req.files) {
+      newListing.images = req.files.map((f) => ({
         url: f.path,
         filename: f.filename,
       }));
     }
 
     await newListing.save();
-    console.log("✅ Listing created:", newListing._id);
 
-    // Clean up session
-    delete req.session.uploadedIdFiles;
-
-    res.json({
-      success: true,
-      message: "Onboarding completed successfully!",
-      hostId: newHost._id,
-      listingId: newListing._id,
-    });
+    req.flash("success", "Listing created successfully!");
+    res.redirect(`/listings/${newListing._id}`);
   } catch (error) {
-    console.error("💥 Onboarding Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Onboarding failed: " + error.message,
-    });
+    console.error("Error creating listing:", error);
+    req.flash("error", "Failed to create listing");
+    res.redirect("/hosts/listings/new");
   }
 };

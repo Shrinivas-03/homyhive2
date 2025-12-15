@@ -15,6 +15,10 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
 <link rel="stylesheet" href="/css/fix-footer.css">
 <link rel="stylesheet" href="/chatbot/chatbot.css">
+<!-- i18next for multi-language support -->
+<script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/dist/umd/i18next.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@4.5.0/dist/umd/i18nextHttpBackend.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/i18next-browser-languagedetector@7.2.0/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
 <style>
   /* Global navbar spacing */
   body {
@@ -49,5 +53,295 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
     <script src="/js/script.js"></script>
     <script src="/chatbot/chatbot.js"></script>
+    
+    <!-- i18next initialization with embedded resources -->
+    <script>
+      console.log('=== i18next Init with Full Embedded Resources ===');
+      
+      // Complete embedded translation resources
+      const resources = {
+        en: { translation: {
+          search: 'Search destinations',
+          categories: 'All Categories',
+          minPrice: 'Min Price',
+          maxPrice: 'Max Price',
+          guests: 'Any Guests',
+          payNow: 'Pay Now',
+          securePayment: 'Secure Payment',
+          totalAfterTax: 'Display total after taxes',
+          onboarding_title: 'Host onboarding',
+          onboarding_subtitle: 'Complete profile, verify documents & list your place',
+          step_host: 'Host',
+          step_property: 'Property',
+          step_verify: 'Verification',
+          preview_button: 'Preview',
+          host_details_title: 'Host details',
+          host_details_desc: 'Add contact info, profile photo and initial verification documents.',
+          explore: 'Explore',
+          about: 'About',
+          help: 'Help',
+          where_go: 'Where do you want to go?',
+          search_btn: 'Search',
+          all_listings: 'All Listings',
+          no_image: 'No Image Available',
+          no_results: 'No properties found',
+          login: 'Log in',
+          signup: 'Sign up',
+          host_services: 'Host Services',
+          become_host: 'Become a Host',
+          register_start_earning: 'Register and start earning',
+          host_resources: 'Host Resources',
+          guides_tools: 'Guides and tools for hosts',
+          host_support: 'Host Support',
+          get_help_assistance: 'Get help and assistance',
+          profile: 'My Profile',
+          bookings: 'My Bookings',
+          wishlists: 'Wishlists',
+          list_space: 'List Your Space',
+          manage_listings: 'Manage Listings',
+          help_center: 'Help Center',
+          settings: 'Account Settings',
+          logout: 'Log out',
+          notifications: 'Notifications',
+          clear_all: 'Clear All',
+          view_all: 'View All',
+          trending: 'Trending',
+          rooms: 'Rooms',
+          iconic_cities: 'Iconic Cities',
+          mountains: 'Mountains',
+          beaches: 'Beaches',
+          castles: 'Castles',
+          amazing_pools: 'Amazing Pools',
+          lakefront: 'Lakefront',
+          countryside: 'Countryside',
+          camping: 'Camping',
+          cabins: 'Cabins',
+          farms: 'Farms'
+        } },
+        hi: { translation: {
+          search: 'गंतव्य खोजें',
+          categories: 'सभी श्रेणियाँ',
+          minPrice: 'न्यूनतम मूल्य',
+          maxPrice: 'अधिकतम मूल्य',
+          guests: 'अतिथि',
+          payNow: 'अभी भुगतान करें',
+          securePayment: 'सुरक्षित भुगतान',
+          totalAfterTax: 'कर के बाद कुल दिखाएं',
+          onboarding_title: 'होस्ट ऑनबोर्डिंग',
+          onboarding_subtitle: 'प्रोफाइल पूरी करें, दस्तावेज़ सत्यापित करें और अपना स्थान सूचीबद्ध करें',
+          step_host: 'होस्ट',
+          step_property: 'संपत्ति',
+          step_verify: 'सत्यापन',
+          preview_button: 'पूर्वावलोकन',
+          host_details_title: 'होस्ट विवरण',
+          host_details_desc: 'संपर्क जानकारी, प्रोफाइल फोटो और प्रारंभिक सत्यापन दस्तावेज़ जोड़ें।',
+          explore: 'खोजें',
+          about: 'परिचय',
+          help: 'सहायता',
+          where_go: 'आप कहाँ जाना चाहते हैं?',
+          search_btn: 'खोजें',
+          all_listings: 'सभी सूचियाँ',
+          no_image: 'कोई छवि उपलब्ध नहीं',
+          no_results: 'कोई संपत्ति नहीं मिली',
+          login: 'लॉगिन करें',
+          signup: 'साइन अप करें',
+          host_services: 'होस्ट सेवाएं',
+          become_host: 'होस्ट बनें',
+          register_start_earning: 'पंजीकरण करें और कमाना शुरू करें',
+          host_resources: 'होस्ट संसाधन',
+          guides_tools: 'होस्ट के लिए गाइड और उपकरण',
+          host_support: 'होस्ट समर्थन',
+          get_help_assistance: 'सहायता और सहायता प्राप्त करें',
+          profile: 'मेरी प्रोफाइल',
+          bookings: 'मेरी बुकिंग',
+          wishlists: 'विशलिस्ट',
+          list_space: 'अपना स्थान सूचीबद्ध करें',
+          manage_listings: 'सूचियाँ प्रबंधित करें',
+          help_center: 'सहायता केंद्र',
+          settings: 'खाता सेटिंग्स',
+          logout: 'लॉगआउट करें',
+          notifications: 'सूचनाएं',
+          clear_all: 'सभी को साफ़ करें',
+          view_all: 'सभी देखें',
+          trending: 'ट्रेंडिंग',
+          rooms: 'कमरे',
+          iconic_cities: 'प्रतिष्ठित शहर',
+          mountains: 'पहाड़',
+          beaches: 'समुद्र तट',
+          castles: 'किले',
+          amazing_pools: 'अद्भुत पूल',
+          lakefront: 'झील के किनारे',
+          countryside: 'ग्रामीण क्षेत्र',
+          camping: 'कैंपिंग',
+          cabins: 'केबिन',
+          farms: 'खेत'
+        } },
+        kn: { translation: {
+          search: 'ಗಮ್ಯಸ್ಥಾನ ಹುಡುಕಿ',
+          categories: 'ಎಲ್ಲಾ ವರ್ಗಗಳು',
+          minPrice: 'ಕನಿಷ್ಠ ಬೆಲೆ',
+          maxPrice: 'ಗರಿಷ್ಠ ಬೆಲೆ',
+          guests: 'ಅತಿಥಿಗಳು',
+          payNow: 'ಈಗ ಪಾವತಿಸಿ',
+          securePayment: 'ಸುರಕ್ಷಿತ ಪಾವತಿ',
+          totalAfterTax: 'ತೆರಿಗೆ ನಂತರದ ಮೊತ್ತ ತೋರಿಸಿ',
+          onboarding_title: 'ಹೋಸ್ಟ್ ಆನ್‌ಬೋರ್ಡಿಂಗ್',
+          onboarding_subtitle: 'ಪ್ರೋಫೈಲ್ ಪೂರ್ಣ ಮಾಡಿ, ದಸ್ತಾವೇಜುಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಟ್ಟಿಮಾಡಿ',
+          step_host: 'ಹೋಸ್ಟ್',
+          step_property: 'ಆಸ್ತಿ',
+          step_verify: 'ಪರಿಶೀಲನೆ',
+          preview_button: 'ಪೂರ್ವವೀಕ್ಷಣೆ',
+          host_details_title: 'ಹೋಸ್ಟ್ ವಿವರಣೆ',
+          host_details_desc: 'ಸಂಪರ್ಕ ಮಾಹಿತಿ, ಪ್ರೋಫೈಲ್ ಫೋಟೋ ಮತ್ತು ಆರಂಭಿಕ ಪರಿಶೀಲನೆ ದಸ್ತಾವೇಜುಗಳನ್ನು ಸೇರಿಸಿ.',
+          explore: 'ಅನ್ವೇಷಿಸಿ',
+          about: 'ಬಗ್ಗೆ',
+          help: 'ಸಹಾಯ',
+          where_go: 'ನೀವು ಎಲ್ಲಿ ಹೋಗಲು ಬಯಸುತ್ತೀರಿ?',
+          search_btn: 'ಹುಡುಕಿ',
+          all_listings: 'ಎಲ್ಲಾ ಪಟ್ಟಿಗಳು',
+          no_image: 'ಯಾವುದೇ ಚಿತ್ರ ಲಭ್ಯವಿಲ್ಲ',
+          no_results: 'ಯಾವುದೇ ಆಸ್ತಿ ಕಂಡುಬಂದಿಲ್ಲ',
+          login: 'ಲಾಗಿನ್ ಮಾಡಿ',
+          signup: 'ಸೈನ್ ಅಪ್ ಮಾಡಿ',
+          host_services: 'ಹೋಸ್ಟ್ ಸೇವೆಗಳು',
+          become_host: 'ಹೋಸ್ಟ್ ಆಗಿರಿ',
+          register_start_earning: 'ನೋಂದಾಯಿಸಿ ಮತ್ತು ಗಳಿಸಲು ಪ್ರಾರಂಭಿಸಿ',
+          host_resources: 'ಹೋಸ್ಟ್ ಸಂಪನ್ಮೂಲಗಳು',
+          guides_tools: 'ಹೋಸ್ಟ್‌ಗಳ ಮಾರ್ಗದರ್ಶನ ಮತ್ತು ಸರಂಜಾಮು',
+          host_support: 'ಹೋಸ್ಟ್ ಸಹಾಯ',
+          get_help_assistance: 'ಸಹಾಯ ಮತ್ತು ಸಹಾಯತೆ ಪಡೆಯಿರಿ',
+          profile: 'ನನ್ನ ಪ್ರೋಫೈಲ್',
+          bookings: 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+          wishlists: 'ವಿಶ್ಲಿಸ್ಟ್‌ಗಳು',
+          list_space: 'ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಟ್ಟಿಮಾಡಿ',
+          manage_listings: 'ಪಟ್ಟಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ',
+          help_center: 'ಸಹಾಯ ಕೇಂದ್ರ',
+          settings: 'ಖಾತೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
+          logout: 'ಲಾಗ್‌ಔಟ್ ಮಾಡಿ',
+          notifications: 'ಸೂಚನೆಗಳು',
+          clear_all: 'ಎಲ್ಲವನ್ನೂ ತೆರವು ಮಾಡಿ',
+          view_all: 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ',
+          trending: 'ಟ್ರೆಂಡಿಂಗ್',
+          rooms: 'ಕೋಣೆಗಳು',
+          iconic_cities: 'ಪ್ರತಿನಿಧಿ ನಗರಗಳು',
+          mountains: 'ಪರ್ವತಗಳು',
+          beaches: 'ಸೈಮೆಟಲ',
+          castles: 'ಕಸೋಟಿಗಳು',
+          amazing_pools: 'ಅದ್ಭುತ ಮೀನು ಕೊಳಗಳು',
+          lakefront: 'ಸರೋವರ ಪ್ರಭಾವಿತ',
+          countryside: 'ಗ್ರಾಮೀಣ ಪ್ರದೇಶ',
+          camping: 'ಶಿಬಿರ',
+          cabins: 'ಕ್ಯಾಬಿನ್‌ಗಳು',
+          farms: 'ಜೋಪನೆಗಳು'
+        } }
+      };
+      
+      // Store translation keys for elements
+      window.translatableElements = [];
+      
+      // Wait for i18next
+      let waitCount = 0;
+      function waitForI18next() {
+        if (typeof i18next === 'undefined') {
+          waitCount++;
+          if (waitCount < 50) {
+            setTimeout(waitForI18next, 50);
+            return;
+          }
+          console.error('✗ i18next failed to load');
+          return;
+        }
+        
+        const savedLng = localStorage.getItem('preferredLanguage') || 'en';
+        
+        i18next.init({
+          lng: savedLng,
+          fallbackLng: 'en',
+          defaultNS: 'translation',
+          ns: ['translation'],
+          resources: resources,
+          interpolation: {
+            escapeValue: false
+          }
+        }, function(err, t) {
+          if (err) {
+            console.error('✗ i18next error:', err);
+            return;
+          }
+          
+          console.log('✓ i18next ready');
+          console.log('  Language:', i18next.language);
+          
+          window.i18nextReady = true;
+          
+          // Mark translatable elements
+          window.markTranslatableElements();
+          
+          setTimeout(() => {
+            if (typeof window.updateNavbarLanguage === 'function') {
+              window.updateNavbarLanguage();
+            }
+            if (typeof window.updatePageLanguage === 'function') {
+              window.updatePageLanguage();
+            }
+          }, 300);
+        });
+      }
+      
+      // Function to mark elements with translation data
+      window.markTranslatableElements = function() {
+        console.log('Marking translatable elements...');
+        
+        // Clear previous marks
+        window.translatableElements = [];
+        
+        const categoryMapping = {
+          'All': 'categories',
+          'Trending': 'trending',
+          'Rooms': 'rooms',
+          'Iconic Cities': 'iconic_cities',
+          'Mountains': 'mountains',
+          'Beaches': 'beaches',
+          'Castles': 'castles',
+          'Amazing Pools': 'amazing_pools',
+          'Lakefront': 'lakefront',
+          'Countryside': 'countryside',
+          'Camping': 'camping',
+          'Cabins': 'cabins',
+          'Farms': 'farms',
+          'Treehouses': 'treehouses',
+          'Boats': 'boats',
+          'Windmills': 'windmills',
+          'Caves': 'caves',
+          'Domes': 'domes',
+          'Luxe': 'luxe',
+          'Design': 'design',
+          'Tiny Homes': 'tiny_homes'
+        };
+        
+        // Find and mark all elements with translatable text
+        document.querySelectorAll('span, button, a, div.category-item, h6, li, p').forEach(el => {
+          // Skip if has children (except simple icon or small content)
+          if (el.children.length > 2) return;
+          
+          const text = el.textContent.trim();
+          if (!text || text.length === 0) return;
+          
+          // Check categories
+          for (const [eng, key] of Object.entries(categoryMapping)) {
+            if (text === eng || text.includes(eng)) {
+              el.dataset.translationKey = key;
+              window.translatableElements.push(el);
+              console.log('  Marked:', eng, '→', key);
+              return;
+            }
+          }
+        });
+        
+        console.log('✓ Marked', window.translatableElements.length, 'elements for translation');
+      };
+      
+      waitForI18next();
+    </script>
 </body>
 </html>

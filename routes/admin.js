@@ -33,6 +33,26 @@ router.put(
   wrapAsync(adminController.updateHostStatus),
 );
 
+router.post(
+  "/host-requests/:id/approve",
+  isLoggedIn,
+  isAdmin,
+  wrapAsync(adminController.approveHost),
+);
+router.post(
+  "/host-requests/:id/reject",
+  isLoggedIn,
+  isAdmin,
+  wrapAsync(adminController.rejectHost),
+);
+
+router.post(
+  "/host-requests/:id/enable-property-creation",
+  isLoggedIn,
+  isAdmin,
+  wrapAsync(adminController.enablePropertyCreation),
+);
+
 router.get(
   "/hosts",
   isLoggedIn,
@@ -44,6 +64,27 @@ router.post(
   isLoggedIn,
   isAdmin,
   wrapAsync(hostController.updateApplicationStatus),
+);
+
+router.get(
+  "/pending-approvals",
+  isLoggedIn,
+  isAdmin,
+  wrapAsync(adminController.viewPendingApprovals),
+);
+
+router.post(
+  "/approve-property/:id",
+  isLoggedIn,
+  isAdmin,
+  wrapAsync(adminController.approveProperty),
+);
+
+router.post(
+  "/reject-property/:id",
+  isLoggedIn,
+  isAdmin,
+  wrapAsync(adminController.rejectProperty),
 );
 
 module.exports = router;

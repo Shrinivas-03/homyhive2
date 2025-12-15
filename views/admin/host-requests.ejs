@@ -69,7 +69,28 @@
                             </div>
                         </td>
                         <td>
-                            <a href="/admin/host-requests/<%= req._id %>" class="btn btn-sm btn-primary">View Details</a>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-<%= req._id %>" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-<%= req._id %>">
+                                    <li><a class="dropdown-item" href="/admin/host-requests/<%= req._id %>">View Details</a></li>
+                                    <% if (req.applicationStatus !== 'approved') { %>
+                                        <li>
+                                            <form action="/admin/host-requests/<%= req._id %>/approve" method="POST">
+                                                <button type="submit" class="dropdown-item">Approve</button>
+                                            </form>
+                                        </li>
+                                    <% } %>
+                                    <% if (req.applicationStatus !== 'rejected') { %>
+                                        <li>
+                                            <form action="/admin/host-requests/<%= req._id %>/reject" method="POST">
+                                                <button type="submit" class="dropdown-item">Reject</button>
+                                            </form>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 <% }); %>
