@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const hostsController = require("../controllers/hosts");
 const multer = require("multer");
-const { storage } = require("../cloudConfig.js");
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const supabase = require("../utils/supabase");
 
@@ -21,7 +21,12 @@ router.post("/register", catchAsync(hostsController.hostRegister));
 router.post(
   "/upload/:applicationId",
   supabase.supabaseAuthMiddleware,
-  hostsController.uploadDocuments,
+  upload.fields([
+    { name: "profilePhoto", maxCount: 1 },
+    { name: "governmentId", maxCount: 1 },
+    { name: "bankStatement", maxCount: 1 },
+    { name: "addressProof", maxCount: 1 },
+  ]),
   catchAsync(hostsController.handleDocumentUpload),
 );
 

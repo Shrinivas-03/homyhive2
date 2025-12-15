@@ -6,52 +6,7 @@ const Listing = require("../models/listing.js");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-
-// ==========================================
-// MULTER CONFIGURATION
-// ==========================================
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, "../public/uploads/host-documents");
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const fileExtension = path.extname(file.originalname);
-    cb(null, file.fieldname + "-" + uniqueSuffix + fileExtension);
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|pdf|doc|docx/;
-  const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase(),
-  );
-  const mimetype = allowedTypes.test(file.mimetype);
-
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb(new Error("Only images and documents (PDF, DOC) are allowed!"), false);
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: fileFilter,
-});
-
-module.exports.uploadDocuments = upload.fields([
-  { name: "profilePhoto", maxCount: 1 },
-  { name: "governmentId", maxCount: 1 },
-  { name: "bankStatement", maxCount: 1 },
-  { name: "addressProof", maxCount: 1 },
-]);
+const uploadToImgBB = require("../utils/imgbb");
 
 // ==========================================
 // RENDER HOST ONBOARDING PAGE
@@ -270,18 +225,21 @@ module.exports.handleDocumentUpload = async (req, res) => {
         .json({ success: false, message: "Host not found" });
 
     if (req.files) {
-      Object.keys(req.files).forEach((fieldName) => {
+      for (const fieldName of Object.keys(req.files)) {
         if (req.files[fieldName]?.[0]) {
           const file = req.files[fieldName][0];
-          if (!host.documents) host.documents = {};
-          host.documents[fieldName] = {
-            filename: file.filename,
-            path: file.path,
-            uploadedAt: new Date(),
-            verificationStatus: "pending",
-          };
+          const imageUrl = await uploadToImgBB(file);
+          if (imageUrl) {
+            if (!host.documents) host.documents = {};
+            host.documents[fieldName] = {
+              filename: file.originalname,
+              path: imageUrl, // Save ImgBB URL
+              uploadedAt: new Date(),
+              verificationStatus: "pending",
+            };
+          }
         }
-      });
+      }
     }
 
     const requiredDocs = [
@@ -292,7 +250,7 @@ module.exports.handleDocumentUpload = async (req, res) => {
     ];
 
     const uploadedDocs = host.documents
-      ? Object.keys(host.documents).filter((d) => host.documents[d]?.filename)
+      ? Object.keys(host.documents).filter((d) => host.documents[d]?.path)
       : [];
 
     if (requiredDocs.every((d) => uploadedDocs.includes(d))) {
@@ -433,23 +391,31 @@ module.exports.verifyGovernmentId = async (req, res) => {
 
   // Save files to host.documents
   if (req.files && req.files.idFront) {
-    host.documents = host.documents || {};
-    host.documents.idFront = {
-      path: req.files.idFront[0].path,
-      filename: req.files.idFront[0].filename,
-      uploadedAt: new Date(),
-    };
-    host.identification.idFront = req.files.idFront[0].filename;
+    const idFrontFile = req.files.idFront[0];
+    const idFrontUrl = await uploadToImgBB(idFrontFile);
+    if (idFrontUrl) {
+      host.documents = host.documents || {};
+      host.documents.idFront = {
+        path: idFrontUrl,
+        filename: idFrontFile.originalname,
+        uploadedAt: new Date(),
+      };
+      host.identification.idFront = idFrontFile.originalname;
+    }
   }
 
   if (req.files && req.files.idBack) {
-    host.documents = host.documents || {};
-    host.documents.idBack = {
-      path: req.files.idBack[0].path,
-      filename: req.files.idBack[0].filename,
-      uploadedAt: new Date(),
-    };
-    host.identification.idBack = req.files.idBack[0].filename;
+    const idBackFile = req.files.idBack[0];
+    const idBackUrl = await uploadToImgBB(idBackFile);
+    if (idBackUrl) {
+      host.documents = host.documents || {};
+      host.documents.idBack = {
+        path: idBackUrl,
+        filename: idBackFile.originalname,
+        uploadedAt: new Date(),
+      };
+      host.identification.idBack = idBackFile.originalname;
+    }
   }
 
   // Set verification status to pending
@@ -643,38 +609,48 @@ module.exports.completeOnboarding = async (req, res) => {
       host.documents = host.documents || {};
 
       if (req.files.hostProfilePhoto && req.files.hostProfilePhoto[0]) {
-        host.documents.profilePhoto = {
-          filename: req.files.hostProfilePhoto[0].filename,
-          path: req.files.hostProfilePhoto[0].path,
-          uploadedAt: new Date(),
-          verificationStatus: "pending",
-        };
-        console.log(
-          "✅ Profile photo uploaded:",
-          req.files.hostProfilePhoto[0].filename,
-        );
+        const profilePhotoFile = req.files.hostProfilePhoto[0];
+        const profilePhotoUrl = await uploadToImgBB(profilePhotoFile);
+        if (profilePhotoUrl) {
+          host.documents.profilePhoto = {
+            filename: profilePhotoFile.originalname,
+            path: profilePhotoUrl,
+            uploadedAt: new Date(),
+            verificationStatus: "pending",
+          };
+          console.log(
+            "✅ Profile photo uploaded:",
+            profilePhotoFile.originalname,
+          );
+        }
       }
 
       if (req.files.propertyImages && req.files.propertyImages.length > 0) {
-        host.documents.propertyImages = req.files.propertyImages.map((f) => ({
-          filename: f.filename,
-          path: f.path,
+        const propertyImageUrls = [];
+        for (const file of req.files.propertyImages) {
+          const imageUrl = await uploadToImgBB(file);
+          if (imageUrl) {
+            propertyImageUrls.push({
+              filename: file.originalname,
+              url: imageUrl,
+            });
+          }
+        }
+        host.documents.propertyImages = propertyImageUrls.map((img) => ({
+          filename: img.filename,
+          path: img.url,
           uploadedAt: new Date(),
           verificationStatus: "pending",
         }));
-        console.log(
-          `✅ ${req.files.propertyImages.length} property images uploaded`,
-        );
+        console.log(`✅ ${propertyImageUrls.length} property images uploaded`);
       }
 
       if (req.files.propertyVideo && req.files.propertyVideo[0]) {
-        host.documents.propertyVideo = {
-          filename: req.files.propertyVideo[0].filename,
-          path: req.files.propertyVideo[0].path,
-          uploadedAt: new Date(),
-          verificationStatus: "pending",
-        };
-        console.log("✅ Property video uploaded");
+        // ImgBB does not support video uploads in the free tier.
+        // I will skip this for now.
+        console.log(
+          "✅ Property video upload skipped (ImgBB does not support video).",
+        );
       }
     }
 
@@ -697,10 +673,10 @@ module.exports.completeOnboarding = async (req, res) => {
     }
 
     // Prepare listing images
-    const listingImages = req.files?.propertyImages
-      ? req.files.propertyImages.map((f) => ({
-          url: f.path,
-          filename: f.filename,
+    const listingImages = host.documents.propertyImages
+      ? host.documents.propertyImages.map((img) => ({
+          url: img.path,
+          filename: img.filename,
         }))
       : [];
 
@@ -830,10 +806,17 @@ module.exports.createListing = async (req, res) => {
     newListing.ownerEmail = req.session.supabaseUser.email;
 
     if (req.files) {
-      newListing.images = req.files.map((f) => ({
-        url: f.path,
-        filename: f.filename,
-      }));
+      const imageUrls = [];
+      for (const file of req.files) {
+        const imageUrl = await uploadToImgBB(file);
+        if (imageUrl) {
+          imageUrls.push({
+            url: imageUrl,
+            filename: file.originalname,
+          });
+        }
+      }
+      newListing.images = imageUrls;
     }
 
     await newListing.save();

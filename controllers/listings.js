@@ -1,5 +1,6 @@
 const Listing = require("../models/listing");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const uploadToImgBB = require("../utils/imgbb");
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
@@ -218,7 +219,6 @@ module.exports.createListing = async (req, res, next) => {
     return res.redirect("/listings/new");
   }
   try {
-    console.log("Creating listing with data:", req.body.listing);
     let response = await geocodingClient
       .forwardGeocode({
         query: req.body.listing.location,
@@ -226,39 +226,26 @@ module.exports.createListing = async (req, res, next) => {
       })
       .send();
 
-    console.log("Mapbox response:", JSON.stringify(response.body, null, 2));
-
     if (!response.body.features.length) {
       throw new ExpressError("Invalid location provided", 400);
     }
 
-    const { path: url, filename } = req.file;
+    const imageUrl = await uploadToImgBB(req.file);
+    if (!imageUrl) {
+      throw new ExpressError("Image upload failed", 500);
+    }
 
-    // Log the geometry from Mapbox
-    const mapboxGeometry = response.body.features[0].geometry;
-    console.log("Mapbox geometry:", mapboxGeometry);
+    const geometry = response.body.features[0].geometry;
 
-    // Create geometry object
-    const geometry = {
-      type: "Point",
-      coordinates: mapboxGeometry.coordinates,
-    };
-    console.log("Created geometry object:", geometry);
-
-    // Create the listing with all required fields
     const listingData = {
       ...req.body.listing,
       owner: req.user._id,
-      images: [{ url, filename }],
+      images: [{ url: imageUrl, filename: "imgbb" }],
       geometry: geometry,
     };
 
-    console.log("Listing data before creation:", listingData);
     const newListing = new Listing(listingData);
-    console.log("New listing object:", newListing);
-
-    const savedListing = await newListing.save();
-    console.log("Saved listing:", savedListing);
+    await newListing.save();
 
     req.flash("success", "New Listing Created!");
     res.redirect("/listings");
@@ -290,10 +277,11 @@ module.exports.updateListing = async (req, res) => {
   let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
 
   if (typeof req.file !== "undefined") {
-    let url = req.file.path;
-    let filename = req.file.filename;
-    listing.images = [{ url, filename }];
-    await listing.save();
+    const imageUrl = await uploadToImgBB(req.file);
+    if (imageUrl) {
+      listing.images = [{ url: imageUrl, filename: "imgbb" }];
+      await listing.save();
+    }
   }
 
   req.flash("success", "Listing Updated!");

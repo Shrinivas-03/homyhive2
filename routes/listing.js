@@ -14,7 +14,7 @@ const {
 // e.g. module.exports = { index, createListing, showListing, updateListing, destroyListing, renderNewForm, renderEditForm, getSearchSuggestions, categoryStats, popularDestinations }
 const listingController = require("../controllers/listings.js");
 const multer = require("multer");
-const { storage } = require("../cloudConfig.js");
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // helper: ensure required controller function exists
