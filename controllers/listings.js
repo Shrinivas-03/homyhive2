@@ -195,18 +195,88 @@ module.exports.renderNewForm = (req, res) => {
 };
 
 module.exports.showListing = async (req, res) => {
-  let { id } = req.params;
-  const listing = await Listing.findById(id)
-    .populate({ path: "reviews", populate: { path: "author" } })
-    .populate("owner");
+  try {
+    const supabase = require("../utils/supabaseClient");
+    
+    let { id } = req.params;
+    const listing = await Listing.findById(id)
+      .populate("owner");
 
-  if (!listing) {
-    req.flash("error", "Listing you requested for does not exist!");
-    return res.redirect("/listings");
+    if (!listing) {
+      req.flash("error", "Listing you requested for does not exist!");
+      return res.redirect("/listings");
+    }
+
+    // Fetch reviews from Supabase
+    const { data: reviews, error: reviewsError } = await supabase
+      .from("reviews")
+      .select(`
+        id,
+        listing_id,
+        author,
+        rating,
+        comment,
+        created_at
+      `)
+      .eq("listing_id", String(id))
+      .order("created_at", { ascending: false });
+
+    if (reviewsError) {
+      console.error("Error fetching reviews:", reviewsError);
+    }
+
+    // Ensure all reviews have author_info
+    if (reviews && reviews.length > 0) {
+      for (let review of reviews) {
+        // If this review is by the current user, use their info
+        if (currUser && String(review.author) === String(currUser.id)) {
+          review.author_info = {
+            username: currUser.username || currUser.email || 'Anonymous',
+            email: currUser.email || ''
+          };
+        } else {
+          // For other users, try to fetch from auth.users via RPC
+          // But fallback to Anonymous if not available
+          review.author_info = {
+            username: 'User ' + review.author,
+            email: ''
+          };
+        }
+      }
+    }
+
+    console.log("=== LISTING DATA (SUPABASE) ===");
+    console.log("Current user:", req.session?.supabaseUser);
+    console.log("Reviews count:", reviews?.length || 0);
+    if (reviews) {
+      reviews.forEach((rev, idx) => {
+        console.log(`Review ${idx}:`, {
+          id: rev.id,
+          rating: rev.rating,
+          comment: rev.comment?.substring(0, 50),
+          author: rev.author_info?.username || "unknown",
+          created_at: rev.created_at
+        });
+      });
+    }
+
+    // Get current user from Supabase
+    const currUser = req.session?.supabaseUser || null;
+    
+    console.log("=== SENDING TO TEMPLATE ===");
+    console.log("Reviews to render:", reviews ? reviews.length : 0);
+    console.log("Current user:", currUser ? currUser.id : 'not logged in');
+    
+    res.render("listings/show.ejs", { 
+      listing, 
+      currUser,
+      reviews: reviews || []
+    });
+  } catch (err) {
+    console.error("Error in showListing:", err);
+    req.flash("error", "Error loading listing");
+    res.redirect("/listings");
   }
-
-  console.log(listing);
-  res.render("listings/show.ejs", { listing });
 };
 
 module.exports.createListing = async (req, res, next) => {

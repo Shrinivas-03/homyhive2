@@ -9,6 +9,7 @@ const userSchema = new Schema({
     lowercase: true,
     trim: true
   },
+  username: { type: String, sparse: true },
   googleId: { type: String, sparse: true },
   supabaseId: { type: String, sparse: true },
   facebookId: { type: String, sparse: true },
